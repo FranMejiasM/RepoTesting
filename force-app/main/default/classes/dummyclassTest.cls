@@ -1,10 +1,11 @@
 @isTest
 public with sharing class dummyclassTest {
 
-    private static testMethod void testMethod1(){
+    @isTest
+    private static void testMethod1(){
         test.startTest();
         system.debug('1');
-        system.assertEquals(true,true);                           
+        system.assertEquals(true,true, 'this is a message');                           
         test.stopTest();
     }
 }
