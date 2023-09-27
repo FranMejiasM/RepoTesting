@@ -1,5 +1,7 @@
 public with sharing class dummyclass {
     public dummyclass() {
-      system.debug('There is no any unused local variable :)');
+        anotherField =2;
     }
+
+    public Integer anotherField; // bad
 }
