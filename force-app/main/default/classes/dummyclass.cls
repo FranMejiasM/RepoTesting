@@ -1,5 +1,5 @@
 public with sharing class dummyclass {
     public dummyclass() {
-        String x = 'some string'; // not used
+      system.debug('There is no any unused local variable :)');
     }
 }
