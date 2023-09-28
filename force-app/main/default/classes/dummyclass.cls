@@ -3,5 +3,9 @@ public with sharing class dummyclass {
         anotherField =3;
     }
 
-    public Integer anotherField; // bad
+    public Integer AnotherField; // bad
+
+    private void myDummyMethod(Integer Parameter1) {
+        system.debug(Parameter1);
+    }
 }
