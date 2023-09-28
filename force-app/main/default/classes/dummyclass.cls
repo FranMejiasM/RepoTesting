@@ -1,11 +1,11 @@
 public with sharing class dummyclass {
+    public Integer anotherField; // bad
+
     public dummyclass() {
         anotherField =3;
     }
 
-    public Integer AnotherField; // bad
-
-    private void myDummyMethod(Integer Parameter1) {
-        system.debug(Parameter1);
+    private void myDummyMethod(Integer parameterOne) {
+        system.debug(parameterOne);
     }
 }
