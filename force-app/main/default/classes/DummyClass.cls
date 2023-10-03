@@ -2,7 +2,10 @@
  * @description DummyClass
  */
     public with sharing class DummyClass {
-    public Integer anotherField; // bad
+    /**
+     * @description Contructor
+     */
+    public Integer PROPERTY { get; set; } // bad
 
     /**
      * @description Contructor
@@ -14,8 +17,10 @@
     
     /**
      * @description dummy Method
-     * @return void
-     */    private void myDummyMethod(Integer parameterOne) {
-        system.debug(parameterOne);
+     */   
+     private void MyDummyMethod() {
+
+        String Localvariable;
+        system.debug(Localvariable);
     }
 }
