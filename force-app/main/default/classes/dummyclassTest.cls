@@ -1,8 +1,8 @@
 /**
- * @description dummyclass Test
+ * @description DummyClass Test
  */
 @isTest
-public with sharing class dummyclassTest {
+public with sharing class DummyClassTest {
 
     /**
      * @description dummy testMethod1
