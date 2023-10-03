@@ -1,5 +1,5 @@
 /**
- * @description DummyClassTest
+ * @description DummyClass Test
  */
 @isTest
 public with sharing class DummyClassTest {

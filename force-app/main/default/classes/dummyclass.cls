@@ -1,5 +1,5 @@
 /**
- * @description dummyclass
+ * @description DummyClass
  */
     public with sharing class DummyClass {
     public Integer anotherField; // bad
