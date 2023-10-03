@@ -1,14 +1,14 @@
 /**
  * @description dummyclass
  */
-    public with sharing class dummyclass {
+    public with sharing class DummyClass {
     public Integer anotherField; // bad
 
     /**
      * @description Contructor
      */
 
-    public dummyclass() {
+    public DummyClass() {
         anotherField =3;
     }
     

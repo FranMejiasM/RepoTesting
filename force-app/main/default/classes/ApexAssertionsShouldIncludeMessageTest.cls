@@ -1,6 +1,6 @@
 @isTest
 public with sharing class ApexAssertionsShouldIncludeMessageTest {
-    @testMethod
+    @IsTest
     static void testMethod() {
         system.assertEquals(true, true);
     }
