@@ -5,7 +5,7 @@
     /**
      * @description Contructor
      */
-    public Integer PROPERTY { get; set; } // bad
+    public Integer instanceProperty { get; set; } // bad
 
     /**
      * @description Contructor
@@ -18,9 +18,9 @@
     /**
      * @description dummy Method
      */   
-     private void MyDummyMethod() {
+     private void myDummyMethod() {
 
-        String Localvariable;
-        system.debug(Localvariable);
+        String localVariable;
+        system.debug(localVariable);
     }
 }
