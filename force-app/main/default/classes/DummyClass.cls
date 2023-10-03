@@ -5,7 +5,7 @@
     /**
      * @description Contructor
      */
-   // public Integer PROPERTY { get; set; } // bad
+    public Integer PROPERTY { get; set; } // bad
 
     /**
      * @description Contructor
