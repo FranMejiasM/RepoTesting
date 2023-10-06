@@ -20,7 +20,7 @@
      */   
      private void myDummyMethod() {
 
-        String localVariable;
-        system.debug(localVariable);
+        String LocalVariable;
+        system.debug(LocalVariable);
     }
 }
