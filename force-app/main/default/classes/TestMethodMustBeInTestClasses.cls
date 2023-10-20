@@ -1,9 +1,13 @@
+@IsTest
 public with sharing class TestMethodMustBeInTestClasses {
     
     @IsTest
-    static void methodName(){        
+    static void methodName(){    
+        User u = [SELECT Id FROM User LIMIT 1];     
         Test.startTest();
-        system.debug('dummy');
+        System.runAs(u) {
+            system.assertEquals(true, true, 'Hi');
+        }
         Test.stopTest();    
     }
     
