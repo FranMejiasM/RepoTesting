@@ -7,6 +7,5 @@ public with sharing class NonExistenAnnotationClass {
     */   
     public void dummyMethod(){      
         System.debug('Dummy');
-        Integer unusedVariable;
     }
 }

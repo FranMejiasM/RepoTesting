@@ -6,7 +6,7 @@ public with sharing class InaccesiblrAuraGetterClass {
     /**
     * @description getter
     */
-    public Integer counter { private get; set; } // Violating - Private getter is inaccessible to Lightning components
+    public Integer counter { public get; set; } 
 
     @AuraEnabled
     /**
