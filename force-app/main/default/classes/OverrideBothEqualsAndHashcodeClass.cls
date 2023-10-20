@@ -9,4 +9,10 @@ public with sharing class OverrideBothEqualsAndHashcodeClass {
         System.debug('Dummy');
         return true;
       }
+    /**
+    * @description dummy method
+    */ 
+    public Integer hashCode() {
+        return 1; 
+    }
 }
