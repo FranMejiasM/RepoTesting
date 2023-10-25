@@ -12,7 +12,9 @@ public with sharing class DummyClassTest {
     private static void testMethod1(){
         test.startTest();
         system.debug('1');
-        system.assertEquals(true,true, 'msg');                           
+        Boolean uNUSEDVAR;
+    
+        system.assertEquals(true,true);                           
         test.stopTest();
     }
 }
