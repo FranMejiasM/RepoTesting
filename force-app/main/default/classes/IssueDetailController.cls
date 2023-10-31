@@ -1,84 +1,84 @@
 /**
-    * @description This is the Controller of the IssueDetail Visual force page
+    * @DESCRIPTION THIS IS THE CONTROLLER OF THE ISSUEDETAIL VISUAL FORCE PAGE
     */
-public with sharing class IssueDetailController {
+    PUBLIC WITH SHARING CLASS ISSUEDETAILCONTROLLER {
 
-    /**
-    * @description This is the constructor of the class
-    */
-    public IssueDetailController() {
-        message = ApexPages.currentPage().getParameters().get('message');
-        message_type = ApexPages.currentPage().getParameters().get('message_type');
+        /**
+        * @DESCRIPTION THIS IS THE CONSTRUCTOR OF THE CLASS
+        */
+        PUBLIC ISSUEDETAILCONTROLLER() {
+            MESSAGE = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('MESSAGE');
+            MESSAGE_TYPE = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('MESSAGE_TYPE');
+        }
+    
+        /**
+        * @DESCRIPTION THESE ARE THE PUBLIC VARIABLES OF THE CLASS
+        */
+        PUBLIC STRING MESSAGE_TYPE_OUT{GET;SET;}
+        PUBLIC STRING MESSAGE_OUT{GET;SET;}
+        PUBLIC STRING MESSAGE{GET;SET;}
+        PUBLIC STRING MESSAGE_TYPE{GET;SET;}
+        PUBLIC STRING ID_ISSUE = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('ID');
+        PUBLIC STRING ID_SCAN = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('ID_SCAN');
+        PUBLIC STRING ID_INSTANCE = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('ID_INSTANCE');
+    
+        QCISSUE__C ISSUE;
+    
+        /**
+        * @DESCRIPTION THIS METHOD GETS THE ISSUE ID
+        */
+        PUBLIC STRING GETID_ISSUE(){
+            RETURN ID_ISSUE;
+        }
+    
+        /**
+        * @DESCRIPTION THIS METHOD GETS THE ISSUE
+        */
+        PUBLIC QCISSUE__C GETISSUE(){
+            IF (ISSUE == NULL && SCHEMA.SOBJECTTYPE.QCISSUE__C.ISACCESSIBLE())
+                ISSUE = [SELECT CREATED_BY__C, 
+                                CREATED_ON__C, 
+                                ELEMENT_NAME__C, 
+                                LINK_TO_ELEMENT__C, 
+                                DOCUMENTATION__C, 
+                                ELEMENT_TYPE__C, 
+                                ID__C, 
+                                IMPACT_AREA__C, 
+                                ISSUE__C, 
+                                LINE_NUMBER__C, 
+                                LINK__C, 
+                                SCAN__C, 
+                                SEVERITY__C, 
+                                UPDATED_BY__C, 
+                                UPDATED_ON__C, 
+                                ID, 
+                                BASELINE__C,
+                                WRITE_OFF__C,
+                                WRITE_OFF_REQUESTED_DATE__C,
+                                WRITE_OFF_REQUESTER__C,
+                                WRITE_OFF_REQUEST_REASON__C, 
+                                WRITE_OFF_REQUEST_DESCRIPTION__C,
+                                WRITE_OFF_VALIDATION_DATE__C,
+                                WRITE_OFF_VALIDATION_REASON__C,
+                                WRITE_OFF_VALIDATOR__C,
+                                WRITE_OFF_STATUS__C,
+                                TAGSMULTIPICKLIST__C,
+                                QUALITY_GATE_BREAKER__C,
+                                WRITE_OFF_EXPIRATION_DATE__C
+                        FROM QCISSUE__C 
+                        WHERE ID__C = :ID_ISSUE 
+                        ORDER BY CREATEDDATE DESC];
+            RETURN ISSUE;
+        }
+    
+        /**
+        * @DESCRIPTION THIS METHOD GET THE PAGE BACK TO THE SCAN DETAIL PAGE
+        */
+        PUBLIC PAGEREFERENCE GO_BACK(){
+            PAGEREFERENCE TEMPPAGE = NEW PAGEREFERENCE('/APEX/SCANDETAIL');
+            TEMPPAGE.GETPARAMETERS().PUT('ID', ID_SCAN);
+            TEMPPAGE.GETPARAMETERS().PUT('ID_INSTANCE', ID_INSTANCE);
+            TEMPPAGE.SETREDIRECT(TRUE);
+            RETURN TEMPPAGE;
+        }
     }
-
-    /**
-    * @description these are the public variables of the class
-    */
-    public String message_type_out{get;set;}
-    public String message_out{get;set;}
-    public String message{get;set;}
-    public String message_type{get;set;}
-    public String id_issue = ApexPages.currentPage().getParameters().get('id');
-    public String id_scan = ApexPages.currentPage().getParameters().get('id_scan');
-    public String id_instance = ApexPages.currentPage().getParameters().get('id_instance');
-
-    QCIssue__c issue;
-
-    /**
-    * @description This method gets the issue id
-    */
-    public String getId_issue(){
-        return id_issue;
-    }
-
-    /**
-    * @description This method gets the issue
-    */
-    public QCIssue__c getIssue(){
-        if (issue == null && Schema.sObjectType.QCIssue__c.isAccessible())
-            issue = [SELECT Created_By__c, 
-                            Created_On__c, 
-                            Element_Name__c, 
-                            Link_to_Element__c, 
-                            Documentation__c, 
-                            Element_Type__c, 
-                            ID__c, 
-                            Impact_Area__c, 
-                            Issue__c, 
-                            Line_Number__c, 
-                            Link__c, 
-                            Scan__c, 
-                            Severity__c, 
-                            Updated_By__c, 
-                            Updated_On__c, 
-                            Id, 
-                            Baseline__c,
-                            Write_off__c,
-                            Write_Off_Requested_Date__c,
-                            Write_Off_Requester__c,
-                            Write_Off_Request_Reason__c, 
-                            Write_Off_Request_Description__c,
-                            Write_Off_Validation_Date__c,
-                            Write_Off_Validation_Reason__c,
-                            Write_Off_Validator__c,
-                            Write_off_Status__c,
-                            TagsMultiPicklist__c,
-                            Quality_Gate_Breaker__c,
-                            Write_Off_Expiration_Date__c
-                    FROM QCIssue__c 
-                    WHERE ID__c = :id_issue 
-                    ORDER BY CreatedDate DESC];
-        return issue;
-    }
-
-    /**
-    * @description this method get the page back to the scan detail page
-    */
-    public PageReference go_back(){
-        PageReference tempPage = new PageReference('/apex/ScanDetail');
-        tempPage.getParameters().put('id', id_scan);
-        tempPage.getParameters().put('id_instance', id_instance);
-        tempPage.setRedirect(true);
-        return tempPage;
-    }
-}

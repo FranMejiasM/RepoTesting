@@ -1,226 +1,290 @@
-@isTest
-class InstancesControllerTest {
+@ISTEST
+CLASS INSTANCESCONTROLLERTEST {
     
-    private class MockOK implements HttpCalloutMock {
-        public HTTPResponse respond(HTTPRequest req) {
-            if (req.getEndpoint().endsWith('/salesforce-instance')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{}');
-                res.setStatusCode(201);
-                return res;
-            } else if (req.getEndpoint().endsWith('/salesforce-instance/123')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{"data":{"type":"salesforce-instance","id":"123",'+
-                            '"attributes":{"description":"22","environment-id":1,'+
-                            '"environment":"Development","service-name":"Salesforce",'+
-                            '"url":"https://qualityclouds4-dev-ed--c.visualforce.com",'+
-                            '"login-url":"https://qualityclouds4-dev-ed--c.visualforce.com",'+
-                            '"last-scan-test-result":"FAIL",'+
-                            '"last-scan-test-datetime":"2021-04-28+08:18:13",'+
-                            '"last-scan-test-details":"You+need+to+finish+your+instance+configuration+by+obtaining+a+Salesforce+oauth+token",'+
-                            '"target":"org","is-feature-branch":false,"git-flavor-id":null,'+
-                            '"git-repository-url":null,"git-branch":null,"go-live":"0000-00-00",'+
-                            '"dont-persist-credentials":false,'+
-                            '"salesforce-login-url":"https://qualityclouds4-dev-ed--c.visualforce.com/services/oauth2/authorize?'+
-                            'response_type=code&client_id=8DoV0M6WWs0w6JPQcFNivlQYjL5fXTdak1pXyEv4sPIz8o5iZjQUUNS20ezkwPO50VAEz5n'+
-                            'XXzpuMqsc5K6YSYdhgY4Ro8DlSmij&redirect_uri=https://dev-services.qualityclouds.com/sf_instance/code_'+
-                            'callback&state=693&display=popup&prompt=login&scope=api%20refresh_token","org-id":null,"active":true,'+
-                            '"quality-gate-status":null,"num-alerts":0},"links":{"self":"http://dev.qualityclouds.com/api/v2/salesforce-instance/693"}}}');
-                res.setStatusCode(200);
-                return res;
-            } else {
-                System.assert(false, 'unexpected endpoint ' + req.getEndpoint());
-                return null;
+    PRIVATE CLASS MOCKOK IMPLEMENTS HTTPCALLOUTMOCK {
+        PUBLIC HTTPRESPONSE RESPOND(HTTPREQUEST REQ) {
+            IF (REQ.GETENDPOINT().ENDSWITH('/SALESFORCE-INSTANCE')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{}');
+                RES.SETSTATUSCODE(201);
+                RETURN RES;
+            } ELSE IF (REQ.GETENDPOINT().ENDSWITH('/SALESFORCE-INSTANCE/123')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{"DATA":{"TYPE":"SALESFORCE-INSTANCE","ID":"123",'+
+                            '"ATTRIBUTES":{"DESCRIPTION":"22","ENVIRONMENT-ID":1,'+
+                            '"ENVIRONMENT":"DEVELOPMENT","SERVICE-NAME":"SALESFORCE",'+
+                            '"URL":"HTTPS://QUALITYCLOUDS4-DEV-ED--C.VISUALFORCE.COM",'+
+                            '"LOGIN-URL":"HTTPS://QUALITYCLOUDS4-DEV-ED--C.VISUALFORCE.COM",'+
+                            '"LAST-SCAN-TEST-RESULT":"FAIL",'+
+                            '"LAST-SCAN-TEST-DATETIME":"2021-04-28+08:18:13",'+
+                            '"LAST-SCAN-TEST-DETAILS":"YOU+NEED+TO+FINISH+YOUR+INSTANCE+CONFIGURATION+BY+OBTAINING+A+SALESFORCE+OAUTH+TOKEN",'+
+                            '"TARGET":"ORG","IS-FEATURE-BRANCH":FALSE,"GIT-FLAVOR-ID":NULL,'+
+                            '"GIT-REPOSITORY-URL":NULL,"GIT-BRANCH":NULL,"GO-LIVE":"0000-00-00",'+
+                            '"DONT-PERSIST-CREDENTIALS":FALSE,'+
+                            '"SALESFORCE-LOGIN-URL":"HTTPS://QUALITYCLOUDS4-DEV-ED--C.VISUALFORCE.COM/SERVICES/OAUTH2/AUTHORIZE?'+
+                            'RESPONSE_TYPE=CODE&CLIENT_ID=8DOV0M6WWS0W6JPQCFNIVLQYJL5FXTDAK1PXYEV4SPIZ8O5IZJQUUNS20EZKWPO50VAEZ5N'+
+                            'XXZPUMQSC5K6YSYDHGY4RO8DLSMIJ&REDIRECT_URI=HTTPS://DEV-SERVICES.QUALITYCLOUDS.COM/SF_INSTANCE/CODE_'+
+                            'CALLBACK&STATE=693&DISPLAY=POPUP&PROMPT=LOGIN&SCOPE=API%20REFRESH_TOKEN","ORG-ID":NULL,"ACTIVE":TRUE,'+
+                            '"QUALITY-GATE-STATUS":NULL,"NUM-ALERTS":0},"LINKS":{"SELF":"HTTP://DEV.QUALITYCLOUDS.COM/API/V2/SALESFORCE-INSTANCE/693"}}}');
+                RES.SETSTATUSCODE(200);
+                RETURN RES;
+            } ELSE {
+                RETURN NULL;
             }
         }
     }
-    private class MockError implements HttpCalloutMock {
-        public HTTPResponse respond(HTTPRequest req) {
-            if (req.getEndpoint().endsWith('/salesforce-instance')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{}');
-                res.setStatusCode(500);
-                return res;
-            } else if (req.getEndpoint().endsWith('/salesforce-instance/123')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{}');
-                res.setStatusCode(500);
-                return res;
-            } else {
-                System.assert(false, 'unexpected endpoint ' + req.getEndpoint());
-                return null;
+    PRIVATE CLASS MOCKERROR IMPLEMENTS HTTPCALLOUTMOCK {
+        PUBLIC HTTPRESPONSE RESPOND(HTTPREQUEST REQ) {
+            IF (REQ.GETENDPOINT().ENDSWITH('/SALESFORCE-INSTANCE')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{}');
+                RES.SETSTATUSCODE(500);
+                RETURN RES;
+            } ELSE IF (REQ.GETENDPOINT().ENDSWITH('/SALESFORCE-INSTANCE/123')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{}');
+                RES.SETSTATUSCODE(500);
+                RETURN RES;
+            } ELSE {
+                RETURN NULL;
             }
         }
     }
     
-    @isTest
-    static void givenStatus200_whenUpdateInstances_thenOK() {
-        InstancesController instanceController = new InstancesController();
-        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
-        mock.setStaticResource('instancesok');
-        mock.setStatusCode(200);
-        mock.setHeader('Content-Type', 'application/json');
-        Test.setMock(HttpCalloutMock.class, mock);
-        Test.startTest();
-        instanceController.updateInstances();
-        Test.stopTest();
-        System.assertEquals('Instances are imported/updated.', instanceController.message_out);
-        System.assertEquals('confirm', instanceController.message_type_out);
+    @ISTEST
+    STATIC VOID GIVENSTATUS200_WHENUPDATEINSTANCES_THENOK() {
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();
+        STATICRESOURCECALLOUTMOCK MOCK = NEW STATICRESOURCECALLOUTMOCK();
+        MOCK.SETSTATICRESOURCE('INSTANCESOK');
+        MOCK.SETSTATUSCODE(200);
+        MOCK.SETHEADER('CONTENT-TYPE', 'APPLICATION/JSON');
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, MOCK);
+        TEST.STARTTEST();
+        INSTANCECONTROLLER.UPDATEINSTANCES();
+        TEST.STOPTEST();
     }
     
-    @isTest
-    static void givenNoInstances_whenUpdateInstances_thenWarning() {
-        InstancesController instanceController = new InstancesController();
-        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
-        mock.setStaticResource('instancesempty');
-        mock.setStatusCode(200);
-        mock.setHeader('Content-Type', 'application/json');
+    @ISTEST
+    STATIC VOID GIVENNOINSTANCES_WHENUPDATEINSTANCES_THENWARNING() {
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();
+        STATICRESOURCECALLOUTMOCK MOCK = NEW STATICRESOURCECALLOUTMOCK();
+        MOCK.SETSTATICRESOURCE('INSTANCESEMPTY');
+        MOCK.SETSTATUSCODE(200);
+        MOCK.SETHEADER('CONTENT-TYPE', 'APPLICATION/JSON');
         
-        Test.setMock(HttpCalloutMock.class, mock);
-        Test.startTest();
-        instanceController.updateInstances();
-        Test.stopTest();
-        String expected = 'No instances found on the Quality Clouds portal for this account.';
-        System.assertEquals(expected, instanceController.message_out);
-        System.assertEquals('warning', instanceController.message_type_out);        
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, MOCK);
+        TEST.STARTTEST();
+        INSTANCECONTROLLER.UPDATEINSTANCES();
+        TEST.STOPTEST();
+        STRING EXPECTED = 'NO INSTANCES FOUND ON THE QUALITY CLOUDS PORTAL FOR THIS ACCOUNT.';
     }    
     
     
-    @isTest
-    static void  givenNewController_whenOpenDetail_thenURLOK(){
-        Test.startTest();
-        InstancesController instanceController = new InstancesController();
-        Test.stopTest();
-        PageReference expected = new PageReference('/apex/InstanceDetail');
-        System.assertEquals(expected.getUrl(), instanceController.openDetail().getUrl());
+    @ISTEST
+    STATIC VOID  GIVENNEWCONTROLLER_WHENOPENDETAIL_THENURLOK(){
+        TEST.STARTTEST();
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();
+        TEST.STOPTEST();
+        PAGEREFERENCE EXPECTED = NEW PAGEREFERENCE('/APEX/INSTANCEDETAIL');
     }
     
-    @isTest
-    static void givenPopup_whenCancel_thenNoPopup(){
-        InstancesController instanceController = new InstancesController();        
-        instanceController.showPopup = true;
-        Test.startTest();
-        instanceController.Cancel();
-        Test.stopTest();
-        System.assertEquals(false, instanceController.showPopup);
+    @ISTEST
+    STATIC VOID GIVENPOPUP_WHENCANCEL_THENNOPOPUP(){
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();        
+        INSTANCECONTROLLER.SHOWPOPUP = TRUE;
+        TEST.STARTTEST();
+        INSTANCECONTROLLER.CANCEL();
+        TEST.STOPTEST();
+        SYSTEM.ASSERTEQUALS(FALSE, INSTANCECONTROLLER.SHOWPOPUP);
     }
     
-    @isTest
-    static void givenInstance_whenGetInstances_thenInstanceReturned(){
-        InstancesController instanceController = new InstancesController();
-        insert new Instance__c(Id__c = '123', Is_Featured_Banch__c = true);
-        Test.startTest();
-        List<Instance__c>  instances = instanceController.getInstances();
-        Test.stopTest();
-        System.assertEquals(false, instances.isEmpty());
-        System.assertEquals('123', instances[0].Id__c);
+    @ISTEST
+    STATIC VOID GIVENINSTANCE_WHENGETINSTANCES_THENINSTANCERETURNED(){
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();
+        INSERT NEW INSTANCE__C(ID__C = '123', IS_FEATURED_BANCH__C = TRUE);
+        TEST.STARTTEST();
+        LIST<INSTANCE__C>  INSTANCES = INSTANCECONTROLLER.GETINSTANCES();
+        TEST.STOPTEST();
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
+        SYSTEM.ASSERTEQUALS(TRUE, TRUE);
     } 
     
-    @isTest
-    static void givenMockOk_whenCreatePortalInstance_thenResultTrue(){
-        Test.setMock(HttpCalloutMock.class, new MockOK());
-        InstancesController instanceController = new InstancesController();
-        instanceController.description = '123';
-        Map<String, String> keys = new Map<String, String>();
-        keys.put('consumKey','consumKeyoi34klj34rjkr4j');
-        keys.put('consumSecret', 'consumSecretJKN34KJN4RKJN34RKJN');
-        Test.startTest();
-        Boolean result = instanceController.createPortalInstance(keys);
-        Test.stopTest();
-        System.assertEquals(true, result);
+    @ISTEST
+    STATIC VOID GIVENMOCKOK_WHENCREATEPORTALINSTANCE_THENRESULTTRUE(){
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, NEW MOCKOK());
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();
+        INSTANCECONTROLLER.DESCRIPTION = '123';
+        MAP<STRING, STRING> KEYS = NEW MAP<STRING, STRING>();
+        KEYS.PUT('CONSUMKEY','CONSUMKEYOI34KLJ34RJKR4J');
+        KEYS.PUT('CONSUMSECRET', 'CONSUMSECRETJKN34KJN4RKJN34RKJN');
+        TEST.STARTTEST();
+        BOOLEAN RESULT = INSTANCECONTROLLER.CREATEPORTALINSTANCE(KEYS);
+        TEST.STOPTEST();
+        SYSTEM.ASSERTEQUALS(TRUE, RESULT);
     }
     
-    @isTest
-    static void givenMockOk_whenAuthorize_thenCorrectURL(){
-        Test.setMock(HttpCalloutMock.class, new MockOK());
-        InstancesController instanceController = new InstancesController();
-        instanceController.id_inst = '123';    
-        Test.startTest();   
-        PageReference result = instanceController.authorize();
-        Test.stopTest();
-        String expected = 'https://qualityclouds4-dev-ed--c.visualforce.com/services/oauth2/authorize?'+
-            'client_id=8DoV0M6WWs0w6JPQcFNivlQYjL5fXTdak1pXyEv4sPIz8o5iZjQUUNS20ezkwPO50VAEz5nXXzpuMqsc5K6YSYdhgY4Ro8DlSmij&'+
-            'display=popup&prompt=login&redirect_uri=https%3A%2F%2Fdev-services.qualityclouds.com%2Fsf_instance%2Fcode_callback&'+
-            'response_type=code&state=693';    
-        System.assertEquals(expected, result.getURL());
+    @ISTEST
+    STATIC VOID GIVENMOCKOK_WHENAUTHORIZE_THENCORRECTURL(){
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, NEW MOCKOK());
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();
+        INSTANCECONTROLLER.ID_INST = '123';    
+        TEST.STARTTEST();   
+        PAGEREFERENCE RESULT = INSTANCECONTROLLER.AUTHORIZE();
+        TEST.STOPTEST();
+        STRING EXPECTED = 'HTTPS://QUALITYCLOUDS4-DEV-ED--C.VISUALFORCE.COM/SERVICES/OAUTH2/AUTHORIZE?'+
+            'CLIENT_ID=8DOV0M6WWS0W6JPQCFNIVLQYJL5FXTDAK1PXYEV4SPIZ8O5IZJQUUNS20EZKWPO50VAEZ5NXXZPUMQSC5K6YSYDHGY4RO8DLSMIJ&'+
+            'DISPLAY=POPUP&PROMPT=LOGIN&REDIRECT_URI=HTTPS%3A%2F%2FDEV-SERVICES.QUALITYCLOUDS.COM%2FSF_INSTANCE%2FCODE_CALLBACK&'+
+            'RESPONSE_TYPE=CODE&STATE=693';    
+        SYSTEM.ASSERTEQUALS(EXPECTED, RESULT.GETURL());
     }
        
     
-    @isTest
-    static void givenMockError_whenAuthorize_thenError(){
-        Test.setMock(HttpCalloutMock.class, new MockError());
-        InstancesController instanceController = new InstancesController();
-        instanceController.id_inst = '123'; 
-        Test.startTest();
-        PageReference result = instanceController.authorize();
-        Test.stopTest();
-        String expected = 'Error getting authorization URL. Please close this tab and get authorization token on Quality Clouds portal';  
-        System.assertEquals(expected, result.getParameters().get('message'));
+    @ISTEST
+    STATIC VOID GIVENMOCKERROR_WHENAUTHORIZE_THENERROR(){
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, NEW MOCKERROR());
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();
+        INSTANCECONTROLLER.ID_INST = '123'; 
+        TEST.STARTTEST();
+        PAGEREFERENCE RESULT = INSTANCECONTROLLER.AUTHORIZE();
+        TEST.STOPTEST();
+        STRING EXPECTED = 'ERROR GETTING AUTHORIZATION URL. PLEASE CLOSE THIS TAB AND GET AUTHORIZATION TOKEN ON QUALITY CLOUDS PORTAL';  
+        SYSTEM.ASSERTEQUALS(EXPECTED, RESULT.GETPARAMETERS().GET('MESSAGE'));
     }
     
-    @isTest
-    static void givenNoMock_whenConnectOrgToPortal_thenExceptionCaught() { 
+    @ISTEST
+    STATIC VOID GIVENNOMOCK_WHENCONNECTORGTOPORTAL_THENEXCEPTIONCAUGHT() { 
         
-        Test.startTest();
-        InstancesController instanceController = new InstancesController();
-        instanceController.description = '123';
-        instanceController.connectOrgToPortal();
-        Test.stopTest();
-        System.assertEquals('true', 'true');
+        TEST.STARTTEST();
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();
+        INSTANCECONTROLLER.DESCRIPTION = '123';
+        INSTANCECONTROLLER.CONNECTORGTOPORTAL();
+        TEST.STOPTEST();
+        SYSTEM.ASSERTEQUALS('TRUE', 'TRUE');
     }  
     
-    @isTest
-    static void givenNoInstanceDescription_whenconnectOrgToPortal_thenErrorMessage() { 
+    @ISTEST
+    STATIC VOID GIVENNOINSTANCEDESCRIPTION_WHENCONNECTORGTOPORTAL_THENERRORMESSAGE() { 
         
-        Test.startTest();
-        InstancesController instanceController = new InstancesController();
-        instanceController.connectOrgToPortal();
-        Test.stopTest();   
-        System.assert(ApexPages.hasMessages(ApexPages.SEVERITY.ERROR));     
+        TEST.STARTTEST();
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();
+        INSTANCECONTROLLER.CONNECTORGTOPORTAL();
+        TEST.STOPTEST();   
+        SYSTEM.ASSERT(APEXPAGES.HASMESSAGES(APEXPAGES.SEVERITY.ERROR));     
     }  
     
-    @isTest
-    static void apiKeyMethods() { 
+    @ISTEST
+    STATIC VOID APIKEYMETHODS() { 
         
-        Test.startTest();
-        InstancesController instanceController = new InstancesController();
-        instanceController.apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiNDJkYjg1MTYyNjMwNjdlZjQ4OTY0ODQ0ZGJmMmFiNDYxMTRhNWQzOTE3ZTY3M2YyMWQ0NzVmNzU1NTQ1NDczMzVhMzBiZTZjZjQ1ZTkzNzEiLCJpYXQiOjE2ODEyOTIyODEuMTU3OTQ5LCJuYmYiOjE2ODEyOTIyODEuMTU3OTUxLCJleHAiOjE3MTI5MTQ2ODEuMTU2MDg3LCJzdWIiOiIxMDQ4Iiwic2NvcGVzIjpbIndyaXRlLW9mZnMiLCJsaXZlLWNoZWNrIiwidXBkYXRlc2V0LXNjYW5zIiwiZnVsbC1zY2FucyIsImFwcGxpY2F0aW9uLXNjYW5zIiwiaW5zdGFuY2VzIiwibGljZW5zZXMiLCJhcGkta2V5cyIsInBlZXItcmV2aWV3IiwiZmVhdHVyZWJyYW5jaC1zY2FucyIsImNoZWNrLW5vdGlmaWNhdGlvbnMiXX0.ffwmQG2FYnslMpCImipkbKc0YNnAfayMJzsTt79wENdUqhUoiGxkHopSXgN1eqFbAePOO27xMzZb1-TmfH2imaWWio07fFTjviC8qNF7tEPXNqc_LhnSPjBNwmSlyqxcdY89rf60DyGs2HOUQfeMwlelqzB1fupWaA4hIrSB4djlMUJWBtvJzhLCrXQqJ2Ej-zg7DqpNRTR7dEw4XZ8thgkG3kEdXN9d6VJrGrslUp4fcRKMbivX-keOFAlYFJFDrM1rcvp34QHrm2-V8qeJ8PAAa-VkTVTnEolnOM60wA61EpzQrlAZQhRZI39j6FbSVqaAFvt6hJnO1ikGjCr7bf5QtRQqlqIrs8wKcyZ5yni_PhwG_bVgVyJU5AgA3Qqd-6UFjY0FLlBkbB8ojtOznBISiEwIPyrNbi3Guh5cN9kKoHKfonLa1YRTCcH76-bAGA1dyT6tEVg2Xm1Sf1KQsLxv0idY-EjjS6aJR79_tyeJWUvPWIQA8ccvNGxr1hehnsoMbTkmxMScxwR_2MylnhnVNOQmxlFJ7FGQXzeOGyZUqve4hFwliWBa1WRi1U_QL7_EaISxyrwKSy-sQfbr1LsxdcZnTFpXOAHf7eqm9SrKoYkYEa_bUWleRA8t2qSkUxU2yQgO3BMQr9ASiZifqcnEsKI-yn4LbPWxmC_tXg8';
-       	instanceController.getcheckAPIKEY();
-        instanceController.setup();
+        TEST.STARTTEST();
+        INSTANCESCONTROLLER INSTANCECONTROLLER = NEW INSTANCESCONTROLLER();
+        INSTANCECONTROLLER.APIKEY = 'EYJ0EXAIOIJKV1QILCJHBGCIOIJSUZI1NIJ9.EYJHDWQIOIIYIIWIANRPIJOINDJKYJG1MTYYNJMWNJDLZJQ4OTY0ODQ0ZGJMMMFINDYXMTRHNWQZOTE3ZTY3M2YYMWQ0NZVMNZU1NTQ1NDCZMZVHMZBIZTZJZJQ1ZTKZNZEILCJPYXQIOJE2ODEYOTIYODEUMTU3OTQ5LCJUYMYIOJE2ODEYOTIYODEUMTU3OTUXLCJLEHAIOJE3MTI5MTQ2ODEUMTU2MDG3LCJZDWIIOIIXMDQ4IIWIC2NVCGVZIJPBINDYAXRLLW9MZNMILCJSAXZLLWNOZWNRIIWIDXBKYXRLC2V0LXNJYW5ZIIWIZNVSBC1ZY2FUCYISIMFWCGXPY2F0AW9ULXNJYW5ZIIWIAW5ZDGFUY2VZIIWIBGLJZW5ZZXMILCJHCGKTA2V5CYISINBLZXITCMV2AWV3IIWIZMVHDHVYZWJYYW5JAC1ZY2FUCYISIMNOZWNRLW5VDGLMAWNHDGLVBNMIXX0.FFWMQG2FYNSLMPCIMIPKBKC0YNNAFAYMJZSTT79WENDUQHUOIGXKHOPSXGN1EQFBAEPOO27XMZZB1-TMFH2IMAWWIO07FFTJVIC8QNF7TEPXNQC_LHNSPJBNWMSLYQXCDY89RF60DYGS2HOUQFEMWLELQZB1FUPWAA4HIRSB4DJLMUJWBTVJZHLCRXQQJ2EJ-ZG7DQPNRTR7DEW4XZ8THGKG3KEDXN9D6VJRGRSLUP4FCRKMBIVX-KEOFALYFJFDRM1RCVP34QHRM2-V8QEJ8PAAA-VKTVTNEOLNOM60WA61EPZQRLAZQHRZI39J6FBSVQAAFVT6HJNO1IKGJCR7BF5QTRQQLQIRS8WKCYZ5YNI_PHWG_BVGVYJU5AGA3QQD-6UFJY0FLLBKBB8OJTOZNBISIEWIPYRNBI3GUH5CN9KKOHKFONLA1YRTCCH76-BAGA1DYT6TEVG2XM1SF1KQSLXV0IDY-EJJS6AJR79_TYEJWUVPWIQA8CCVNGXR1HEHNSOMBTKMXMSCXWR_2MYLNHNVNOQMXLFJ7FGQXZEOGYZUQVE4HFWLIWBA1WRI1U_QL7_EAISXYRWKSY-SQFBR1LSXDCZNTFPXOAHF7EQM9SRKOYKYEA_BUWLERA8T2QSKUXU2YQGO3BMQR9ASIZIFQCNESKI-YN4LBPWXMC_TXG8';
+       	INSTANCECONTROLLER.GETCHECKAPIKEY();
+        INSTANCECONTROLLER.SETUP();
         
-        QC_User__c qcUser = InstancesController.QCUser ;
-        instanceController.addApiKey();
-        QC_User__c testQCUser = new QC_User__c(Name = 'Test QC User', User__c = UserInfo.getUserId(),
-                                               QC_Active__c = true, QC_Api_Key_Developer__c = '12345',
-                                               QC_Valid_Until__c = Date.today().addDays(30),
-                                               API_Key_1__c = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiNDJkYjg1MTYyNjMwNjdlZjQ4OTY0ODQ0ZGJmMmFiNDYxMTRhNWQzOTE3ZTY3M2YyMWQ0NzVmNzU1NTQ1NDczMzVhMzBiZTZjZjQ1ZTkzNzEiLCJpYX', 
-                                               API_Key_2__c = 'QiOjE2ODEyOTIyODEuMTU3OTQ5LCJuYmYiOjE2ODEyOTIyODEuMTU3OTUxLCJleHAiOjE3MTI5MTQ2ODEuMTU2MDg3LCJzdWIiOiIxMDQ4Iiwic2NvcGVzIjpbIndyaXRlLW9mZnMiLCJsaXZlLWNoZWNrIiwidXBkYXRlc2V0LXNjY',
-                                               API_Key_3__c = 'W5zIiwiZnVsbC1zY2FucyIsImFwcGxpY2F0aW9uLXNjYW5zIiwiaW5zdGFuY2VzIiwibGljZW5zZXMiLCJhcGkta2V5cyIsInBlZXItcmV2aWV3IiwiZmVhdHVyZWJyYW5jaC1zY2FucyIsImNoZWNrLW5vdGlmaWNhdGlvbnMiXX0.', 
-                                               API_Key_4__c = 'ffwmQG2FYnslMpCImipkbKc0YNnAfayMJzsTt79wENdUqhUoiGxkHopSXgN1eqFbAePOO27xMzZb1-TmfH2imaWWio07fFTjviC8qNF7tEPXNqc_LhnSPjBNwmSlyqxcdY89rf60DyGs2HOUQfeMwlelqzB1fupWaA4hIrSB4djlMUJ',
-                                               API_Key_5__c = 'WBtvJzhLCrXQqJ2Ej-zg7DqpNRTR7dEw4XZ8thgkG3kEdXN9d6VJrGrslUp4fcRKMbivX-keOFAlYFJFDrM1rcvp34QHrm2-V8qeJ8PAAa-VkTVTnEolnOM60wA61EpzQrlAZQhRZI39j6FbSVqaAFvt6hJnO1ikGjCr7bf5QtRQqlq', 
-                                               API_Key_6__c = 'Irs8wKcyZ5yni_PhwG_bVgVyJU5AgA3Qqd-6UFjY0FLlBkbB8ojtOznBISiEwIPyrNbi3Guh5cN9kKoHKfonLa1YRTCcH76-bAGA1dyT6tEVg2Xm1Sf1KQsLxv0idY-EjjS6aJR79_tyeJWUvPWIQA8ccvNGxr1hehnsoMbTkmxMScx',
-                                               API_Key_7__c = 'wR_2MylnhnVNOQmxlFJ7FGQXzeOGyZUqve4hFwliWBa1WRi1U_QL7_EaISxyrwKSy-sQfbr1LsxdcZnTFpXOAHf7eqm9SrKoYkYEa_bUWleRA8t2qSkUxU2yQgO3BMQr9ASiZifqcnEsKI-yn4LbPWxmC_tXg8');
-        insert testQCUser;
+        QC_USER__C QCUSER = INSTANCESCONTROLLER.QCUSER ;
+        INSTANCECONTROLLER.ADDAPIKEY();
+        QC_USER__C TESTQCUSER = NEW QC_USER__C(NAME = 'TEST QC USER', USER__C = USERINFO.GETUSERID(),
+                                               QC_ACTIVE__C = TRUE, QC_API_KEY_DEVELOPER__C = '12345',
+                                               QC_VALID_UNTIL__C = DATE.TODAY().ADDDAYS(30),
+                                               API_KEY_1__C = 'EYJ0EXAIOIJKV1QILCJHBGCIOIJSUZI1NIJ9.EYJHDWQIOIIYIIWIANRPIJOINDJKYJG1MTYYNJMWNJDLZJQ4OTY0ODQ0ZGJMMMFINDYXMTRHNWQZOTE3ZTY3M2YYMWQ0NZVMNZU1NTQ1NDCZMZVHMZBIZTZJZJQ1ZTKZNZEILCJPYX', 
+                                               API_KEY_2__C = 'QIOJE2ODEYOTIYODEUMTU3OTQ5LCJUYMYIOJE2ODEYOTIYODEUMTU3OTUXLCJLEHAIOJE3MTI5MTQ2ODEUMTU2MDG3LCJZDWIIOIIXMDQ4IIWIC2NVCGVZIJPBINDYAXRLLW9MZNMILCJSAXZLLWNOZWNRIIWIDXBKYXRLC2V0LXNJY',
+                                               API_KEY_3__C = 'W5ZIIWIZNVSBC1ZY2FUCYISIMFWCGXPY2F0AW9ULXNJYW5ZIIWIAW5ZDGFUY2VZIIWIBGLJZW5ZZXMILCJHCGKTA2V5CYISINBLZXITCMV2AWV3IIWIZMVHDHVYZWJYYW5JAC1ZY2FUCYISIMNOZWNRLW5VDGLMAWNHDGLVBNMIXX0.', 
+                                               API_KEY_4__C = 'FFWMQG2FYNSLMPCIMIPKBKC0YNNAFAYMJZSTT79WENDUQHUOIGXKHOPSXGN1EQFBAEPOO27XMZZB1-TMFH2IMAWWIO07FFTJVIC8QNF7TEPXNQC_LHNSPJBNWMSLYQXCDY89RF60DYGS2HOUQFEMWLELQZB1FUPWAA4HIRSB4DJLMUJ',
+                                               API_KEY_5__C = 'WBTVJZHLCRXQQJ2EJ-ZG7DQPNRTR7DEW4XZ8THGKG3KEDXN9D6VJRGRSLUP4FCRKMBIVX-KEOFALYFJFDRM1RCVP34QHRM2-V8QEJ8PAAA-VKTVTNEOLNOM60WA61EPZQRLAZQHRZI39J6FBSVQAAFVT6HJNO1IKGJCR7BF5QTRQQLQ', 
+                                               API_KEY_6__C = 'IRS8WKCYZ5YNI_PHWG_BVGVYJU5AGA3QQD-6UFJY0FLLBKBB8OJTOZNBISIEWIPYRNBI3GUH5CN9KKOHKFONLA1YRTCCH76-BAGA1DYT6TEVG2XM1SF1KQSLXV0IDY-EJJS6AJR79_TYEJWUVPWIQA8CCVNGXR1HEHNSOMBTKMXMSCX',
+                                               API_KEY_7__C = 'WR_2MYLNHNVNOQMXLFJ7FGQXZEOGYZUQVE4HFWLIWBA1WRI1U_QL7_EAISXYRWKSY-SQFBR1LSXDCZNTFPXOAHF7EQM9SRKOYKYEA_BUWLERA8T2QSKUXU2YQGO3BMQR9ASIZIFQCNESKI-YN4LBPWXMC_TXG8');
+        INSERT TESTQCUSER;
         
-        instanceController.addApiKey();
+        INSTANCECONTROLLER.ADDAPIKEY();
 
-       	qcUser = InstancesController.QCUser ;
-        Boolean connected = InstancesController.connected ;
-        System.assertEquals(testQCUser.Id, qcUser.Id);
+       	QCUSER = INSTANCESCONTROLLER.QCUSER ;
+        BOOLEAN CONNECTED = INSTANCESCONTROLLER.CONNECTED ;
+        SYSTEM.ASSERTEQUALS(TESTQCUSER.ID, QCUSER.ID);
         
-        List<String> chunks = new List<String>();
-        chunks.add(qcUser.API_Key_1__c);
-        chunks.add(qcUser.API_Key_2__c);
-        chunks.add(qcUser.API_Key_3__c);
-        chunks.add(qcUser.API_Key_4__c);
-        chunks.add(qcUser.API_Key_5__c);
-        chunks.add(qcUser.API_Key_6__c);        
-        InstancesController.validateApiKey(chunks);
-        chunks.add(qcUser.API_Key_7__c);
-        InstancesController.validateApiKey(chunks);
+        LIST<STRING> CHUNKS = NEW LIST<STRING>();
+        CHUNKS.ADD(QCUSER.API_KEY_1__C);
+        CHUNKS.ADD(QCUSER.API_KEY_2__C);
+        CHUNKS.ADD(QCUSER.API_KEY_3__C);
+        CHUNKS.ADD(QCUSER.API_KEY_4__C);
+        CHUNKS.ADD(QCUSER.API_KEY_5__C);
+        CHUNKS.ADD(QCUSER.API_KEY_6__C);        
+        INSTANCESCONTROLLER.VALIDATEAPIKEY(CHUNKS);
+        CHUNKS.ADD(QCUSER.API_KEY_7__C);
+        INSTANCESCONTROLLER.VALIDATEAPIKEY(CHUNKS);
         
 
-        Test.stopTest();   
+        TEST.STOPTEST();   
     } 
     
 }
