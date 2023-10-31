@@ -1,263 +1,263 @@
-@IsTest
-public class DashboardControllerTest {
+@ISTEST
+PUBLIC CLASS DASHBOARDCONTROLLERTEST {
 
-    private class MockOK implements HttpCalloutMock {
-        public HTTPResponse respond(HTTPRequest req) {
-            if (req.getEndpoint().contains('/scan?filter[url]=')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{"meta":{"current-page":1,"per-page":1,"from":1,"to":1,"total":3,"last-page":3,'+
-                '"total_resources":3,"resources_per_page":1},"links":{"first":'+
-                '"https://services-development.qualityclouds.com/api/v2/scan?filter%5Burl%5D=706&'+
-                'filter%5Bstatus%5D=LOADED&filter%5Bscan_type%5D=0&page%5Bnumber%5D=1&page%5Bsize%5D=1",'+
-                '"next":"https://services-development.qualityclouds.com/api/v2/scan?filter%5Burl%5D=706&'+
-                'filter%5Bstatus%5D=LOADED&filter%5Bscan_type%5D=0&page%5Bnumber%5D=2&page%5Bsize%5D=1",'+
-                '"last":"https://services-development.qualityclouds.com/api/v2/scan?filter%5Burl%5D=706&'+
-                'filter%5Bstatus%5D=LOADED&filter%5Bscan_type%5D=0&page%5Bnumber%5D=3&page%5Bsize%5D=1"},'+
-                '"data":[{"type":"scan","id":"a961f1d8-0ac7-48e6-be95-ace2c56aa37a","attributes":{'+
-                '"url":"https://qualityclouds4-dev-ed--c.visualforce.com","target":"6","customer-id":2187,'+
-                '"user-id":872,"scan-date":"2021-07-01 09:40:55","internal-code":0,"exit-code":0,'+
-                '"status":"SUCCESS","process-time":"796.00","number-of-issues":874,"technical-debt":"350.0",'+
-                '"quality-of-cloud":"96.00","best-practices-number":182,"scanned-configuration-elements":1352,'+
-                '"code-lines":4165,"changes-issues-ratio":"6.59","code-changes-issues-ratio":"78.38",'+
-                '"administrators":null,"users":null,"instance-build-date":null,"last-upgrade-date":null,'+
-                '"last-update-set-date":null,"issues-variation":"-72.26","technical-debt-variation":"-79.58",'+
-                '"quality-of-cloud-variation":"10.34","code-lines-added":4165,'+
-                '"engine-version":"21.2.2.0-SNAPSHOT","customer-name":"test ",'+
-                '"is-profiling":false,"service-id":2,"scan-type":0,"scan-details":"[INFO] Recovering'+
-                ' information of the instance id = 706<br><br>[INFO] Information of the instance'+
-                ' recovered succesfully<br><br>[INFO] Snapshot Generation Started<br><br>[INFO]'+
-                ' Snapshot Generation Finished<br><br>[INFO] Number of API Calls: 658<br><br>[INFO]'+
-                ' Starting configuration vs customisation calculation<br><br>[INFO] Finished'+
-                ' configuration vs customisation calculation<br><br>[INFO] Recovering the information'+
-                ' of the best practices<br><br>[INFO] The information of the best practices was'+
-                ' recovered: 215 practices<br><br>[INFO] Executing PMD Rules<br><br>[INFO] PMD'+
-                ' finished execution<br><br>[INFO] Executing Quality Clouds Rules<br><br>[INFO]'+
-                ' Quality Clouds Rules executed<br><br>[INFO] Starting metadata generation'+
-                '<br><br>[INFO] Metadata generated succesfully<br><br>[INFO] The Delta Issues'+
-                ' were saved succesfully<br><br>[INFO] The snapshots were saved succesfully'+
-                '<br><br>[INFO] Delta Elements were saved succesfully<br><br>[INFO] The'+
-                ' duplicates were saved succesfully<br><br>[INFO] The license information was'+
-                ' saved succesfully<br><br>[INFO] The scan was saved succesfully<br><br>[INFO]'+
-                ' Starting Quality Gate calculation<br><br>[INFO] Quality Gate calculation finished'+
-                ' successfully","status-detail":"SUCCESS","instance-id":706,"short-id":10474,'+
-                '"version":"Summer 21","patch":null,"edition":"Developer Edition",'+
-                '"api-version":"52.0","quality-gate-definition-nameid":'+
-                '"0fbbd964-fca3-4bf5-badd-968c2f08a454","quality-gate-result":"FAIL",'+
-                '"quality-gate-message":"Quality Gate does not allow code with any new issues.'+
-                ' Make sure you solve these first.","is-baseline":false},"links":{'+
-                '"self":"http://services-development.qualityclouds.com/api/v2/scan/'+
-                'a961f1d8-0ac7-48e6-be95-ace2c56aa37a","related":{"href":'+
-                '"http://services-development.qualityclouds.com/api/v2/issue/?filter[scan]'+
-                '=a961f1d8-0ac7-48e6-be95-ace2c56aa37a",'+
-                '"meta":{"total-warnings":0,"total-write-offs":0}}}}]}');
-                res.setStatusCode(200);
-                return res;
-            } else if (req.getEndpoint().contains('/salesforce-instance/')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{"data":{"type":"salesforce-instance","id":"706",'+
-                '"attributes":{"description":"6","environment-id":1,'+
-                '"environment":"Development","service-name":"Salesforce",'+
-                '"url":"https://qualityclouds4-dev-ed--c.visualforce.com",'+
-                '"login-url":"https://qualityclouds4-dev-ed--c.visualforce.com",'+
-                '"last-scan-test-result":"SUCCESS","last-scan-test-datetime":'+
-                '"2021-07-01 09:42:36","last-scan-test-details":"SUCCESS",'+
-                '"target":"org","is-feature-branch":false,"git-flavor-id":null,'+
-                '"git-repository-url":null,"git-branch":null,"go-live":null,'+
-                '"dont-persist-credentials":false,"salesforce-login-url":'+
-                '"https://qualityclouds4-dev-ed--c.visualforce.com/services/'+
-                'oauth2/authorize?response_type=code&client_id=tSgV7prCWOXU'+
-                '3nS2NZw4k5hYekafbQ84hcpWq1Ts4l9YiW18E7XzJPUhiBQzggFnjD4uaQ'+
-                'IeIWWbUzjq6rnOGCNZm40aFEVofryR&'+
-                'redirect_uri=https://services-development.qualityclouds.com/sf_instance/'+
-                'code_callback&state=706&display=popup&prompt=login&scope=api%20refresh_token",'+
-                '"org-id":"00D5Y000001dbMpUAI","active":true,"quality-gate-status":"active",'+
-                '"num-alerts":0,"autoapproved-writeoffs":false,"has-quality-gates":true,'+
-                '"has-quality-gates-with-scan":true},'+
-                '"links":{"self":"http://services-development.qualityclouds.com/api/v2/salesforce-instance/706"}}}');
-                res.setStatusCode(200);
-                return res;
-            } else if (req.getEndpoint().contains('/cust-vs-config-compact/')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{"trend":[{"data":[{"scanId":10121,"label":"2021-05-03T15:29:12Z","value":"35.97"}'+
-                ',{"scanId":10168,"label":"2021-05-11T15:11:39Z","value":"39.46"},{"scanId":10179,'+
-                '"label":"2021-05-13T11:01:05Z","value":"39.86"},{"scanId":10474,'+
-                '"label":"2021-07-01T09:40:55Z","value":"38.96"}],"name":"Customization'+
-                ' vs Configuration Ratio"}],"variation":-35.21,"inverseVariation":true,'+
-                '"value":"38.96","configurationRatio":"61.04","benchmark":"40.31"}');
-                res.setStatusCode(200);
-                return res;
-            } else if (req.getEndpoint().contains('/issues-over-time-compact/')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{"trend":[{"data":[{"scanId":10121,"label":"2021-05-03T15:29:12Z","value":"3093"}'+
-                ',{"scanId":10168,"label":"2021-05-11T15:11:39Z","value":"3110"},{"scanId":10179,'+
-                '"label":"2021-05-13T11:01:05Z","value":"3151"},{"scanId":10474,'+
-                '"label":"2021-07-01T09:40:55Z","value":"874"}],"name":"Issues Over Time Trend"}],'+
-                '"variation":-72.26,"inverseVariation":true,"value":874,"average":1762,"issuesWrittenOff":0,'+
-                '"previous":3151,"baseline":874,"dataPrivacy":0,"bespokeRules":0,"defaultNamespace":874,'+
-                '"numOpenIssues":19,"numClosedIssues":2296,"numIssuesByGroupType":'+
-                '[{"label":"Org.config","value":"10"},{"label":"Apex","value":"725"},'+
-                '{"label":"others","value":"139"}]}');
-                res.setStatusCode(200);
-                return res;
-            } else if (req.getEndpoint().contains('/tech-debt-compact/')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{"trend":[{"data":[{"scanId":10121,"label":"2021-05-03T15:29:12Z",'+
-                '"value":"1683.9"},{"scanId":10168,"label":"2021-05-11T15:11:39Z","value":"1688.7"}'+
-                ',{"scanId":10179,"label":"2021-05-13T11:01:05Z","value":"1713.7"},{"scanId":10474,'+
-                '"label":"2021-07-01T09:40:55Z","value":"350.1"}],"name":"Technical Debt Trend"}],'+
-                '"variation":-79.57,"inverseVariation":true,"value":350.1,"average":848.0,"previous":1713.7,'+
-                '"baseline":350.0,"numGlobal":1050.25,"defaultNamespace":350.0,'+
-                '"numNewTechDebt":12.9,"numClosedTechDebt":1376.5}');
-                res.setStatusCode(200);
-                return res;
-            } else if (req.getEndpoint().contains('/issues-by-scan/')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{"data":[{"data":[{"scanId":10474,"label":"high","value":"23"}'+
-                ',{"scanId":10474,"label":"medium","value":"806"},{"scanId":10474,"label":"low","value":"45"}'+
-                ',{"scanId":10474,"label":"warning","value":"22"}],"name":"Issues by Severity"}'+
-                ',{"data":[{"scanId":10474,"label":"SCALABILITY","value":"3"},'+
-                '{"scanId":10474,"label":"PERFORMANCE","value":"57"},'+
-                '{"scanId":10474,"label":"MANAGEABILITY","value":"793"},'+
-                '{"scanId":10474,"label":"SECURITY","value":"43"}],"name":"Issues by Area"},'+
-                '{"data":[{"scanId":10474,"label":"Missing ApexDoc comment","value":"277"},'+
-                '{"scanId":10474,"label":"Final variables should be fully capitalized and non-final'+
-                ' variables should not include underscores.","value":"262"},{"scanId":10474,'+
-                '"label":"Avoid picklist fields with too many values","value":"19"},{"scanId":10474,'+
-                '"label":"Avoid excessive standard cyclomatic complexity.","value":"18"},'+
-                '{"scanId":10474,"label":"Avoid using if..else statements without using surrounding braces.",'+
-                '"value":"15"},{"scanId":10474,"label":"Access permissions should be checked before a'+
-                ' SOQL/SOSL/DML operation.","value":"15"},{"scanId":10474,"label":"Avoid custom fields without'+
-                ' Description or Help text","value":"14"},{"scanId":10474,"label":"Class names should always'+
-                ' begin with an upper case character.","value":"14"},{"scanId":10474,"label":"Avoid methods with'+
-                ' excessive Lines of Code count.","value":"14"},{"scanId":10474,"label":"Avoid objects without'+
-                ' indexed fields","value":"14"}],"name":"Issues by Best Practice"},{"data":'+
-                '[{"scanId":10474,"label":"N/A","value":"896"},{"scanId":10474,"label":"copado","value":"0"}],'+
-                '"name":"Issues by Application"},{"data":[{"scanId":10474,"label":"wwwwq","value":"841"},'+
-                '{"scanId":10474,"label":"N/A","value":"49"},{"scanId":10474,"label":"salesforce.com, inc.",'+
-                '"value":"6"}],"name":"Issues by Developer"}],'+
-                '"meta":{"total_resources":90,"resources_per_page":10,"from":1,"to":10}}');
-                res.setStatusCode(200);
-                return res;
-            } else if (req.getEndpoint().contains('/ces-by-type/')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{"data":[{"data":[{"scanId":10474,"label":"Custom Field","value":"1009"},'+
-                '{"scanId":10474,"label":"Object","value":"171"},{"scanId":10474,"label":"Layout","value":"49"},'+
-                '{"scanId":10474,"label":"Profile","value":"37"},{"scanId":10474,"label":"Apex Class","value":"33"},'+
-                '{"scanId":10474,"label":"Role","value":"18"},{"scanId":10474,"label":"Report","value":"11"},'+
-                '{"scanId":10474,"label":"Apex Page","value":"8"},{"scanId":10474,"label":"Apex Trigger","value":"4"},'+
-                '{"scanId":10474,"label":"Permission Set","value":"3"},'+
-                '{"scanId":10474,"label":"Installed Package","value":"2"},'+
-                '{"scanId":10474,"label":"Report Type","value":"2"},'+
-                '{"scanId":10474,"label":"Sharing Rules","value":"2"},'+
-                '{"scanId":10474,"label":"Application","value":"1"},'+
-                '{"scanId":10474,"label":"Dashboard","value":"1"},'+
-                '{"scanId":10474,"label":"Workflow","value":"1"},'+
-                '{"scanId":10474,"label":"Apex Component","value":"0"},'+
-                '{"scanId":10474,"label":"Approval Process","value":"0"},'+
-                '{"scanId":10474,"label":"Duplicate","value":"0"},'+
-                '{"scanId":10474,"label":"Email Template","value":"0"},'+
-                '{"scanId":10474,"label":"Flow","value":"0"},'+
-                '{"scanId":10474,"label":"Group","value":"0"},{"scanId":10474,"label":"Lightning","value":"0"},'+
-                '{"scanId":10474,"label":"Network","value":"0"},{"scanId":10474,"label":"Org. Config.","value":"0"},'+
-                '{"scanId":10474,"label":"Static Resource","value":"0"},'+
-                '{"scanId":10474,"label":"Workflow Rule","value":"0"}],'+
-                '"name":"Number of configuration elements by type"}]}');
-                res.setStatusCode(200);
-                return res;
-            } else if (req.getEndpoint().contains('/data-privacy-compact/')) {
-                HTTPResponse res = new HTTPResponse();
-                res.setBody('{"trend":[{"data":[{"scanId":10121,"label":"2021-05-03T15:29:12Z","value":"61"}'+
-                ',{"scanId":10168,"label":"2021-05-11T15:11:39Z","value":"61"},'+
-                '{"scanId":10179,"label":"2021-05-13T11:01:05Z","value":"61"},'+
-                '{"scanId":10474,"label":"2021-07-01T09:40:55Z","value":"18"}],'+
-                '"name":"Data Privacy"}],"variation":-70.49,"inverseVariation":true,"value":18,"prevScan":61,'+
-                '"sensitive":13,"extraSensitive":0,"privateIssues":0}');
-                res.setStatusCode(200);
-                return res;
-            } else {
-                System.assert(false, 'unexpected endpoint ' + req.getEndpoint());
-                return null;
+    PRIVATE CLASS MOCKOK IMPLEMENTS HTTPCALLOUTMOCK {
+        PUBLIC HTTPRESPONSE RESPOND(HTTPREQUEST REQ) {
+            IF (REQ.GETENDPOINT().CONTAINS('/SCAN?FILTER[URL]=')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{"META":{"CURRENT-PAGE":1,"PER-PAGE":1,"FROM":1,"TO":1,"TOTAL":3,"LAST-PAGE":3,'+
+                '"TOTAL_RESOURCES":3,"RESOURCES_PER_PAGE":1},"LINKS":{"FIRST":'+
+                '"HTTPS://SERVICES-DEVELOPMENT.QUALITYCLOUDS.COM/API/V2/SCAN?FILTER%5BURL%5D=706&'+
+                'FILTER%5BSTATUS%5D=LOADED&FILTER%5BSCAN_TYPE%5D=0&PAGE%5BNUMBER%5D=1&PAGE%5BSIZE%5D=1",'+
+                '"NEXT":"HTTPS://SERVICES-DEVELOPMENT.QUALITYCLOUDS.COM/API/V2/SCAN?FILTER%5BURL%5D=706&'+
+                'FILTER%5BSTATUS%5D=LOADED&FILTER%5BSCAN_TYPE%5D=0&PAGE%5BNUMBER%5D=2&PAGE%5BSIZE%5D=1",'+
+                '"LAST":"HTTPS://SERVICES-DEVELOPMENT.QUALITYCLOUDS.COM/API/V2/SCAN?FILTER%5BURL%5D=706&'+
+                'FILTER%5BSTATUS%5D=LOADED&FILTER%5BSCAN_TYPE%5D=0&PAGE%5BNUMBER%5D=3&PAGE%5BSIZE%5D=1"},'+
+                '"DATA":[{"TYPE":"SCAN","ID":"A961F1D8-0AC7-48E6-BE95-ACE2C56AA37A","ATTRIBUTES":{'+
+                '"URL":"HTTPS://QUALITYCLOUDS4-DEV-ED--C.VISUALFORCE.COM","TARGET":"6","CUSTOMER-ID":2187,'+
+                '"USER-ID":872,"SCAN-DATE":"2021-07-01 09:40:55","INTERNAL-CODE":0,"EXIT-CODE":0,'+
+                '"STATUS":"SUCCESS","PROCESS-TIME":"796.00","NUMBER-OF-ISSUES":874,"TECHNICAL-DEBT":"350.0",'+
+                '"QUALITY-OF-CLOUD":"96.00","BEST-PRACTICES-NUMBER":182,"SCANNED-CONFIGURATION-ELEMENTS":1352,'+
+                '"CODE-LINES":4165,"CHANGES-ISSUES-RATIO":"6.59","CODE-CHANGES-ISSUES-RATIO":"78.38",'+
+                '"ADMINISTRATORS":NULL,"USERS":NULL,"INSTANCE-BUILD-DATE":NULL,"LAST-UPGRADE-DATE":NULL,'+
+                '"LAST-UPDATE-SET-DATE":NULL,"ISSUES-VARIATION":"-72.26","TECHNICAL-DEBT-VARIATION":"-79.58",'+
+                '"QUALITY-OF-CLOUD-VARIATION":"10.34","CODE-LINES-ADDED":4165,'+
+                '"ENGINE-VERSION":"21.2.2.0-SNAPSHOT","CUSTOMER-NAME":"TEST ",'+
+                '"IS-PROFILING":FALSE,"SERVICE-ID":2,"SCAN-TYPE":0,"SCAN-DETAILS":"[INFO] RECOVERING'+
+                ' INFORMATION OF THE INSTANCE ID = 706<BR><BR>[INFO] INFORMATION OF THE INSTANCE'+
+                ' RECOVERED SUCCESFULLY<BR><BR>[INFO] SNAPSHOT GENERATION STARTED<BR><BR>[INFO]'+
+                ' SNAPSHOT GENERATION FINISHED<BR><BR>[INFO] NUMBER OF API CALLS: 658<BR><BR>[INFO]'+
+                ' STARTING CONFIGURATION VS CUSTOMISATION CALCULATION<BR><BR>[INFO] FINISHED'+
+                ' CONFIGURATION VS CUSTOMISATION CALCULATION<BR><BR>[INFO] RECOVERING THE INFORMATION'+
+                ' OF THE BEST PRACTICES<BR><BR>[INFO] THE INFORMATION OF THE BEST PRACTICES WAS'+
+                ' RECOVERED: 215 PRACTICES<BR><BR>[INFO] EXECUTING PMD RULES<BR><BR>[INFO] PMD'+
+                ' FINISHED EXECUTION<BR><BR>[INFO] EXECUTING QUALITY CLOUDS RULES<BR><BR>[INFO]'+
+                ' QUALITY CLOUDS RULES EXECUTED<BR><BR>[INFO] STARTING METADATA GENERATION'+
+                '<BR><BR>[INFO] METADATA GENERATED SUCCESFULLY<BR><BR>[INFO] THE DELTA ISSUES'+
+                ' WERE SAVED SUCCESFULLY<BR><BR>[INFO] THE SNAPSHOTS WERE SAVED SUCCESFULLY'+
+                '<BR><BR>[INFO] DELTA ELEMENTS WERE SAVED SUCCESFULLY<BR><BR>[INFO] THE'+
+                ' DUPLICATES WERE SAVED SUCCESFULLY<BR><BR>[INFO] THE LICENSE INFORMATION WAS'+
+                ' SAVED SUCCESFULLY<BR><BR>[INFO] THE SCAN WAS SAVED SUCCESFULLY<BR><BR>[INFO]'+
+                ' STARTING QUALITY GATE CALCULATION<BR><BR>[INFO] QUALITY GATE CALCULATION FINISHED'+
+                ' SUCCESSFULLY","STATUS-DETAIL":"SUCCESS","INSTANCE-ID":706,"SHORT-ID":10474,'+
+                '"VERSION":"SUMMER 21","PATCH":NULL,"EDITION":"DEVELOPER EDITION",'+
+                '"API-VERSION":"52.0","QUALITY-GATE-DEFINITION-NAMEID":'+
+                '"0FBBD964-FCA3-4BF5-BADD-968C2F08A454","QUALITY-GATE-RESULT":"FAIL",'+
+                '"QUALITY-GATE-MESSAGE":"QUALITY GATE DOES NOT ALLOW CODE WITH ANY NEW ISSUES.'+
+                ' MAKE SURE YOU SOLVE THESE FIRST.","IS-BASELINE":FALSE},"LINKS":{'+
+                '"SELF":"HTTP://SERVICES-DEVELOPMENT.QUALITYCLOUDS.COM/API/V2/SCAN/'+
+                'A961F1D8-0AC7-48E6-BE95-ACE2C56AA37A","RELATED":{"HREF":'+
+                '"HTTP://SERVICES-DEVELOPMENT.QUALITYCLOUDS.COM/API/V2/ISSUE/?FILTER[SCAN]'+
+                '=A961F1D8-0AC7-48E6-BE95-ACE2C56AA37A",'+
+                '"META":{"TOTAL-WARNINGS":0,"TOTAL-WRITE-OFFS":0}}}}]}');
+                RES.SETSTATUSCODE(200);
+                RETURN RES;
+            } ELSE IF (REQ.GETENDPOINT().CONTAINS('/SALESFORCE-INSTANCE/')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{"DATA":{"TYPE":"SALESFORCE-INSTANCE","ID":"706",'+
+                '"ATTRIBUTES":{"DESCRIPTION":"6","ENVIRONMENT-ID":1,'+
+                '"ENVIRONMENT":"DEVELOPMENT","SERVICE-NAME":"SALESFORCE",'+
+                '"URL":"HTTPS://QUALITYCLOUDS4-DEV-ED--C.VISUALFORCE.COM",'+
+                '"LOGIN-URL":"HTTPS://QUALITYCLOUDS4-DEV-ED--C.VISUALFORCE.COM",'+
+                '"LAST-SCAN-TEST-RESULT":"SUCCESS","LAST-SCAN-TEST-DATETIME":'+
+                '"2021-07-01 09:42:36","LAST-SCAN-TEST-DETAILS":"SUCCESS",'+
+                '"TARGET":"ORG","IS-FEATURE-BRANCH":FALSE,"GIT-FLAVOR-ID":NULL,'+
+                '"GIT-REPOSITORY-URL":NULL,"GIT-BRANCH":NULL,"GO-LIVE":NULL,'+
+                '"DONT-PERSIST-CREDENTIALS":FALSE,"SALESFORCE-LOGIN-URL":'+
+                '"HTTPS://QUALITYCLOUDS4-DEV-ED--C.VISUALFORCE.COM/SERVICES/'+
+                'OAUTH2/AUTHORIZE?RESPONSE_TYPE=CODE&CLIENT_ID=TSGV7PRCWOXU'+
+                '3NS2NZW4K5HYEKAFBQ84HCPWQ1TS4L9YIW18E7XZJPUHIBQZGGFNJD4UAQ'+
+                'IEIWWBUZJQ6RNOGCNZM40AFEVOFRYR&'+
+                'REDIRECT_URI=HTTPS://SERVICES-DEVELOPMENT.QUALITYCLOUDS.COM/SF_INSTANCE/'+
+                'CODE_CALLBACK&STATE=706&DISPLAY=POPUP&PROMPT=LOGIN&SCOPE=API%20REFRESH_TOKEN",'+
+                '"ORG-ID":"00D5Y000001DBMPUAI","ACTIVE":TRUE,"QUALITY-GATE-STATUS":"ACTIVE",'+
+                '"NUM-ALERTS":0,"AUTOAPPROVED-WRITEOFFS":FALSE,"HAS-QUALITY-GATES":TRUE,'+
+                '"HAS-QUALITY-GATES-WITH-SCAN":TRUE},'+
+                '"LINKS":{"SELF":"HTTP://SERVICES-DEVELOPMENT.QUALITYCLOUDS.COM/API/V2/SALESFORCE-INSTANCE/706"}}}');
+                RES.SETSTATUSCODE(200);
+                RETURN RES;
+            } ELSE IF (REQ.GETENDPOINT().CONTAINS('/CUST-VS-CONFIG-COMPACT/')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{"TREND":[{"DATA":[{"SCANID":10121,"LABEL":"2021-05-03T15:29:12Z","VALUE":"35.97"}'+
+                ',{"SCANID":10168,"LABEL":"2021-05-11T15:11:39Z","VALUE":"39.46"},{"SCANID":10179,'+
+                '"LABEL":"2021-05-13T11:01:05Z","VALUE":"39.86"},{"SCANID":10474,'+
+                '"LABEL":"2021-07-01T09:40:55Z","VALUE":"38.96"}],"NAME":"CUSTOMIZATION'+
+                ' VS CONFIGURATION RATIO"}],"VARIATION":-35.21,"INVERSEVARIATION":TRUE,'+
+                '"VALUE":"38.96","CONFIGURATIONRATIO":"61.04","BENCHMARK":"40.31"}');
+                RES.SETSTATUSCODE(200);
+                RETURN RES;
+            } ELSE IF (REQ.GETENDPOINT().CONTAINS('/ISSUES-OVER-TIME-COMPACT/')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{"TREND":[{"DATA":[{"SCANID":10121,"LABEL":"2021-05-03T15:29:12Z","VALUE":"3093"}'+
+                ',{"SCANID":10168,"LABEL":"2021-05-11T15:11:39Z","VALUE":"3110"},{"SCANID":10179,'+
+                '"LABEL":"2021-05-13T11:01:05Z","VALUE":"3151"},{"SCANID":10474,'+
+                '"LABEL":"2021-07-01T09:40:55Z","VALUE":"874"}],"NAME":"ISSUES OVER TIME TREND"}],'+
+                '"VARIATION":-72.26,"INVERSEVARIATION":TRUE,"VALUE":874,"AVERAGE":1762,"ISSUESWRITTENOFF":0,'+
+                '"PREVIOUS":3151,"BASELINE":874,"DATAPRIVACY":0,"BESPOKERULES":0,"DEFAULTNAMESPACE":874,'+
+                '"NUMOPENISSUES":19,"NUMCLOSEDISSUES":2296,"NUMISSUESBYGROUPTYPE":'+
+                '[{"LABEL":"ORG.CONFIG","VALUE":"10"},{"LABEL":"APEX","VALUE":"725"},'+
+                '{"LABEL":"OTHERS","VALUE":"139"}]}');
+                RES.SETSTATUSCODE(200);
+                RETURN RES;
+            } ELSE IF (REQ.GETENDPOINT().CONTAINS('/TECH-DEBT-COMPACT/')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{"TREND":[{"DATA":[{"SCANID":10121,"LABEL":"2021-05-03T15:29:12Z",'+
+                '"VALUE":"1683.9"},{"SCANID":10168,"LABEL":"2021-05-11T15:11:39Z","VALUE":"1688.7"}'+
+                ',{"SCANID":10179,"LABEL":"2021-05-13T11:01:05Z","VALUE":"1713.7"},{"SCANID":10474,'+
+                '"LABEL":"2021-07-01T09:40:55Z","VALUE":"350.1"}],"NAME":"TECHNICAL DEBT TREND"}],'+
+                '"VARIATION":-79.57,"INVERSEVARIATION":TRUE,"VALUE":350.1,"AVERAGE":848.0,"PREVIOUS":1713.7,'+
+                '"BASELINE":350.0,"NUMGLOBAL":1050.25,"DEFAULTNAMESPACE":350.0,'+
+                '"NUMNEWTECHDEBT":12.9,"NUMCLOSEDTECHDEBT":1376.5}');
+                RES.SETSTATUSCODE(200);
+                RETURN RES;
+            } ELSE IF (REQ.GETENDPOINT().CONTAINS('/ISSUES-BY-SCAN/')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{"DATA":[{"DATA":[{"SCANID":10474,"LABEL":"HIGH","VALUE":"23"}'+
+                ',{"SCANID":10474,"LABEL":"MEDIUM","VALUE":"806"},{"SCANID":10474,"LABEL":"LOW","VALUE":"45"}'+
+                ',{"SCANID":10474,"LABEL":"WARNING","VALUE":"22"}],"NAME":"ISSUES BY SEVERITY"}'+
+                ',{"DATA":[{"SCANID":10474,"LABEL":"SCALABILITY","VALUE":"3"},'+
+                '{"SCANID":10474,"LABEL":"PERFORMANCE","VALUE":"57"},'+
+                '{"SCANID":10474,"LABEL":"MANAGEABILITY","VALUE":"793"},'+
+                '{"SCANID":10474,"LABEL":"SECURITY","VALUE":"43"}],"NAME":"ISSUES BY AREA"},'+
+                '{"DATA":[{"SCANID":10474,"LABEL":"MISSING APEXDOC COMMENT","VALUE":"277"},'+
+                '{"SCANID":10474,"LABEL":"FINAL VARIABLES SHOULD BE FULLY CAPITALIZED AND NON-FINAL'+
+                ' VARIABLES SHOULD NOT INCLUDE UNDERSCORES.","VALUE":"262"},{"SCANID":10474,'+
+                '"LABEL":"AVOID PICKLIST FIELDS WITH TOO MANY VALUES","VALUE":"19"},{"SCANID":10474,'+
+                '"LABEL":"AVOID EXCESSIVE STANDARD CYCLOMATIC COMPLEXITY.","VALUE":"18"},'+
+                '{"SCANID":10474,"LABEL":"AVOID USING IF..ELSE STATEMENTS WITHOUT USING SURROUNDING BRACES.",'+
+                '"VALUE":"15"},{"SCANID":10474,"LABEL":"ACCESS PERMISSIONS SHOULD BE CHECKED BEFORE A'+
+                ' SOQL/SOSL/DML OPERATION.","VALUE":"15"},{"SCANID":10474,"LABEL":"AVOID CUSTOM FIELDS WITHOUT'+
+                ' DESCRIPTION OR HELP TEXT","VALUE":"14"},{"SCANID":10474,"LABEL":"CLASS NAMES SHOULD ALWAYS'+
+                ' BEGIN WITH AN UPPER CASE CHARACTER.","VALUE":"14"},{"SCANID":10474,"LABEL":"AVOID METHODS WITH'+
+                ' EXCESSIVE LINES OF CODE COUNT.","VALUE":"14"},{"SCANID":10474,"LABEL":"AVOID OBJECTS WITHOUT'+
+                ' INDEXED FIELDS","VALUE":"14"}],"NAME":"ISSUES BY BEST PRACTICE"},{"DATA":'+
+                '[{"SCANID":10474,"LABEL":"N/A","VALUE":"896"},{"SCANID":10474,"LABEL":"COPADO","VALUE":"0"}],'+
+                '"NAME":"ISSUES BY APPLICATION"},{"DATA":[{"SCANID":10474,"LABEL":"WWWWQ","VALUE":"841"},'+
+                '{"SCANID":10474,"LABEL":"N/A","VALUE":"49"},{"SCANID":10474,"LABEL":"SALESFORCE.COM, INC.",'+
+                '"VALUE":"6"}],"NAME":"ISSUES BY DEVELOPER"}],'+
+                '"META":{"TOTAL_RESOURCES":90,"RESOURCES_PER_PAGE":10,"FROM":1,"TO":10}}');
+                RES.SETSTATUSCODE(200);
+                RETURN RES;
+            } ELSE IF (REQ.GETENDPOINT().CONTAINS('/CES-BY-TYPE/')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{"DATA":[{"DATA":[{"SCANID":10474,"LABEL":"CUSTOM FIELD","VALUE":"1009"},'+
+                '{"SCANID":10474,"LABEL":"OBJECT","VALUE":"171"},{"SCANID":10474,"LABEL":"LAYOUT","VALUE":"49"},'+
+                '{"SCANID":10474,"LABEL":"PROFILE","VALUE":"37"},{"SCANID":10474,"LABEL":"APEX CLASS","VALUE":"33"},'+
+                '{"SCANID":10474,"LABEL":"ROLE","VALUE":"18"},{"SCANID":10474,"LABEL":"REPORT","VALUE":"11"},'+
+                '{"SCANID":10474,"LABEL":"APEX PAGE","VALUE":"8"},{"SCANID":10474,"LABEL":"APEX TRIGGER","VALUE":"4"},'+
+                '{"SCANID":10474,"LABEL":"PERMISSION SET","VALUE":"3"},'+
+                '{"SCANID":10474,"LABEL":"INSTALLED PACKAGE","VALUE":"2"},'+
+                '{"SCANID":10474,"LABEL":"REPORT TYPE","VALUE":"2"},'+
+                '{"SCANID":10474,"LABEL":"SHARING RULES","VALUE":"2"},'+
+                '{"SCANID":10474,"LABEL":"APPLICATION","VALUE":"1"},'+
+                '{"SCANID":10474,"LABEL":"DASHBOARD","VALUE":"1"},'+
+                '{"SCANID":10474,"LABEL":"WORKFLOW","VALUE":"1"},'+
+                '{"SCANID":10474,"LABEL":"APEX COMPONENT","VALUE":"0"},'+
+                '{"SCANID":10474,"LABEL":"APPROVAL PROCESS","VALUE":"0"},'+
+                '{"SCANID":10474,"LABEL":"DUPLICATE","VALUE":"0"},'+
+                '{"SCANID":10474,"LABEL":"EMAIL TEMPLATE","VALUE":"0"},'+
+                '{"SCANID":10474,"LABEL":"FLOW","VALUE":"0"},'+
+                '{"SCANID":10474,"LABEL":"GROUP","VALUE":"0"},{"SCANID":10474,"LABEL":"LIGHTNING","VALUE":"0"},'+
+                '{"SCANID":10474,"LABEL":"NETWORK","VALUE":"0"},{"SCANID":10474,"LABEL":"ORG. CONFIG.","VALUE":"0"},'+
+                '{"SCANID":10474,"LABEL":"STATIC RESOURCE","VALUE":"0"},'+
+                '{"SCANID":10474,"LABEL":"WORKFLOW RULE","VALUE":"0"}],'+
+                '"NAME":"NUMBER OF CONFIGURATION ELEMENTS BY TYPE"}]}');
+                RES.SETSTATUSCODE(200);
+                RETURN RES;
+            } ELSE IF (REQ.GETENDPOINT().CONTAINS('/DATA-PRIVACY-COMPACT/')) {
+                HTTPRESPONSE RES = NEW HTTPRESPONSE();
+                RES.SETBODY('{"TREND":[{"DATA":[{"SCANID":10121,"LABEL":"2021-05-03T15:29:12Z","VALUE":"61"}'+
+                ',{"SCANID":10168,"LABEL":"2021-05-11T15:11:39Z","VALUE":"61"},'+
+                '{"SCANID":10179,"LABEL":"2021-05-13T11:01:05Z","VALUE":"61"},'+
+                '{"SCANID":10474,"LABEL":"2021-07-01T09:40:55Z","VALUE":"18"}],'+
+                '"NAME":"DATA PRIVACY"}],"VARIATION":-70.49,"INVERSEVARIATION":TRUE,"VALUE":18,"PREVSCAN":61,'+
+                '"SENSITIVE":13,"EXTRASENSITIVE":0,"PRIVATEISSUES":0}');
+                RES.SETSTATUSCODE(200);
+                RETURN RES;
+            } ELSE {
+                SYSTEM.ASSERT(FALSE, 'UNEXPECTED ENDPOINT ' + REQ.GETENDPOINT());
+                RETURN NULL;
             }
         }
     }
 
-    @IsTest
-    static void givenNoInstanceRecords_WhenGetCheckIfOrgConnected_ThenFalse(){
-        DashboardController ctrl = new DashboardController();
-        Test.startTest();
-        Boolean result = ctrl.getCheckIfOrgConnected();
-        Test.stopTest();
-        System.assertEquals(false, result);
+    @ISTEST
+    STATIC VOID GIVENNOINSTANCERECORDS_WHENGETCHECKIFORGCONNECTED_THENFALSE(){
+        DASHBOARDCONTROLLER CTRL = NEW DASHBOARDCONTROLLER();
+        TEST.STARTTEST();
+        BOOLEAN RESULT = CTRL.GETCHECKIFORGCONNECTED();
+        TEST.STOPTEST();
+        SYSTEM.ASSERTEQUALS(FALSE, RESULT);
     }
 
-    @IsTest
-    static void givenInstanceRecordWithOrgID_WhenGetCheckIfOrgConnected_ThenTrue(){
-        DashboardController ctrl = new DashboardController();
-        String currentOrgId = UserInfo.getOrganizationId();
-        Instance__c inst = new Instance__c();
-        inst.Inst_Org_Id__c = currentOrgId;
-        inst.ID__c = '54d54d';
-        insert inst;
-        Test.startTest();
-        Boolean result = ctrl.getCheckIfOrgConnected();
-        System.assertEquals(true, result);
-        Test.stopTest();
+    @ISTEST
+    STATIC VOID GIVENINSTANCERECORDWITHORGID_WHENGETCHECKIFORGCONNECTED_THENTRUE(){
+        DASHBOARDCONTROLLER CTRL = NEW DASHBOARDCONTROLLER();
+        STRING CURRENTORGID = USERINFO.GETORGANIZATIONID();
+        INSTANCE__C INST = NEW INSTANCE__C();
+        INST.INST_ORG_ID__C = CURRENTORGID;
+        INST.ID__C = '54D54D';
+        INSERT INST;
+        TEST.STARTTEST();
+        BOOLEAN RESULT = CTRL.GETCHECKIFORGCONNECTED();
+        SYSTEM.ASSERTEQUALS(TRUE, RESULT);
+        TEST.STOPTEST();
     }
 
-    @IsTest
-    static void givenNoRecords_WhenGetData_ThenNewDataWrapper(){
-        QC_User__c user = new QC_User__c(QC_Valid_Until__c = date.today().addMonths(1), User__c = UserInfo.getUserId(), QC_Active__c = true);
-        upsert user;
+    @ISTEST
+    STATIC VOID GIVENNORECORDS_WHENGETDATA_THENNEWDATAWRAPPER(){
+        QC_USER__C USER = NEW QC_USER__C(QC_VALID_UNTIL__C = DATE.TODAY().ADDMONTHS(1), USER__C = USERINFO.GETUSERID(), QC_ACTIVE__C = TRUE);
+        UPSERT USER;
 
-        DashboardController ctrl = new DashboardController();
-        Test.startTest();            
-        DashboardController.DataWrapper actual = ctrl.getData();
-            System.assertEquals( null, actual.numbers);
-            System.assertEquals( null, actual.configurationElementsData);
-            System.assertEquals( null, actual.evolutionOfIssuesData);
-            System.assertEquals( null, actual.issuesByBestPracticesData);
-            System.assertEquals( null, actual.issuesByImpactAreaData);
-        Test.stopTest();
+        DASHBOARDCONTROLLER CTRL = NEW DASHBOARDCONTROLLER();
+        TEST.STARTTEST();            
+        DASHBOARDCONTROLLER.DATAWRAPPER ACTUAL = CTRL.GETDATA();
+            SYSTEM.ASSERTEQUALS( NULL, ACTUAL.NUMBERS);
+            SYSTEM.ASSERTEQUALS( NULL, ACTUAL.CONFIGURATIONELEMENTSDATA);
+            SYSTEM.ASSERTEQUALS( NULL, ACTUAL.EVOLUTIONOFISSUESDATA);
+            SYSTEM.ASSERTEQUALS( NULL, ACTUAL.ISSUESBYBESTPRACTICESDATA);
+            SYSTEM.ASSERTEQUALS( NULL, ACTUAL.ISSUESBYIMPACTAREADATA);
+        TEST.STOPTEST();
     }
 
-    @IsTest
-    static void givenRecordsLoaded_WhenGetData_ThenOK(){
-        DashboardController ctrl = new DashboardController();
-        QC_User__c user = new QC_User__c(QC_Valid_Until__c = date.today().addMonths(1), User__c = UserInfo.getUserId(), QC_Active__c = true);
-        upsert user;
-        List<sObject> listDashboardData = Test.loadData(Dashboard_Data__c.sObjectType, 'Test_Dashboard_Data');
-        List<sObject> listChart = Test.loadData(Chart__c.sObjectType, 'Test_Chart');
-        List<sObject> listDataset = Test.loadData(Dataset__c.sObjectType, 'Test_Dataset');
-        System.assertEquals( 2, listDashboardData.size());
-        System.assertEquals( 12, listChart.size());
-        System.assertEquals( 94, listDataset.size());
+    @ISTEST
+    STATIC VOID GIVENRECORDSLOADED_WHENGETDATA_THENOK(){
+        DASHBOARDCONTROLLER CTRL = NEW DASHBOARDCONTROLLER();
+        QC_USER__C USER = NEW QC_USER__C(QC_VALID_UNTIL__C = DATE.TODAY().ADDMONTHS(1), USER__C = USERINFO.GETUSERID(), QC_ACTIVE__C = TRUE);
+        UPSERT USER;
+        LIST<SOBJECT> LISTDASHBOARDDATA = TEST.LOADDATA(DASHBOARD_DATA__C.SOBJECTTYPE, 'TEST_DASHBOARD_DATA');
+        LIST<SOBJECT> LISTCHART = TEST.LOADDATA(CHART__C.SOBJECTTYPE, 'TEST_CHART');
+        LIST<SOBJECT> LISTDATASET = TEST.LOADDATA(DATASET__C.SOBJECTTYPE, 'TEST_DATASET');
+        SYSTEM.ASSERTEQUALS( 2, LISTDASHBOARDDATA.SIZE());
+        SYSTEM.ASSERTEQUALS( 12, LISTCHART.SIZE());
+        SYSTEM.ASSERTEQUALS( 94, LISTDATASET.SIZE());
 
-        Test.startTest();            
-        DashboardController.DataWrapper actual = ctrl.getData();
-        System.assertEquals( 96, actual.numbers.QoC__c );
-        System.assert(new Set<Decimal>(actual.configurationElementsData.values).contains(171));
-        System.assertEquals( '["Custom Field","Object","Layout","Profile","Apex Class","Role","Report","Apex Page","Apex Trigger","Other 7 items"]', actual.configurationElementsData.lables);
-        System.assert(new Set<Decimal>(actual.issuesByBestPracticesData.values).contains(277));
-        System.assertEquals( '["medium","low","high","warning"]', actual.issuesBySeverityData.lables);
-        System.assert(new Set<Decimal>(actual.issuesByImpactAreaData[0].values).contains(793));
-        System.assertEquals( '["MANAGEABILITY","PERFORMANCE","SECURITY","SCALABILITY"]', actual.issuesByImpactAreaData[0].lables);
-        Test.stopTest();
+        TEST.STARTTEST();            
+        DASHBOARDCONTROLLER.DATAWRAPPER ACTUAL = CTRL.GETDATA();
+        SYSTEM.ASSERTEQUALS( 96, ACTUAL.NUMBERS.QOC__C );
+        SYSTEM.ASSERT(NEW SET<DECIMAL>(ACTUAL.CONFIGURATIONELEMENTSDATA.VALUES).CONTAINS(171));
+        SYSTEM.ASSERTEQUALS( '["CUSTOM FIELD","OBJECT","LAYOUT","PROFILE","APEX CLASS","ROLE","REPORT","APEX PAGE","APEX TRIGGER","OTHER 7 ITEMS"]', ACTUAL.CONFIGURATIONELEMENTSDATA.LABLES);
+        SYSTEM.ASSERT(NEW SET<DECIMAL>(ACTUAL.ISSUESBYBESTPRACTICESDATA.VALUES).CONTAINS(277));
+        SYSTEM.ASSERTEQUALS( '["MEDIUM","LOW","HIGH","WARNING"]', ACTUAL.ISSUESBYSEVERITYDATA.LABLES);
+        SYSTEM.ASSERT(NEW SET<DECIMAL>(ACTUAL.ISSUESBYIMPACTAREADATA[0].VALUES).CONTAINS(793));
+        SYSTEM.ASSERTEQUALS( '["MANAGEABILITY","PERFORMANCE","SECURITY","SCALABILITY"]', ACTUAL.ISSUESBYIMPACTAREADATA[0].LABLES);
+        TEST.STOPTEST();
     }
 
-    @IsTest
-    static void givenMockOK_whenUpdateDataFromPortal_ThenNewRecordsCreated(){
-        Test.setMock(HttpCalloutMock.class, new MockOK());
-        DashboardController ctrl = new DashboardController();
-        String currentOrgId = UserInfo.getOrganizationId();
-        Instance__c inst = new Instance__c();
-        inst.Inst_Org_Id__c = currentOrgId;
-        inst.ID__c = '54d54d';
-        insert inst;
-        Test.startTest();
-        PageReference result = ctrl.updateDataFromPortal();
-        Test.stopTest();
-        Integer actual = [SELECT Count() FROM  Dataset__c];
-        System.assertEquals(45, actual, 'Number of created Dataset__c records is not equal to 45');
+    @ISTEST
+    STATIC VOID GIVENMOCKOK_WHENUPDATEDATAFROMPORTAL_THENNEWRECORDSCREATED(){
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, NEW MOCKOK());
+        DASHBOARDCONTROLLER CTRL = NEW DASHBOARDCONTROLLER();
+        STRING CURRENTORGID = USERINFO.GETORGANIZATIONID();
+        INSTANCE__C INST = NEW INSTANCE__C();
+        INST.INST_ORG_ID__C = CURRENTORGID;
+        INST.ID__C = '54D54D';
+        INSERT INST;
+        TEST.STARTTEST();
+        PAGEREFERENCE RESULT = CTRL.UPDATEDATAFROMPORTAL();
+        TEST.STOPTEST();
+        INTEGER ACTUAL = [SELECT COUNT() FROM  DATASET__C];
+        SYSTEM.ASSERTEQUALS(45, ACTUAL, 'NUMBER OF CREATED DATASET__C RECORDS IS NOT EQUAL TO 45');
     }
 
 }

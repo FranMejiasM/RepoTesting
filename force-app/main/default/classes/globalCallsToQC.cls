@@ -1,119 +1,119 @@
 /**
-* @description Class where we Execute the Scan
+* @DESCRIPTION CLASS WHERE WE EXECUTE THE SCAN
 */
-global with sharing class globalCallsToQC {
-    global globalCallsToQC() {
+GLOBAL WITH SHARING CLASS GLOBALCALLSTOQC {
+    GLOBAL GLOBALCALLSTOQC() {
         
     } 
     
     /**
-* @description Deprecated method whitout the Manual variable
+* @DESCRIPTION DEPRECATED METHOD WHITOUT THE MANUAL VARIABLE
 */
-    global boolean execute_scann(Instance__c instance, String gitBranch){
-        return null;
+    GLOBAL BOOLEAN EXECUTE_SCANN(INSTANCE__C INSTANCE, STRING GITBRANCH){
+        RETURN NULL;
     } 
     
     /**
-* @description New Execute Scan method whit the Manual variable
+* @DESCRIPTION NEW EXECUTE SCAN METHOD WHIT THE MANUAL VARIABLE
 */
-    global String execute_scann(Instance__c instance, String gitBranch, Boolean manual){
+    GLOBAL STRING EXECUTE_SCANN(INSTANCE__C INSTANCE, STRING GITBRANCH, BOOLEAN MANUAL){
         
-        String result = 'Failure';
+        STRING RESULT = 'FAILURE';
         
-        List<Scann__c> scanList = [SELECT State__c, Id FROM Scann__c WHERE State__c = 'RUNNING' AND Branch_Name__c =: gitBranch AND Instance__c =: instance.id];
-        if(scanList.size() != 0){
-            result = 'Delay';
-        }else{
-            HttpRequest request = RequestCommons();
-            QualityCloudsSettings__mdt settings = ControllerHelperQC.getSettings();
+        LIST<SCANN__C> SCANLIST = [SELECT STATE__C, ID FROM SCANN__C WHERE STATE__C = 'RUNNING' AND BRANCH_NAME__C =: GITBRANCH AND INSTANCE__C =: INSTANCE.ID];
+        IF(SCANLIST.SIZE() != 0){
+            RESULT = 'DELAY';
+        }ELSE{
+            HTTPREQUEST REQUEST = REQUESTCOMMONS();
+            QUALITYCLOUDSSETTINGS__MDT SETTINGS = CONTROLLERHELPERQC.GETSETTINGS();
             
-            request.setEndpoint(request.getEndpoint() + '/api/'  + settings.API_Version__c + '/feature-branch-scan');
-            request.setMethod('POST');
-            request.setHeader('Content-Type', 'application/vnd.api+json');
-            request.setHeader('Accept', '*/*');
+            REQUEST.SETENDPOINT(REQUEST.GETENDPOINT() + '/API/'  + SETTINGS.API_VERSION__C + '/FEATURE-BRANCH-SCAN');
+            REQUEST.SETMETHOD('POST');
+            REQUEST.SETHEADER('CONTENT-TYPE', 'APPLICATION/VND.API+JSON');
+            REQUEST.SETHEADER('ACCEPT', '*/*');
             
-            //If manual is diferent than null send it in the body
-            if(manual != null){
-                request.setBody('{"data": {"type": "feature-branch-scan","attributes": {"url-id": ' + instance.ID__c + ',"scan-type": 5,"feature-branch": "' + gitBranch + '", "manual": ' + manual + '}}}');
-            }else{
-                request.setBody('{"data": {"type": "feature-branch-scan","attributes": {"url-id": ' + instance.ID__c + ',"scan-type": 5,"feature-branch": "' + gitBranch + '" }}}');
+            //IF MANUAL IS DIFERENT THAN NULL SEND IT IN THE BODY
+            IF(MANUAL != NULL){
+                REQUEST.SETBODY('{"DATA": {"TYPE": "FEATURE-BRANCH-SCAN","ATTRIBUTES": {"URL-ID": ' + INSTANCE.ID__C + ',"SCAN-TYPE": 5,"FEATURE-BRANCH": "' + GITBRANCH + '", "MANUAL": ' + MANUAL + '}}}');
+            }ELSE{
+                REQUEST.SETBODY('{"DATA": {"TYPE": "FEATURE-BRANCH-SCAN","ATTRIBUTES": {"URL-ID": ' + INSTANCE.ID__C + ',"SCAN-TYPE": 5,"FEATURE-BRANCH": "' + GITBRANCH + '" }}}');
             }
             
-        	HTTPResponse res = ControllerHelperQC.validateAPIKEY(request);
+        	HTTPRESPONSE RES = CONTROLLERHELPERQC.VALIDATEAPIKEY(REQUEST);
             
-            if (res.getStatusCode() == 202){
-                jsontoscan.Jsontoscan_c json = jsontoscan.Jsontoscan_c.parse(res.getBody());
-                String txt_date = json.data.attributes.scan_date.replace('T', ' ');
-                system.debug('txt_date: ' + txt_date);
-                Datetime scan_date = ControllerHelperQC.stringToDate(txt_date);
-                if (Schema.sObjectType.Scann__c.isCreateable()){
-                    insert new Scann__c(Date__c = scan_date, State__c = json.data.attributes.status, ID__c = json.data.id, Scan_Type__c = json.data.type_Z, Branch_Name__c = gitBranch, Instance__c = instance.Id) ;
-                    result = 'Success';
+            IF (RES.GETSTATUSCODE() == 202){
+                JSONTOSCAN.JSONTOSCAN_C JSON = JSONTOSCAN.JSONTOSCAN_C.PARSE(RES.GETBODY());
+                STRING TXT_DATE = JSON.DATA.ATTRIBUTES.SCAN_DATE.REPLACE('T', ' ');
+                SYSTEM.DEBUG('TXT_DATE: ' + TXT_DATE);
+                DATETIME SCAN_DATE = CONTROLLERHELPERQC.STRINGTODATE(TXT_DATE);
+                IF (SCHEMA.SOBJECTTYPE.SCANN__C.ISCREATEABLE()){
+                    INSERT NEW SCANN__C(DATE__C = SCAN_DATE, STATE__C = JSON.DATA.ATTRIBUTES.STATUS, ID__C = JSON.DATA.ID, SCAN_TYPE__C = JSON.DATA.TYPE_Z, BRANCH_NAME__C = GITBRANCH, INSTANCE__C = INSTANCE.ID) ;
+                    RESULT = 'SUCCESS';
                     
-                }else {
-                    throw new ControllerHelperQC.NoPermissionException('Current user does not have enough permissions to create Scann__c object.');
+                }ELSE {
+                    THROW NEW CONTROLLERHELPERQC.NOPERMISSIONEXCEPTION('CURRENT USER DOES NOT HAVE ENOUGH PERMISSIONS TO CREATE SCANN__C OBJECT.');
                 }
             }
         }
-        return result;
+        RETURN RESULT;
     }
     
     /**
-* @description Peer Review Method GET
+* @DESCRIPTION PEER REVIEW METHOD GET
 */
-    global HttpResponse getPeerReview(String feature, String instance) {
+    GLOBAL HTTPRESPONSE GETPEERREVIEW(STRING FEATURE, STRING INSTANCE) {
         
-        HTTPResponse response = new HTTPResponse(); 
+        HTTPRESPONSE RESPONSE = NEW HTTPRESPONSE(); 
         
-        HttpRequest request = RequestCommons();
-        request.setMethod('GET');
-        String encodedFeature = EncodingUtil.urlEncode(feature , 'UTF-8'); 
-        request.setEndpoint(request.getEndpoint() + '/peer-review/v1/feature-branch-review/?include=peerReviewElement%2CpeerReviewElement.peerReviewResolution.resolutionStatus&filter=peerReviewElement.instanceId%3D%3D'+instance+'%20and%20featureBranch%3D%3D'+encodedFeature+'&page%5Bsize%5D=1&sort=-id');
-        request.setHeader('Accept', '*/*'); 
+        HTTPREQUEST REQUEST = REQUESTCOMMONS();
+        REQUEST.SETMETHOD('GET');
+        STRING ENCODEDFEATURE = ENCODINGUTIL.URLENCODE(FEATURE , 'UTF-8'); 
+        REQUEST.SETENDPOINT(REQUEST.GETENDPOINT() + '/PEER-REVIEW/V1/FEATURE-BRANCH-REVIEW/?INCLUDE=PEERREVIEWELEMENT%2CPEERREVIEWELEMENT.PEERREVIEWRESOLUTION.RESOLUTIONSTATUS&FILTER=PEERREVIEWELEMENT.INSTANCEID%3D%3D'+INSTANCE+'%20AND%20FEATUREBRANCH%3D%3D'+ENCODEDFEATURE+'&PAGE%5BSIZE%5D=1&SORT=-ID');
+        REQUEST.SETHEADER('ACCEPT', '*/*'); 
         
-        response = ControllerHelperQC.validateAPIKEY(request);
+        RESPONSE = CONTROLLERHELPERQC.VALIDATEAPIKEY(REQUEST);
         
-        return response;
+        RETURN RESPONSE;
     }
     
     /**
-* @description Peer Review Method POST
+* @DESCRIPTION PEER REVIEW METHOD POST
 */
-    global HttpResponse createPeerReview(String feature, String instance,String reason, String description) {
+    GLOBAL HTTPRESPONSE CREATEPEERREVIEW(STRING FEATURE, STRING INSTANCE,STRING REASON, STRING DESCRIPTION) {
         
-        HTTPResponse response = new HTTPResponse(); 
+        HTTPRESPONSE RESPONSE = NEW HTTPRESPONSE(); 
         
-        HttpRequest request = RequestCommons();
-        // Set the POST request method 
-        request.setMethod('POST'); 
-        request.setEndpoint(request.getEndpoint() + '/peer-review/new-feature-branch-review'); 
-        request.setHeader('Content-Type', 'application/json');
-        request.setBody('{"data": {"type": "feature-branch-review","attributes": {"feature_branch": "'+ feature +'","instance_id": '+ instance +',"event": "qg_workflow","reason": "'+ reason +'","request_description": "'+ description +'"}}}');         
+        HTTPREQUEST REQUEST = REQUESTCOMMONS();
+        // SET THE POST REQUEST METHOD 
+        REQUEST.SETMETHOD('POST'); 
+        REQUEST.SETENDPOINT(REQUEST.GETENDPOINT() + '/PEER-REVIEW/NEW-FEATURE-BRANCH-REVIEW'); 
+        REQUEST.SETHEADER('CONTENT-TYPE', 'APPLICATION/JSON');
+        REQUEST.SETBODY('{"DATA": {"TYPE": "FEATURE-BRANCH-REVIEW","ATTRIBUTES": {"FEATURE_BRANCH": "'+ FEATURE +'","INSTANCE_ID": '+ INSTANCE +',"EVENT": "QG_WORKFLOW","REASON": "'+ REASON +'","REQUEST_DESCRIPTION": "'+ DESCRIPTION +'"}}}');         
         
-        response = ControllerHelperQC.validateAPIKEY(request);
+        RESPONSE = CONTROLLERHELPERQC.VALIDATEAPIKEY(REQUEST);
         
-        return response;
+        RETURN RESPONSE;
     }
     
     /**
-* @description Set the common headers for the request
+* @DESCRIPTION SET THE COMMON HEADERS FOR THE REQUEST
 */
-    public HttpRequest RequestCommons() {
+    PUBLIC HTTPREQUEST REQUESTCOMMONS() {
         
-        QualityCloudsSettings__mdt settings = ControllerHelperQC.getSettings();
-        HttpRequest request = new HttpRequest();
-        request.setHeader('Authorization', 'Bearer '+ ControllerHelperQC.getAPIKEY());                
-        request.setHeader('client-name', 'GenericHttpClient');
-        request.setEndpoint(settings.API_Endpoint__c);
-        request.setTimeout(120000);
+        QUALITYCLOUDSSETTINGS__MDT SETTINGS = CONTROLLERHELPERQC.GETSETTINGS();
+        HTTPREQUEST REQUEST = NEW HTTPREQUEST();
+        REQUEST.SETHEADER('AUTHORIZATION', 'BEARER '+ CONTROLLERHELPERQC.GETAPIKEY());                
+        REQUEST.SETHEADER('CLIENT-NAME', 'GENERICHTTPCLIENT');
+        REQUEST.SETENDPOINT(SETTINGS.API_ENDPOINT__C);
+        REQUEST.SETTIMEOUT(120000);
         
-        return request;
+        RETURN REQUEST;
     }
     
     /**
-* @description Update scan method
+* @DESCRIPTION UPDATE SCAN METHOD
 */
-    global boolean update_scanns(){        
-        return true;
+    GLOBAL BOOLEAN UPDATE_SCANNS(){        
+        RETURN TRUE;
     }
 }

@@ -1,374 +1,374 @@
 /**
-* @description Controller Class of the Instance Visual Force Page
+* @DESCRIPTION CONTROLLER CLASS OF THE INSTANCE VISUAL FORCE PAGE
 */
-public with sharing class InstancesController {
-    public String message_type_out{get;set;}
-    public String message_out{get;set;}
-    public String message{get;set;}
-    public String message_type{get;set;}
+PUBLIC WITH SHARING CLASS INSTANCESCONTROLLER {
+    PUBLIC STRING MESSAGE_TYPE_OUT{GET;SET;}
+    PUBLIC STRING MESSAGE_OUT{GET;SET;}
+    PUBLIC STRING MESSAGE{GET;SET;}
+    PUBLIC STRING MESSAGE_TYPE{GET;SET;}
     
-    List<Instance__c> instances;
-    QualityCloudsSettings__mdt settings;
-    public String id_inst{get;set;}
-    public boolean showPopup {get;set;}
-    public String description {get;set;}
-    final static String ORG_URL = URL.getSalesforceBaseUrl().toExternalForm();
-    final static String ORG_ID =  UserInfo.getOrganizationId();
-    final static String RS_NAME = 'This_ORG_Temp_URL';
-    final static String RS_DESCRIPTION = 'Temporary Remote Setting required to use Metadata API from Apex'; 
-    public String apiKey {get;set;}
-    public Boolean showSetup { get; set; }
+    LIST<INSTANCE__C> INSTANCES;
+    QUALITYCLOUDSSETTINGS__MDT SETTINGS;
+    PUBLIC STRING ID_INST{GET;SET;}
+    PUBLIC BOOLEAN SHOWPOPUP {GET;SET;}
+    PUBLIC STRING DESCRIPTION {GET;SET;}
+    FINAL STATIC STRING ORG_URL = URL.GETSALESFORCEBASEURL().TOEXTERNALFORM();
+    FINAL STATIC STRING ORG_ID =  USERINFO.GETORGANIZATIONID();
+    FINAL STATIC STRING RS_NAME = 'THIS_ORG_TEMP_URL';
+    FINAL STATIC STRING RS_DESCRIPTION = 'TEMPORARY REMOTE SETTING REQUIRED TO USE METADATA API FROM APEX'; 
+    PUBLIC STRING APIKEY {GET;SET;}
+    PUBLIC BOOLEAN SHOWSETUP { GET; SET; }
     
     /**
-    * @description Get and Set QC_User__c variable in Page
+    * @DESCRIPTION GET AND SET QC_USER__C VARIABLE IN PAGE
     */
-    public static QC_User__c QCUser { 
-        get {
-            if (QCUser == null) {
-                List<QC_User__c> ListQCUser = [SELECT Id, Name, User__c, QC_Active__c, QC_Api_Key_Developer__c, QC_Valid_Until__c ,API_Key_1__c, API_Key_2__c, API_Key_3__c, API_Key_4__c, API_Key_5__c, API_Key_6__c, API_Key_7__c
-                                                FROM QC_User__c WHERE User__c = :UserInfo.getUserId() LIMIT 1];
-                if(!ListQCUser.isEmpty()){
-                    QCUser = ListQCUser[0];
-                }else{
-                    return null;
+    PUBLIC STATIC QC_USER__C QCUSER { 
+        GET {
+            IF (QCUSER == NULL) {
+                LIST<QC_USER__C> LISTQCUSER = [SELECT ID, NAME, USER__C, QC_ACTIVE__C, QC_API_KEY_DEVELOPER__C, QC_VALID_UNTIL__C ,API_KEY_1__C, API_KEY_2__C, API_KEY_3__C, API_KEY_4__C, API_KEY_5__C, API_KEY_6__C, API_KEY_7__C
+                                                FROM QC_USER__C WHERE USER__C = :USERINFO.GETUSERID() LIMIT 1];
+                IF(!LISTQCUSER.ISEMPTY()){
+                    QCUSER = LISTQCUSER[0];
+                }ELSE{
+                    RETURN NULL;
                 }
             }
-            return QCUser;
+            RETURN QCUSER;
         }
-        set;
+        SET;
     }
     
         /**
-    * @description Get and Set connected variable in Page
+    * @DESCRIPTION GET AND SET CONNECTED VARIABLE IN PAGE
     */    
-    public static Boolean connected { 
-        get {
-            connected = false;
-            if (QCUser != null) {
-                if(QCUser.QC_Valid_Until__c != null && date.today() < QCUser.QC_Valid_Until__c && QCUser.QC_Active__c){
-                    connected = true;
+    PUBLIC STATIC BOOLEAN CONNECTED { 
+        GET {
+            CONNECTED = FALSE;
+            IF (QCUSER != NULL) {
+                IF(QCUSER.QC_VALID_UNTIL__C != NULL && DATE.TODAY() < QCUSER.QC_VALID_UNTIL__C && QCUSER.QC_ACTIVE__C){
+                    CONNECTED = TRUE;
                 }                
             }
-            return connected;
+            RETURN CONNECTED;
         }
-        set;
+        SET;
     }
     
     /**
-    * @description Constructor of the Class initizlize the 
+    * @DESCRIPTION CONSTRUCTOR OF THE CLASS INITIZLIZE THE 
     */
-    public InstancesController() {
-        message = ApexPages.currentPage().getParameters().get('message');
-        message_type = ApexPages.currentPage().getParameters().get('message_type');
-        showPopup = false;
-        description = '';
-        showSetup = false;
+    PUBLIC INSTANCESCONTROLLER() {
+        MESSAGE = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('MESSAGE');
+        MESSAGE_TYPE = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('MESSAGE_TYPE');
+        SHOWPOPUP = FALSE;
+        DESCRIPTION = '';
+        SHOWSETUP = FALSE;
         
     }
         
     /**
-    * @description Retrieve the Instances of QualityClouds
+    * @DESCRIPTION RETRIEVE THE INSTANCES OF QUALITYCLOUDS
     */
-    public List<Instance__c> getInstances(){
-        if (!Schema.sObjectType.Instance__c.isAccessible()) {
-            ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR, 'Instance__c is not accessible for current user.'));
-        } else if (instances == null) {
-            instances = [SELECT url__c, Description__c, ID__c, Is_Featured_Banch__c FROM Instance__c WHERE Is_Featured_Banch__c = true ORDER BY CreatedDate DESC LIMIT 100];            
+    PUBLIC LIST<INSTANCE__C> GETINSTANCES(){
+        IF (!SCHEMA.SOBJECTTYPE.INSTANCE__C.ISACCESSIBLE()) {
+            APEXPAGES.ADDMESSAGE(NEW APEXPAGES.MESSAGE(APEXPAGES.SEVERITY.ERROR, 'INSTANCE__C IS NOT ACCESSIBLE FOR CURRENT USER.'));
+        } ELSE IF (INSTANCES == NULL) {
+            INSTANCES = [SELECT URL__C, DESCRIPTION__C, ID__C, IS_FEATURED_BANCH__C FROM INSTANCE__C WHERE IS_FEATURED_BANCH__C = TRUE ORDER BY CREATEDDATE DESC LIMIT 100];            
         }   
-        return instances;
+        RETURN INSTANCES;
     }
     
     /**
-    * @description Update the Instance Button in the Visualforce Page
+    * @DESCRIPTION UPDATE THE INSTANCE BUTTON IN THE VISUALFORCE PAGE
     */
-    public PageReference updateInstances(){
-        if (!Schema.sObjectType.Instance__c.isUpdateable() || !Schema.sObjectType.Instance__c.isCreateable()) {
-            ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR, 'Current user has no create/update permission for Instance__c object.'));
-            return null;
+    PUBLIC PAGEREFERENCE UPDATEINSTANCES(){
+        IF (!SCHEMA.SOBJECTTYPE.INSTANCE__C.ISUPDATEABLE() || !SCHEMA.SOBJECTTYPE.INSTANCE__C.ISCREATEABLE()) {
+            APEXPAGES.ADDMESSAGE(NEW APEXPAGES.MESSAGE(APEXPAGES.SEVERITY.ERROR, 'CURRENT USER HAS NO CREATE/UPDATE PERMISSION FOR INSTANCE__C OBJECT.'));
+            RETURN NULL;
         }
-        HttpRequest req = new HttpRequest();
-        settings = ControllerHelperQC.getSettings();
-        req.setEndpoint(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/salesforce-instance');
-        req.setMethod('GET');
-        req.setHeader('Accept', '*/*');
-        req.setHeader('client-name', 'Salesforce');
-        req.setHeader('Authorization', 'Bearer '+ ControllerHelperQC.getAPIKEY());                
-        Http http = new Http();
-        HTTPResponse res = http.send(req);
-        if (res.getStatusCode() == 200){
-            jsoninstancecontent.Jsoninstancecontent_c results =  jsoninstancecontent.Jsoninstancecontent_c.parse(res.getBody());
-            List<Instance__c> fetched_instances = new List<Instance__c>();
-            for (jsoninstancecontent.Data result : results.data) {
-                fetched_instances.add( new Instance__c(url__c=result.attributes.url, Description__c=result.attributes.description, Environment_Type__c=result.attributes.environment,ID__c=result.id, Instance_Type__c=result.attributes.service_name, Is_Featured_Banch__c=result.attributes.is_feature_branch, Inst_Org_Id__c=result.attributes.org_id));
-                System.debug(result.attributes.url+'-'+ result.attributes.description +'-'+ result.attributes.environment +'-'+ result.id +'-'+result.attributes.service_name +'-'+result.attributes.is_feature_branch+'-'+result.attributes.org_id);
+        HTTPREQUEST REQ = NEW HTTPREQUEST();
+        SETTINGS = CONTROLLERHELPERQC.GETSETTINGS();
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/SALESFORCE-INSTANCE');
+        REQ.SETMETHOD('GET');
+        REQ.SETHEADER('ACCEPT', '*/*');
+        REQ.SETHEADER('CLIENT-NAME', 'SALESFORCE');
+        REQ.SETHEADER('AUTHORIZATION', 'BEARER '+ CONTROLLERHELPERQC.GETAPIKEY());                
+        HTTP HTTP = NEW HTTP();
+        HTTPRESPONSE RES = HTTP.SEND(REQ);
+        IF (RES.GETSTATUSCODE() == 200){
+            JSONINSTANCECONTENT.JSONINSTANCECONTENT_C RESULTS =  JSONINSTANCECONTENT.JSONINSTANCECONTENT_C.PARSE(RES.GETBODY());
+            LIST<INSTANCE__C> FETCHED_INSTANCES = NEW LIST<INSTANCE__C>();
+            FOR (JSONINSTANCECONTENT.DATA RESULT : RESULTS.DATA) {
+                FETCHED_INSTANCES.ADD( NEW INSTANCE__C(URL__C=RESULT.ATTRIBUTES.URL, DESCRIPTION__C=RESULT.ATTRIBUTES.DESCRIPTION, ENVIRONMENT_TYPE__C=RESULT.ATTRIBUTES.ENVIRONMENT,ID__C=RESULT.ID, INSTANCE_TYPE__C=RESULT.ATTRIBUTES.SERVICE_NAME, IS_FEATURED_BANCH__C=RESULT.ATTRIBUTES.IS_FEATURE_BRANCH, INST_ORG_ID__C=RESULT.ATTRIBUTES.ORG_ID));
+                SYSTEM.DEBUG(RESULT.ATTRIBUTES.URL+'-'+ RESULT.ATTRIBUTES.DESCRIPTION +'-'+ RESULT.ATTRIBUTES.ENVIRONMENT +'-'+ RESULT.ID +'-'+RESULT.ATTRIBUTES.SERVICE_NAME +'-'+RESULT.ATTRIBUTES.IS_FEATURE_BRANCH+'-'+RESULT.ATTRIBUTES.ORG_ID);
             }
-            if (fetched_instances?.isEmpty()){
-                message_type_out = 'warning';
-                message_out = 'No instances found on the Quality Clouds portal for this account.';                              
-            } else {
-                upsert fetched_instances ID__c;
-                message_type_out = 'confirm';
-                message_out = 'Instances are imported/updated.';                
+            IF (FETCHED_INSTANCES?.ISEMPTY()){
+                MESSAGE_TYPE_OUT = 'WARNING';
+                MESSAGE_OUT = 'NO INSTANCES FOUND ON THE QUALITY CLOUDS PORTAL FOR THIS ACCOUNT.';                              
+            } ELSE {
+                UPSERT FETCHED_INSTANCES ID__C;
+                MESSAGE_TYPE_OUT = 'CONFIRM';
+                MESSAGE_OUT = 'INSTANCES ARE IMPORTED/UPDATED.';                
             }
-        } else {
-            message_type_out = 'error';
-            message_out = res.getBody();
+        } ELSE {
+            MESSAGE_TYPE_OUT = 'ERROR';
+            MESSAGE_OUT = RES.GETBODY();
         }
-        PageReference tempPage = new PageReference('/apex/instances');
-        tempPage.getParameters().put('message_type', message_type_out);
-        tempPage.getParameters().put('message', message_out);
-        tempPage.setRedirect(true);
-        return tempPage;
+        PAGEREFERENCE TEMPPAGE = NEW PAGEREFERENCE('/APEX/INSTANCES');
+        TEMPPAGE.GETPARAMETERS().PUT('MESSAGE_TYPE', MESSAGE_TYPE_OUT);
+        TEMPPAGE.GETPARAMETERS().PUT('MESSAGE', MESSAGE_OUT);
+        TEMPPAGE.SETREDIRECT(TRUE);
+        RETURN TEMPPAGE;
     }
     
     /**
-    * @description Link to the Instance Detail Visualforce Page
+    * @DESCRIPTION LINK TO THE INSTANCE DETAIL VISUALFORCE PAGE
     */
-    public PageReference openDetail(){
-        PageReference tempPage = new PageReference('/apex/InstanceDetail');
-        tempPage.getParameters().put('id', id_inst);
-        tempPage.setRedirect(true);
-        return tempPage;
+    PUBLIC PAGEREFERENCE OPENDETAIL(){
+        PAGEREFERENCE TEMPPAGE = NEW PAGEREFERENCE('/APEX/INSTANCEDETAIL');
+        TEMPPAGE.GETPARAMETERS().PUT('ID', ID_INST);
+        TEMPPAGE.SETREDIRECT(TRUE);
+        RETURN TEMPPAGE;
     } 
     
     /**
-    * @description Connection to portal and adding description controller
+    * @DESCRIPTION CONNECTION TO PORTAL AND ADDING DESCRIPTION CONTROLLER
     */
-    public PageReference connectOrgToPortal(){ 
-        if (String.isBlank(description)) {
-            ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR, 'Please enter instance description.'));            
-            return null;
+    PUBLIC PAGEREFERENCE CONNECTORGTOPORTAL(){ 
+        IF (STRING.ISBLANK(DESCRIPTION)) {
+            APEXPAGES.ADDMESSAGE(NEW APEXPAGES.MESSAGE(APEXPAGES.SEVERITY.ERROR, 'PLEASE ENTER INSTANCE DESCRIPTION.'));            
+            RETURN NULL;
         }
         
-        try {        
-            if (ConnectedAppService.checkIfNoQCConnectedApp()) {
-                ConnectedAppService.createRemoteSiteSetting( RS_NAME, RS_DESCRIPTION, ORG_URL);
-                Map<String, String> keys = ConnectedAppService.createConnectedApp(settings.CallbackURL__c);
-                if (!createPortalInstance(keys)){
-                    ConnectedAppService.deleteConnectedApp('QualityClouds');
-                    ConnectedAppService.deleteRemoteSiteSetting(RS_NAME);
-                    message_type_out = 'error';
-                    message_out = 'Error creating instance in the portal. QualityClouds connected app is deleted.';
-                }else {
-                    ConnectedAppService.deleteRemoteSiteSetting(RS_NAME);
-                    updateInstances();
-                    PageReference tempPage = new PageReference('/apex/instances');
-                    tempPage.getParameters().put('message_type', 'confirm');
-                    tempPage.getParameters().put('message', 'New instance "' + description + '" created on the portal. Please click "Refresh connection" to authorize the instance.');
-                    tempPage.setRedirect(true);
-                    return tempPage;
+        TRY {        
+            IF (CONNECTEDAPPSERVICE.CHECKIFNOQCCONNECTEDAPP()) {
+                CONNECTEDAPPSERVICE.CREATEREMOTESITESETTING( RS_NAME, RS_DESCRIPTION, ORG_URL);
+                MAP<STRING, STRING> KEYS = CONNECTEDAPPSERVICE.CREATECONNECTEDAPP(SETTINGS.CALLBACKURL__C);
+                IF (!CREATEPORTALINSTANCE(KEYS)){
+                    CONNECTEDAPPSERVICE.DELETECONNECTEDAPP('QUALITYCLOUDS');
+                    CONNECTEDAPPSERVICE.DELETEREMOTESITESETTING(RS_NAME);
+                    MESSAGE_TYPE_OUT = 'ERROR';
+                    MESSAGE_OUT = 'ERROR CREATING INSTANCE IN THE PORTAL. QUALITYCLOUDS CONNECTED APP IS DELETED.';
+                }ELSE {
+                    CONNECTEDAPPSERVICE.DELETEREMOTESITESETTING(RS_NAME);
+                    UPDATEINSTANCES();
+                    PAGEREFERENCE TEMPPAGE = NEW PAGEREFERENCE('/APEX/INSTANCES');
+                    TEMPPAGE.GETPARAMETERS().PUT('MESSAGE_TYPE', 'CONFIRM');
+                    TEMPPAGE.GETPARAMETERS().PUT('MESSAGE', 'NEW INSTANCE "' + DESCRIPTION + '" CREATED ON THE PORTAL. PLEASE CLICK "REFRESH CONNECTION" TO AUTHORIZE THE INSTANCE.');
+                    TEMPPAGE.SETREDIRECT(TRUE);
+                    RETURN TEMPPAGE;
                 }
-            }else{
-                message_type_out = 'info';
-                message_out = 'QualityClouds connected app exists. If you need help with configuring the app, please contact QualityClouds support.';
+            }ELSE{
+                MESSAGE_TYPE_OUT = 'INFO';
+                MESSAGE_OUT = 'QUALITYCLOUDS CONNECTED APP EXISTS. IF YOU NEED HELP WITH CONFIGURING THE APP, PLEASE CONTACT QUALITYCLOUDS SUPPORT.';
             }        
-        } catch (Exception e) {
-            System.debug(LoggingLevel.Error, e.getStackTraceString()); 
-            message_type_out = 'error';
-            message_out = e.getMessage();
+        } CATCH (EXCEPTION E) {
+            SYSTEM.DEBUG(LOGGINGLEVEL.ERROR, E.GETSTACKTRACESTRING()); 
+            MESSAGE_TYPE_OUT = 'ERROR';
+            MESSAGE_OUT = E.GETMESSAGE();
         }
-        PageReference tempPage = new PageReference('/apex/instances');
-        tempPage.getParameters().put('message_type', message_type_out);
-        tempPage.getParameters().put('message', message_out);
-        tempPage.setRedirect(true);
-        return tempPage;
+        PAGEREFERENCE TEMPPAGE = NEW PAGEREFERENCE('/APEX/INSTANCES');
+        TEMPPAGE.GETPARAMETERS().PUT('MESSAGE_TYPE', MESSAGE_TYPE_OUT);
+        TEMPPAGE.GETPARAMETERS().PUT('MESSAGE', MESSAGE_OUT);
+        TEMPPAGE.SETREDIRECT(TRUE);
+        RETURN TEMPPAGE;
     }    
     
     /**
-    * @description Cancel button in the popUp
+    * @DESCRIPTION CANCEL BUTTON IN THE POPUP
     */
-    public PageReference Cancel(){
-        showPopup = false;
-        return null;
+    PUBLIC PAGEREFERENCE CANCEL(){
+        SHOWPOPUP = FALSE;
+        RETURN NULL;
     }     
     
     /**
-    * @description Create a portal Instance whit a POST 19/06/2023 DEPRECATED
+    * @DESCRIPTION CREATE A PORTAL INSTANCE WHIT A POST 19/06/2023 DEPRECATED
     */
-    public Boolean createPortalInstance(Map<String, String> keys){
-        return true;
+    PUBLIC BOOLEAN CREATEPORTALINSTANCE(MAP<STRING, STRING> KEYS){
+        RETURN TRUE;
     }
     
     /**
-    * @description Retrieve the authorization
+    * @DESCRIPTION RETRIEVE THE AUTHORIZATION
     */
-    public PageReference authorize(){
-        HttpRequest req = new HttpRequest();
-        QualityCloudsSettings__mdt settings = ControllerHelperQC.getSettings();
-        req.setEndpoint(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/salesforce-instance/' + id_inst);
-        System.debug('req.endpoint'+ req.getEndpoint());
-        req.setMethod('GET');
-        req.setHeader('Accept', '*/*');
-        req.setHeader('client-name', 'Salesforce');
-        req.setHeader('Authorization', 'Bearer '+ ControllerHelperQC.getAPIKEY());                
-        Http http = new Http();
-        HTTPResponse res = http.send(req);
-        String oauthURL;
-        if (res.getStatusCode() == 200){
-            Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
-            Map<String, Object> data = (Map<String, Object>) results.get('data');
-            Map<String, Object> attributes = (Map<String, Object>) data.get('attributes');
-            oauthURL = (String) attributes.get('salesforce-login-url');           
-            PageReference tempPage = new PageReference(oauthURL?.replaceAll('&scope=api%20refresh_token',''));   
-            System.debug(oauthURL);
-            System.debug(tempPage);
-            tempPage.setRedirect(true);
-            return tempPage;            
+    PUBLIC PAGEREFERENCE AUTHORIZE(){
+        HTTPREQUEST REQ = NEW HTTPREQUEST();
+        QUALITYCLOUDSSETTINGS__MDT SETTINGS = CONTROLLERHELPERQC.GETSETTINGS();
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/SALESFORCE-INSTANCE/' + ID_INST);
+        SYSTEM.DEBUG('REQ.ENDPOINT'+ REQ.GETENDPOINT());
+        REQ.SETMETHOD('GET');
+        REQ.SETHEADER('ACCEPT', '*/*');
+        REQ.SETHEADER('CLIENT-NAME', 'SALESFORCE');
+        REQ.SETHEADER('AUTHORIZATION', 'BEARER '+ CONTROLLERHELPERQC.GETAPIKEY());                
+        HTTP HTTP = NEW HTTP();
+        HTTPRESPONSE RES = HTTP.SEND(REQ);
+        STRING OAUTHURL;
+        IF (RES.GETSTATUSCODE() == 200){
+            MAP<STRING, OBJECT> RESULTS = (MAP<STRING, OBJECT>) JSON.DESERIALIZEUNTYPED(RES.GETBODY());
+            MAP<STRING, OBJECT> DATA = (MAP<STRING, OBJECT>) RESULTS.GET('DATA');
+            MAP<STRING, OBJECT> ATTRIBUTES = (MAP<STRING, OBJECT>) DATA.GET('ATTRIBUTES');
+            OAUTHURL = (STRING) ATTRIBUTES.GET('SALESFORCE-LOGIN-URL');           
+            PAGEREFERENCE TEMPPAGE = NEW PAGEREFERENCE(OAUTHURL?.REPLACEALL('&SCOPE=API%20REFRESH_TOKEN',''));   
+            SYSTEM.DEBUG(OAUTHURL);
+            SYSTEM.DEBUG(TEMPPAGE);
+            TEMPPAGE.SETREDIRECT(TRUE);
+            RETURN TEMPPAGE;            
         }
-        message_out = 'Error getting authorization URL. Please close this tab and get authorization token on Quality Clouds portal';    
-        PageReference tempPage = new PageReference('/apex/instances');
-        tempPage.getParameters().put('message_type', 'error');
-        tempPage.getParameters().put('message', message_out);
-                    System.debug(tempPage);
+        MESSAGE_OUT = 'ERROR GETTING AUTHORIZATION URL. PLEASE CLOSE THIS TAB AND GET AUTHORIZATION TOKEN ON QUALITY CLOUDS PORTAL';    
+        PAGEREFERENCE TEMPPAGE = NEW PAGEREFERENCE('/APEX/INSTANCES');
+        TEMPPAGE.GETPARAMETERS().PUT('MESSAGE_TYPE', 'ERROR');
+        TEMPPAGE.GETPARAMETERS().PUT('MESSAGE', MESSAGE_OUT);
+                    SYSTEM.DEBUG(TEMPPAGE);
     
-        tempPage.setRedirect(true);
-        return tempPage;
+        TEMPPAGE.SETREDIRECT(TRUE);
+        RETURN TEMPPAGE;
     }
     
         /**
-    * @description Connect to QC button popUp to login credentials
+    * @DESCRIPTION CONNECT TO QC BUTTON POPUP TO LOGIN CREDENTIALS
     */
-    public PageReference openPopup(){
-        PageReference instUpdateResult =  updateInstances();
-        if (instUpdateResult.getParameters().get('message_type') == 'error'){
-            ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR, instUpdateResult.getParameters().get('message'))); 
-            return null;
+    PUBLIC PAGEREFERENCE OPENPOPUP(){
+        PAGEREFERENCE INSTUPDATERESULT =  UPDATEINSTANCES();
+        IF (INSTUPDATERESULT.GETPARAMETERS().GET('MESSAGE_TYPE') == 'ERROR'){
+            APEXPAGES.ADDMESSAGE(NEW APEXPAGES.MESSAGE(APEXPAGES.SEVERITY.ERROR, INSTUPDATERESULT.GETPARAMETERS().GET('MESSAGE'))); 
+            RETURN NULL;
         }
         
-        if (ConnectedAppService.checkIfNoQCConnectedApp()) {
-            ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR, 'QualityClouds connected app exists in this org. If you need help with configuring the app, please contact QualityClouds support.')); 
-            return null;
+        IF (CONNECTEDAPPSERVICE.CHECKIFNOQCCONNECTEDAPP()) {
+            APEXPAGES.ADDMESSAGE(NEW APEXPAGES.MESSAGE(APEXPAGES.SEVERITY.ERROR, 'QUALITYCLOUDS CONNECTED APP EXISTS IN THIS ORG. IF YOU NEED HELP WITH CONFIGURING THE APP, PLEASE CONTACT QUALITYCLOUDS SUPPORT.')); 
+            RETURN NULL;
         }
         
-        if (ControllerHelperQC.checkIfOrgConnected()) {
-            ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR, 'The instance for current org ID exists already, but QualityClouds connected app not found. If you need help with configuring the app, please contact QualityClouds support.')); 
-            return null;
+        IF (CONTROLLERHELPERQC.CHECKIFORGCONNECTED()) {
+            APEXPAGES.ADDMESSAGE(NEW APEXPAGES.MESSAGE(APEXPAGES.SEVERITY.ERROR, 'THE INSTANCE FOR CURRENT ORG ID EXISTS ALREADY, BUT QUALITYCLOUDS CONNECTED APP NOT FOUND. IF YOU NEED HELP WITH CONFIGURING THE APP, PLEASE CONTACT QUALITYCLOUDS SUPPORT.')); 
+            RETURN NULL;
         }
         
-        showPopup = true;
-        return null;
+        SHOWPOPUP = TRUE;
+        RETURN NULL;
     }
     
     /**
-    * @description This method checks is the current KEY is valid
+    * @DESCRIPTION THIS METHOD CHECKS IS THE CURRENT KEY IS VALID
     */
-    public Boolean getcheckAPIKEY(){        
-        return ControllerHelperQC.checkAPIKEY(); 
+    PUBLIC BOOLEAN GETCHECKAPIKEY(){        
+        RETURN CONTROLLERHELPERQC.CHECKAPIKEY(); 
     }
         
     /**
-    * @description Show API KEY Setup menu
+    * @DESCRIPTION SHOW API KEY SETUP MENU
     */
-    public void setup() {
-        // toggle the showOAuthStatus variable between true and false
-        showSetup = !showSetup;
+    PUBLIC VOID SETUP() {
+        // TOGGLE THE SHOWOAUTHSTATUS VARIABLE BETWEEN TRUE AND FALSE
+        SHOWSETUP = !SHOWSETUP;
     }
     
     /**
-    * @description Add new API KEY for connection whit QC
+    * @DESCRIPTION ADD NEW API KEY FOR CONNECTION WHIT QC
     */
-    public PageReference addApiKey(){
+    PUBLIC PAGEREFERENCE ADDAPIKEY(){
         
-        //Split the key
-        List<String> chunks = new List<String>();
-        Integer chunkSize = 175;
-        Integer numChunks = (apiKey.length() + chunkSize - 1) / chunkSize;
+        //SPLIT THE KEY
+        LIST<STRING> CHUNKS = NEW LIST<STRING>();
+        INTEGER CHUNKSIZE = 175;
+        INTEGER NUMCHUNKS = (APIKEY.LENGTH() + CHUNKSIZE - 1) / CHUNKSIZE;
         
-        for(Integer i = 0; i < numChunks; i++){
-            Integer startIdx = i * chunkSize;
-            Integer endIdx = Math.min((i + 1) * chunkSize, apiKey.length());
-            chunks.add(apiKey.substring(startIdx, endIdx));
+        FOR(INTEGER I = 0; I < NUMCHUNKS; I++){
+            INTEGER STARTIDX = I * CHUNKSIZE;
+            INTEGER ENDIDX = MATH.MIN((I + 1) * CHUNKSIZE, APIKEY.LENGTH());
+            CHUNKS.ADD(APIKEY.SUBSTRING(STARTIDX, ENDIDX));
         }
-        //Check if any other user uses the same api key
-        if(validateApiKey(chunks)){
+        //CHECK IF ANY OTHER USER USES THE SAME API KEY
+        IF(VALIDATEAPIKEY(CHUNKS)){
     
-            HTTPResponse res = ControllerHelperQC.accessAPIKEY(apiKey);
+            HTTPRESPONSE RES = CONTROLLERHELPERQC.ACCESSAPIKEY(APIKEY);
             
-            if (res != null && res.getStatusCode() == 200){
+            IF (RES != NULL && RES.GETSTATUSCODE() == 200){
                 
-                Map<String, Object> body = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
-                Map<String, Object> data = (Map<String, Object>)body.get('data');
-                Map<String, Object> attributes= (Map<String, Object>)data.get('attributes');
+                MAP<STRING, OBJECT> BODY = (MAP<STRING, OBJECT>) JSON.DESERIALIZEUNTYPED(RES.GETBODY());
+                MAP<STRING, OBJECT> DATA = (MAP<STRING, OBJECT>)BODY.GET('DATA');
+                MAP<STRING, OBJECT> ATTRIBUTES= (MAP<STRING, OBJECT>)DATA.GET('ATTRIBUTES');
                 
-                //Save data in Salesforce User
-                List<QC_User__c> UserList = [SELECT Id, Name, User__c, QC_Active__c, QC_Api_Key_Developer__c, QC_Valid_Until__c ,API_Key_1__c, API_Key_2__c, API_Key_3__c, API_Key_4__c, API_Key_5__c, API_Key_6__c, API_Key_7__c
-                                                FROM QC_User__c  WHERE User__c =: UserInfo.getUserId() LIMIT 1]; 
+                //SAVE DATA IN SALESFORCE USER
+                LIST<QC_USER__C> USERLIST = [SELECT ID, NAME, USER__C, QC_ACTIVE__C, QC_API_KEY_DEVELOPER__C, QC_VALID_UNTIL__C ,API_KEY_1__C, API_KEY_2__C, API_KEY_3__C, API_KEY_4__C, API_KEY_5__C, API_KEY_6__C, API_KEY_7__C
+                                                FROM QC_USER__C  WHERE USER__C =: USERINFO.GETUSERID() LIMIT 1]; 
                 
-                QC_User__c loginUser = new QC_User__c();
+                QC_USER__C LOGINUSER = NEW QC_USER__C();
                 
-                if(!UserList.isEmpty()){
-                    loginUser = UserList[0];
-                }else{
-                    loginUser.User__c = UserInfo.getUserId();
-                    loginUser.Name = UserInfo.getName();
+                IF(!USERLIST.ISEMPTY()){
+                    LOGINUSER = USERLIST[0];
+                }ELSE{
+                    LOGINUSER.USER__C = USERINFO.GETUSERID();
+                    LOGINUSER.NAME = USERINFO.GETNAME();
                 }
                 
-                if(attributes.get('valid-until') != null){
-                    loginUser.QC_Valid_Until__c = Date.valueOf(attributes.get('valid-until')+' 00:00:00');
+                IF(ATTRIBUTES.GET('VALID-UNTIL') != NULL){
+                    LOGINUSER.QC_VALID_UNTIL__C = DATE.VALUEOF(ATTRIBUTES.GET('VALID-UNTIL')+' 00:00:00');
                 }
-                if(attributes.get('active') != null){
-                    loginUser.QC_Active__c = Boolean.valueOf(attributes.get('active'));
+                IF(ATTRIBUTES.GET('ACTIVE') != NULL){
+                    LOGINUSER.QC_ACTIVE__C = BOOLEAN.VALUEOF(ATTRIBUTES.GET('ACTIVE'));
                 }
-                if(attributes.get('api-key-developer') != null){
-                    loginUser.QC_Api_Key_Developer__c = attributes.get('api-key-developer').toString();
+                IF(ATTRIBUTES.GET('API-KEY-DEVELOPER') != NULL){
+                    LOGINUSER.QC_API_KEY_DEVELOPER__C = ATTRIBUTES.GET('API-KEY-DEVELOPER').TOSTRING();
                 }
                 
-                loginUser.API_Key_1__c = chunks[0];
-                loginUser.API_Key_2__c = chunks[1];
-                loginUser.API_Key_3__c = chunks[2];
-                loginUser.API_Key_4__c = chunks[3];
-                loginUser.API_Key_5__c = chunks[4];
-                loginUser.API_Key_6__c = chunks[5];
-                if(chunks.size() > 6){
-                    loginUser.API_Key_7__c = chunks[6];
-                }else{
-                    loginUser.API_Key_7__c = '';
+                LOGINUSER.API_KEY_1__C = CHUNKS[0];
+                LOGINUSER.API_KEY_2__C = CHUNKS[1];
+                LOGINUSER.API_KEY_3__C = CHUNKS[2];
+                LOGINUSER.API_KEY_4__C = CHUNKS[3];
+                LOGINUSER.API_KEY_5__C = CHUNKS[4];
+                LOGINUSER.API_KEY_6__C = CHUNKS[5];
+                IF(CHUNKS.SIZE() > 6){
+                    LOGINUSER.API_KEY_7__C = CHUNKS[6];
+                }ELSE{
+                    LOGINUSER.API_KEY_7__C = '';
                 }           
     
-                upsert loginUser;
-                message_type_out = 'confirm';
-                message_out = 'Connection with Quality Clouds established';
+                UPSERT LOGINUSER;
+                MESSAGE_TYPE_OUT = 'CONFIRM';
+                MESSAGE_OUT = 'CONNECTION WITH QUALITY CLOUDS ESTABLISHED';
                 
-            }else{
-                message_type_out = 'error';
-                message_out = 'Error connecting with Quality Clouds';
+            }ELSE{
+                MESSAGE_TYPE_OUT = 'ERROR';
+                MESSAGE_OUT = 'ERROR CONNECTING WITH QUALITY CLOUDS';
             }
-        }else{
-            message_type_out = 'error';
-            message_out = 'This API KEY is already in use please generate a new one';
+        }ELSE{
+            MESSAGE_TYPE_OUT = 'ERROR';
+            MESSAGE_OUT = 'THIS API KEY IS ALREADY IN USE PLEASE GENERATE A NEW ONE';
         }
         
-        PageReference tempPage = new PageReference('/apex/instances');
-        tempPage.getParameters().put('message_type', message_type_out);
-        tempPage.getParameters().put('message', message_out);
-        tempPage.setRedirect(true);
-        return tempPage;
+        PAGEREFERENCE TEMPPAGE = NEW PAGEREFERENCE('/APEX/INSTANCES');
+        TEMPPAGE.GETPARAMETERS().PUT('MESSAGE_TYPE', MESSAGE_TYPE_OUT);
+        TEMPPAGE.GETPARAMETERS().PUT('MESSAGE', MESSAGE_OUT);
+        TEMPPAGE.SETREDIRECT(TRUE);
+        RETURN TEMPPAGE;
     }
     
     /**
-    * @description Validate that the API KEY is not being used by other users
+    * @DESCRIPTION VALIDATE THAT THE API KEY IS NOT BEING USED BY OTHER USERS
     */
     
-    public static Boolean validateApiKey(List<String> chunks){
+    PUBLIC STATIC BOOLEAN VALIDATEAPIKEY(LIST<STRING> CHUNKS){
         
-        Boolean valid = true;
+        BOOLEAN VALID = TRUE;
         
-        List<QC_User__c> userList = [SELECT API_Key_1__c, API_Key_2__c, API_Key_3__c, API_Key_4__c, API_Key_5__c, API_Key_6__c, API_Key_7__c
-                                        FROM QC_User__c];
+        LIST<QC_USER__C> USERLIST = [SELECT API_KEY_1__C, API_KEY_2__C, API_KEY_3__C, API_KEY_4__C, API_KEY_5__C, API_KEY_6__C, API_KEY_7__C
+                                        FROM QC_USER__C];
         
-        if(!userList.isEmpty()){
-            for ( QC_User__c QCUser : userList) {
-                if( QCUser.API_Key_1__c == chunks[0]&& QCUser.API_Key_2__c == chunks[1] && QCUser.API_Key_3__c == chunks[2] && QCUser.API_Key_4__c == chunks[3] & QCUser.API_Key_5__c == chunks[4] & QCUser.API_Key_6__c == chunks[5]){
-                    if(chunks.size() > 6){
-                        if( QCUser.API_Key_7__c == chunks[6]){
-                            valid = false;
+        IF(!USERLIST.ISEMPTY()){
+            FOR ( QC_USER__C QCUSER : USERLIST) {
+                IF( QCUSER.API_KEY_1__C == CHUNKS[0]&& QCUSER.API_KEY_2__C == CHUNKS[1] && QCUSER.API_KEY_3__C == CHUNKS[2] && QCUSER.API_KEY_4__C == CHUNKS[3] & QCUSER.API_KEY_5__C == CHUNKS[4] & QCUSER.API_KEY_6__C == CHUNKS[5]){
+                    IF(CHUNKS.SIZE() > 6){
+                        IF( QCUSER.API_KEY_7__C == CHUNKS[6]){
+                            VALID = FALSE;
                         }
-                    }else{
-                        valid = false;
+                    }ELSE{
+                        VALID = FALSE;
                     }
                 }
             }
         }
-        return valid;
+        RETURN VALID;
     }    
     }

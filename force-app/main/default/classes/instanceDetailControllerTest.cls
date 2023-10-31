@@ -1,93 +1,93 @@
-@isTest
-class  instanceDetailControllerTest {
-    @isTest
-    static void execute_scannOK() {
+@ISTEST
+CLASS  INSTANCEDETAILCONTROLLERTEST {
+    @ISTEST
+    STATIC VOID EXECUTE_SCANNOK() {
 
-        upsert new Instance__c(url__c='url', Description__c='dec', Environment_Type__c='dev',ID__c= '1', Instance_Type__c='salesforcce', Is_Featured_Banch__c=true) ID__c;
+        UPSERT NEW INSTANCE__C(URL__C='URL', DESCRIPTION__C='DEC', ENVIRONMENT_TYPE__C='DEV',ID__C= '1', INSTANCE_TYPE__C='SALESFORCCE', IS_FEATURED_BANCH__C=TRUE) ID__C;
 
-        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
-        mock.setStaticResource('scanok');
-        mock.setStatusCode(202);
-        mock.setHeader('Content-Type', 'application/json');
+        STATICRESOURCECALLOUTMOCK MOCK = NEW STATICRESOURCECALLOUTMOCK();
+        MOCK.SETSTATICRESOURCE('SCANOK');
+        MOCK.SETSTATUSCODE(202);
+        MOCK.SETHEADER('CONTENT-TYPE', 'APPLICATION/JSON');
 
-        // Set the mock callout mode
-        Test.setMock(HttpCalloutMock.class, mock);
-        Test.startTest();
-        instanceDetailController instanceDetail = new instanceDetailController();
+        // SET THE MOCK CALLOUT MODE
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, MOCK);
+        TEST.STARTTEST();
+        INSTANCEDETAILCONTROLLER INSTANCEDETAIL = NEW INSTANCEDETAILCONTROLLER();
 
-        instanceDetail.id_instance = '1';
-        instanceDetail.git_branch = 'develop';
-        instanceDetail.getInstance();
+        INSTANCEDETAIL.ID_INSTANCE = '1';
+        INSTANCEDETAIL.GIT_BRANCH = 'DEVELOP';
+        INSTANCEDETAIL.GETINSTANCE();
 
-        instanceDetail.execute_scann();
+        INSTANCEDETAIL.EXECUTE_SCANN();
 
-        Test.stopTest();
-        System.assertEquals('Scan launched', instanceDetail.message_out);
-        System.assertEquals('confirm', instanceDetail.message_type_out);
+        TEST.STOPTEST();
+        SYSTEM.ASSERTEQUALS('SCAN LAUNCHED', INSTANCEDETAIL.MESSAGE_OUT);
+        SYSTEM.ASSERTEQUALS('CONFIRM', INSTANCEDETAIL.MESSAGE_TYPE_OUT);
     }
     
-    @isTest
-    static void execute_scann_fullOK() {
+    @ISTEST
+    STATIC VOID EXECUTE_SCANN_FULLOK() {
 
-        upsert new Instance__c(url__c='url', Description__c='dec', Environment_Type__c='dev',ID__c= '1', Instance_Type__c='salesforcce', Is_Featured_Banch__c=true) ID__c;
+        UPSERT NEW INSTANCE__C(URL__C='URL', DESCRIPTION__C='DEC', ENVIRONMENT_TYPE__C='DEV',ID__C= '1', INSTANCE_TYPE__C='SALESFORCCE', IS_FEATURED_BANCH__C=TRUE) ID__C;
 
-        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
-        mock.setStaticResource('scanok');
-        mock.setStatusCode(200);
-        mock.setHeader('Content-Type', 'application/json');
+        STATICRESOURCECALLOUTMOCK MOCK = NEW STATICRESOURCECALLOUTMOCK();
+        MOCK.SETSTATICRESOURCE('SCANOK');
+        MOCK.SETSTATUSCODE(200);
+        MOCK.SETHEADER('CONTENT-TYPE', 'APPLICATION/JSON');
 
-        // Set the mock callout mode
-        Test.setMock(HttpCalloutMock.class, mock);
-        Test.startTest();
-        instanceDetailController instanceDetail = new instanceDetailController();
+        // SET THE MOCK CALLOUT MODE
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, MOCK);
+        TEST.STARTTEST();
+        INSTANCEDETAILCONTROLLER INSTANCEDETAIL = NEW INSTANCEDETAILCONTROLLER();
 
-        instanceDetail.id_instance = '1';
-        instanceDetail.git_branch = 'develop';
-        instanceDetail.getInstance();
-        instanceDetail.getScanns();
-        instanceDetail.getId_instance();
-        instanceDetail.go_back();
-        instanceDetail.openDetail();
+        INSTANCEDETAIL.ID_INSTANCE = '1';
+        INSTANCEDETAIL.GIT_BRANCH = 'DEVELOP';
+        INSTANCEDETAIL.GETINSTANCE();
+        INSTANCEDETAIL.GETSCANNS();
+        INSTANCEDETAIL.GETID_INSTANCE();
+        INSTANCEDETAIL.GO_BACK();
+        INSTANCEDETAIL.OPENDETAIL();
 
 
-        instanceDetail.execute_scann_full();
+        INSTANCEDETAIL.EXECUTE_SCANN_FULL();
 
-        Test.stopTest();
-        System.assertEquals('Scan launched', 'Scan launched');
+        TEST.STOPTEST();
+        SYSTEM.ASSERTEQUALS('SCAN LAUNCHED', 'SCAN LAUNCHED');
     }
 
 
 
-    @isTest
-    static void update_scannsOK() {
-        Instance__c instance;
-        Instance__c instancee = new Instance__c(url__c='url', Description__c='dec', Environment_Type__c='dev',ID__c= '1', Instance_Type__c='salesforcce', Is_Featured_Banch__c=true);
-        upsert instance = instancee ID__c;
-        upsert new Scann__c(ID__c= '1',Date__c = Datetime.valueOf('2019-07-23 08:25:59'), State__c='Running', Scan_Type__c='feature-branch-scan', Branch_Name__c='develop', Instance__c= instance.Id) ID__c;
-        QualityCloudsSettings__mdt settings = ControllerHelperQC.getSettings();
+    @ISTEST
+    STATIC VOID UPDATE_SCANNSOK() {
+        INSTANCE__C INSTANCE;
+        INSTANCE__C INSTANCEE = NEW INSTANCE__C(URL__C='URL', DESCRIPTION__C='DEC', ENVIRONMENT_TYPE__C='DEV',ID__C= '1', INSTANCE_TYPE__C='SALESFORCCE', IS_FEATURED_BANCH__C=TRUE);
+        UPSERT INSTANCE = INSTANCEE ID__C;
+        UPSERT NEW SCANN__C(ID__C= '1',DATE__C = DATETIME.VALUEOF('2019-07-23 08:25:59'), STATE__C='RUNNING', SCAN_TYPE__C='FEATURE-BRANCH-SCAN', BRANCH_NAME__C='DEVELOP', INSTANCE__C= INSTANCE.ID) ID__C;
+        QUALITYCLOUDSSETTINGS__MDT SETTINGS = CONTROLLERHELPERQC.GETSETTINGS();
 
-        MultiStaticResourceCalloutMock multimock = new MultiStaticResourceCalloutMock();
-        multimock.setStaticResource(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/feature-branch-scan/1','scanok');
-        multimock.setStaticResource(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/feature-branch-issue?filter[scan_uuid]=1&page[size]=1000&page[number]=1', 'issuelistok');
-        multimock.setStatusCode(200);
-        multimock.setHeader('Content-Type', 'application/json');
+        MULTISTATICRESOURCECALLOUTMOCK MULTIMOCK = NEW MULTISTATICRESOURCECALLOUTMOCK();
+        MULTIMOCK.SETSTATICRESOURCE(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/FEATURE-BRANCH-SCAN/1','SCANOK');
+        MULTIMOCK.SETSTATICRESOURCE(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/FEATURE-BRANCH-ISSUE?FILTER[SCAN_UUID]=1&PAGE[SIZE]=1000&PAGE[NUMBER]=1', 'ISSUELISTOK');
+        MULTIMOCK.SETSTATUSCODE(200);
+        MULTIMOCK.SETHEADER('CONTENT-TYPE', 'APPLICATION/JSON');
 
-        // Set the multimock callout mode
-        Test.setMock(HttpCalloutMock.class, multimock);
-        Test.startTest();
-        instanceDetailController instanceDetail = new instanceDetailController();
+        // SET THE MULTIMOCK CALLOUT MODE
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, MULTIMOCK);
+        TEST.STARTTEST();
+        INSTANCEDETAILCONTROLLER INSTANCEDETAIL = NEW INSTANCEDETAILCONTROLLER();
 
-        instanceDetail.id_instance = '1';
-        instanceDetail.id_scan = '1';
-        instanceDetail.git_branch = 'develop';
+        INSTANCEDETAIL.ID_INSTANCE = '1';
+        INSTANCEDETAIL.ID_SCAN = '1';
+        INSTANCEDETAIL.GIT_BRANCH = 'DEVELOP';
 
-        instanceDetail.getInstance();
+        INSTANCEDETAIL.GETINSTANCE();
 
-        instanceDetail.update_scanns();
+        INSTANCEDETAIL.UPDATE_SCANNS();
 
-        Test.stopTest();
-        System.assertEquals('Scan status updated and issues imported', instanceDetail.message_out);
-        System.assertEquals('confirm', instanceDetail.message_type_out);
+        TEST.STOPTEST();
+        SYSTEM.ASSERTEQUALS('SCAN STATUS UPDATED AND ISSUES IMPORTED', INSTANCEDETAIL.MESSAGE_OUT);
+        SYSTEM.ASSERTEQUALS('CONFIRM', INSTANCEDETAIL.MESSAGE_TYPE_OUT);
     }
 
 }

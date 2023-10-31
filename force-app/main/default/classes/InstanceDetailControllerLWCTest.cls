@@ -1,122 +1,122 @@
 /**
- * @description       : Test class for InstanceDetailControllerLWC
- * @author            : Fran Mejías
- * @group             : 
- * @last modified on  : 22-06-2023
- * @last modified by  : Fran Mejías
- * Modifications Log 
- * Ver   Date         Author   Modification
- * 1.0   22-06-2023   Fran Mejías   Initial Version
+ * @DESCRIPTION       : TEST CLASS FOR INSTANCEDETAILCONTROLLERLWC
+ * @AUTHOR            : FRAN MEJÍAS
+ * @GROUP             : 
+ * @LAST MODIFIED ON  : 22-06-2023
+ * @LAST MODIFIED BY  : FRAN MEJÍAS
+ * MODIFICATIONS LOG 
+ * VER   DATE         AUTHOR   MODIFICATION
+ * 1.0   22-06-2023   FRAN MEJÍAS   INITIAL VERSION
 **/
-@isTest
-public with sharing class InstanceDetailControllerLWCTest {
+@ISTEST
+PUBLIC WITH SHARING CLASS INSTANCEDETAILCONTROLLERLWCTEST {
 
-    @isTest
-    static void executeScanTest(){
+    @ISTEST
+    STATIC VOID EXECUTESCANTEST(){
 
-        Instance__c myInstance = new Instance__c(url__c='url', Description__c='dec', Environment_Type__c='dev',ID__c= '1', Instance_Type__c='salesforcce', Is_Featured_Banch__c=true);
+        INSTANCE__C MYINSTANCE = NEW INSTANCE__C(URL__C='URL', DESCRIPTION__C='DEC', ENVIRONMENT_TYPE__C='DEV',ID__C= '1', INSTANCE_TYPE__C='SALESFORCCE', IS_FEATURED_BANCH__C=TRUE);
 
-        insert myInstance;
+        INSERT MYINSTANCE;
 
-        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
-        mock.setStaticResource('scanok');
-        mock.setStatusCode(202);
-        mock.setHeader('Content-Type', 'application/json');
+        STATICRESOURCECALLOUTMOCK MOCK = NEW STATICRESOURCECALLOUTMOCK();
+        MOCK.SETSTATICRESOURCE('SCANOK');
+        MOCK.SETSTATUSCODE(202);
+        MOCK.SETHEADER('CONTENT-TYPE', 'APPLICATION/JSON');
 
-        // Set the mock callout mode
-        Test.setMock(HttpCalloutMock.class, mock);
-        Test.startTest();
-        Map<String,Object> response = new Map<String,Object>();
-        response = InstanceDetailControllerLWC.executeScan(myInstance.Id, '1', 'dummy'); 
-        Test.stopTest();
+        // SET THE MOCK CALLOUT MODE
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, MOCK);
+        TEST.STARTTEST();
+        MAP<STRING,OBJECT> RESPONSE = NEW MAP<STRING,OBJECT>();
+        RESPONSE = INSTANCEDETAILCONTROLLERLWC.EXECUTESCAN(MYINSTANCE.ID, '1', 'DUMMY'); 
+        TEST.STOPTEST();
 
-        System.assertEquals('OK', response.get('isSuccess'));
-        System.assertEquals('Scan launched.', response.get('message'));
-        System.assertEquals([select Id FROM Scann__c].size(), 1);
+        SYSTEM.ASSERTEQUALS('OK', RESPONSE.GET('ISSUCCESS'));
+        SYSTEM.ASSERTEQUALS('SCAN LAUNCHED.', RESPONSE.GET('MESSAGE'));
+        SYSTEM.ASSERTEQUALS([SELECT ID FROM SCANN__C].SIZE(), 1);
 
     } 
 
-    @isTest
-    static void executeScanDelayTest(){
+    @ISTEST
+    STATIC VOID EXECUTESCANDELAYTEST(){
 
-        Instance__c myInstance = new Instance__c(url__c='url', Description__c='dec', Environment_Type__c='dev',ID__c= '1', Instance_Type__c='salesforcce', Is_Featured_Banch__c=true);
+        INSTANCE__C MYINSTANCE = NEW INSTANCE__C(URL__C='URL', DESCRIPTION__C='DEC', ENVIRONMENT_TYPE__C='DEV',ID__C= '1', INSTANCE_TYPE__C='SALESFORCCE', IS_FEATURED_BANCH__C=TRUE);
 
-        insert myInstance;
+        INSERT MYINSTANCE;
 
-        insert new Scann__c(Date__c = Date.today(), State__c = 'RUNNING', ID__c = '1', Scan_Type__c = 'feature-branch-scan', Branch_Name__c = 'DUMMY', Instance__c = myInstance.Id) ;
+        INSERT NEW SCANN__C(DATE__C = DATE.TODAY(), STATE__C = 'RUNNING', ID__C = '1', SCAN_TYPE__C = 'FEATURE-BRANCH-SCAN', BRANCH_NAME__C = 'DUMMY', INSTANCE__C = MYINSTANCE.ID) ;
         
-        QualityCloudsSettings__mdt settings = ControllerHelperQC.getSettings();
+        QUALITYCLOUDSSETTINGS__MDT SETTINGS = CONTROLLERHELPERQC.GETSETTINGS();
 
-        MultiStaticResourceCalloutMock multimock = new MultiStaticResourceCalloutMock();
-        multimock.setStaticResource(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/feature-branch-scan/1','scandelay');
-        multimock.setStaticResource(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/feature-branch-issue?filter[scan_uuid]=1&page[size]=1000&page[number]=1', 'issuelistok');
-        multimock.setStatusCode(200);
+        MULTISTATICRESOURCECALLOUTMOCK MULTIMOCK = NEW MULTISTATICRESOURCECALLOUTMOCK();
+        MULTIMOCK.SETSTATICRESOURCE(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/FEATURE-BRANCH-SCAN/1','SCANDELAY');
+        MULTIMOCK.SETSTATICRESOURCE(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/FEATURE-BRANCH-ISSUE?FILTER[SCAN_UUID]=1&PAGE[SIZE]=1000&PAGE[NUMBER]=1', 'ISSUELISTOK');
+        MULTIMOCK.SETSTATUSCODE(200);
 
-        // Set the mock callout mode
-        Test.setMock(HttpCalloutMock.class, multimock);
-        Test.startTest();
-        Map<String,Object> response = new Map<String,Object>();
-        response = InstanceDetailControllerLWC.executeScan(myInstance.Id, '1', 'dummy'); 
-        Test.stopTest();
+        // SET THE MOCK CALLOUT MODE
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, MULTIMOCK);
+        TEST.STARTTEST();
+        MAP<STRING,OBJECT> RESPONSE = NEW MAP<STRING,OBJECT>();
+        RESPONSE = INSTANCEDETAILCONTROLLERLWC.EXECUTESCAN(MYINSTANCE.ID, '1', 'DUMMY'); 
+        TEST.STOPTEST();
 
-        System.assertEquals('WARN', response.get('isSuccess'));
-        System.assertEquals('There are to many scans running on the same branch, please try again later.', response.get('message'));
-        System.assertEquals([select Id FROM Scann__c].size(), 1);
+        SYSTEM.ASSERTEQUALS('WARN', RESPONSE.GET('ISSUCCESS'));
+        SYSTEM.ASSERTEQUALS('THERE ARE TO MANY SCANS RUNNING ON THE SAME BRANCH, PLEASE TRY AGAIN LATER.', RESPONSE.GET('MESSAGE'));
+        SYSTEM.ASSERTEQUALS([SELECT ID FROM SCANN__C].SIZE(), 1);
 
     } 
 
-    @isTest
-    static void executeScanErrorTest(){
+    @ISTEST
+    STATIC VOID EXECUTESCANERRORTEST(){
 
-        Instance__c myInstance = new Instance__c(url__c='url', Description__c='dec', Environment_Type__c='dev',ID__c= '1', Instance_Type__c='salesforcce', Is_Featured_Banch__c=true);
+        INSTANCE__C MYINSTANCE = NEW INSTANCE__C(URL__C='URL', DESCRIPTION__C='DEC', ENVIRONMENT_TYPE__C='DEV',ID__C= '1', INSTANCE_TYPE__C='SALESFORCCE', IS_FEATURED_BANCH__C=TRUE);
 
-        insert myInstance;
+        INSERT MYINSTANCE;
  
-        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
-        mock.setStaticResource('scanok');
-        mock.setStatusCode(203);
-        mock.setHeader('Content-Type', 'application/json');
+        STATICRESOURCECALLOUTMOCK MOCK = NEW STATICRESOURCECALLOUTMOCK();
+        MOCK.SETSTATICRESOURCE('SCANOK');
+        MOCK.SETSTATUSCODE(203);
+        MOCK.SETHEADER('CONTENT-TYPE', 'APPLICATION/JSON');
 
-        // Set the mock callout mode
-        Test.setMock(HttpCalloutMock.class, mock);
-        Test.startTest();
-        Map<String,Object> response = new Map<String,Object>();
-        response = InstanceDetailControllerLWC.executeScan(myInstance.Id, '1', 'dummy'); 
-        Test.stopTest();
+        // SET THE MOCK CALLOUT MODE
+        TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, MOCK);
+        TEST.STARTTEST();
+        MAP<STRING,OBJECT> RESPONSE = NEW MAP<STRING,OBJECT>();
+        RESPONSE = INSTANCEDETAILCONTROLLERLWC.EXECUTESCAN(MYINSTANCE.ID, '1', 'DUMMY'); 
+        TEST.STOPTEST();
 
-        System.assertEquals('ERR', response.get('isSuccess'));
-        System.assertEquals('We could not run the scan. Please contact your administrator.', response.get('message'));
-        System.assertEquals([select Id FROM Scann__c].size(), 0);
+        SYSTEM.ASSERTEQUALS('ERR', RESPONSE.GET('ISSUCCESS'));
+        SYSTEM.ASSERTEQUALS('WE COULD NOT RUN THE SCAN. PLEASE CONTACT YOUR ADMINISTRATOR.', RESPONSE.GET('MESSAGE'));
+        SYSTEM.ASSERTEQUALS([SELECT ID FROM SCANN__C].SIZE(), 0);
 
     } 
 
-    @isTest
-    static void getScansTest(){
+    @ISTEST
+    STATIC VOID GETSCANSTEST(){
 
-        Instance__c myInstance = new Instance__c(url__c='url', Description__c='dec', Environment_Type__c='dev',ID__c= '1', Instance_Type__c='salesforcce', Is_Featured_Banch__c=true);
+        INSTANCE__C MYINSTANCE = NEW INSTANCE__C(URL__C='URL', DESCRIPTION__C='DEC', ENVIRONMENT_TYPE__C='DEV',ID__C= '1', INSTANCE_TYPE__C='SALESFORCCE', IS_FEATURED_BANCH__C=TRUE);
 
-        insert myInstance;
-system.debug('1');
-      insert new Scann__c(Date__c = Date.today(), State__c = 'RUNNING', ID__c = '1', Scan_Type__c = 'feature-branch-scan', Branch_Name__c = 'DUMMY', Instance__c = myInstance.Id) ;
-      QualityCloudsSettings__mdt settings = ControllerHelperQC.getSettings();
+        INSERT MYINSTANCE;
+SYSTEM.DEBUG('1');
+      INSERT NEW SCANN__C(DATE__C = DATE.TODAY(), STATE__C = 'RUNNING', ID__C = '1', SCAN_TYPE__C = 'FEATURE-BRANCH-SCAN', BRANCH_NAME__C = 'DUMMY', INSTANCE__C = MYINSTANCE.ID) ;
+      QUALITYCLOUDSSETTINGS__MDT SETTINGS = CONTROLLERHELPERQC.GETSETTINGS();
 
-      MultiStaticResourceCalloutMock multimock = new MultiStaticResourceCalloutMock();
-      multimock.setStaticResource(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/feature-branch-scan/1','scanok');
-      multimock.setStaticResource(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/feature-branch-issue?filter[scan_uuid]=1&page[size]=1000&page[number]=1', 'issuelistok');
-      multimock.setStatusCode(200);
+      MULTISTATICRESOURCECALLOUTMOCK MULTIMOCK = NEW MULTISTATICRESOURCECALLOUTMOCK();
+      MULTIMOCK.SETSTATICRESOURCE(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/FEATURE-BRANCH-SCAN/1','SCANOK');
+      MULTIMOCK.SETSTATICRESOURCE(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/FEATURE-BRANCH-ISSUE?FILTER[SCAN_UUID]=1&PAGE[SIZE]=1000&PAGE[NUMBER]=1', 'ISSUELISTOK');
+      MULTIMOCK.SETSTATUSCODE(200);
 
-      // Set the multimock callout mode
-      Test.setMock(HttpCalloutMock.class, multimock);
+      // SET THE MULTIMOCK CALLOUT MODE
+      TEST.SETMOCK(HTTPCALLOUTMOCK.CLASS, MULTIMOCK);
 
-        system.debug('2');
+        SYSTEM.DEBUG('2');
         
-        Test.startTest();
+        TEST.STARTTEST();
 
-        List<InstanceDetailControllerLWC.scanWrapper> scans = new List<InstanceDetailControllerLWC.scanWrapper>();
-        system.debug('3');
-        scans = InstanceDetailControllerLWC.getScans(myInstance.Id); 
-        system.debug('4');
-        Test.stopTest();
-        System.assertEquals(scans.size(), 1);
+        LIST<INSTANCEDETAILCONTROLLERLWC.SCANWRAPPER> SCANS = NEW LIST<INSTANCEDETAILCONTROLLERLWC.SCANWRAPPER>();
+        SYSTEM.DEBUG('3');
+        SCANS = INSTANCEDETAILCONTROLLERLWC.GETSCANS(MYINSTANCE.ID); 
+        SYSTEM.DEBUG('4');
+        TEST.STOPTEST();
+        SYSTEM.ASSERTEQUALS(SCANS.SIZE(), 1);
     } 
 }
