@@ -1,6 +1,4 @@
-/**
- * @description DummyClass
- */
+
 public with sharing class CognitiveComplexityClass {    
     /**
     * @description dummy Method
