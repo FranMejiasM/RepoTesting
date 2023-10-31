@@ -1,5 +1,5 @@
 /**
- * @description DummyClass
+ * @description DummyClass 2
  */
 public with sharing class CognitiveComplexityClass {    
     /**
