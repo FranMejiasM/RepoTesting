@@ -1,358 +1,358 @@
-public with sharing class DashboardControllerHelper {
+PUBLIC WITH SHARING CLASS DASHBOARDCONTROLLERHELPER {
     
-    public class DashboardControllerHelperException extends Exception {}
+    PUBLIC CLASS DASHBOARDCONTROLLERHELPEREXCEPTION EXTENDS EXCEPTION {}
 
-    public final static String GROUP_LABEL_ISSUES = 'Issues';
-    public final static String GROUP_LABEL_TECH_DEBT = 'Technical Debt';
-    final static String CHART_LABEL_SENSITIVE = 'Sensitive';
-    final static String CHART_LABEL_EXTRA_SENSITIVE = 'Extra Sensitive';
-    final static String CHART_LABEL_PRIVATE = 'Private';
-    public final static String CHART_NAME_IBP = 'Issues by Best Practices';
-    public final static String CHART_NAME_EOI = 'Evolution Of Issues';
-    public final static String CHART_NAME_IIA = 'Issues by Impact Area';
-    public final static String CHART_NAME_IDP = 'Issues Data Privacy';
-    public final static String CHART_NAME_CE = 'Configuration Elements';
-    public final static String CHART_NAME_IBS = 'Issues by Severity';
-    final static String MSG_NO_NEW_DATA = ' The data is up to date. No new scans available.';
-    final static String MSG_OK = 'OK';
-    final static String MSG_EXCEPTION_CREATE_DASHBOARD_DATA = 'Current user does not have rights to create Dashboard_Data__c object.';
-    final static String MSG_EXCEPTION_CREATE_DATASET = 'Current user does not have rights to create Dataset__c object.';
-    final static String MSG_EXCEPTION_CREATE_CHART = 'Current user does not have rights to create Chart__c object.';
-    final static String MSG_EXCEPTION_NO_SCANS = 'No successful scans found for this org. Please trigger scan for this org to display the dashboard data.';
+    PUBLIC FINAL STATIC STRING GROUP_LABEL_ISSUES = 'ISSUES';
+    PUBLIC FINAL STATIC STRING GROUP_LABEL_TECH_DEBT = 'TECHNICAL DEBT';
+    FINAL STATIC STRING CHART_LABEL_SENSITIVE = 'SENSITIVE';
+    FINAL STATIC STRING CHART_LABEL_EXTRA_SENSITIVE = 'EXTRA SENSITIVE';
+    FINAL STATIC STRING CHART_LABEL_PRIVATE = 'PRIVATE';
+    PUBLIC FINAL STATIC STRING CHART_NAME_IBP = 'ISSUES BY BEST PRACTICES';
+    PUBLIC FINAL STATIC STRING CHART_NAME_EOI = 'EVOLUTION OF ISSUES';
+    PUBLIC FINAL STATIC STRING CHART_NAME_IIA = 'ISSUES BY IMPACT AREA';
+    PUBLIC FINAL STATIC STRING CHART_NAME_IDP = 'ISSUES DATA PRIVACY';
+    PUBLIC FINAL STATIC STRING CHART_NAME_CE = 'CONFIGURATION ELEMENTS';
+    PUBLIC FINAL STATIC STRING CHART_NAME_IBS = 'ISSUES BY SEVERITY';
+    FINAL STATIC STRING MSG_NO_NEW_DATA = ' THE DATA IS UP TO DATE. NO NEW SCANS AVAILABLE.';
+    FINAL STATIC STRING MSG_OK = 'OK';
+    FINAL STATIC STRING MSG_EXCEPTION_CREATE_DASHBOARD_DATA = 'CURRENT USER DOES NOT HAVE RIGHTS TO CREATE DASHBOARD_DATA__C OBJECT.';
+    FINAL STATIC STRING MSG_EXCEPTION_CREATE_DATASET = 'CURRENT USER DOES NOT HAVE RIGHTS TO CREATE DATASET__C OBJECT.';
+    FINAL STATIC STRING MSG_EXCEPTION_CREATE_CHART = 'CURRENT USER DOES NOT HAVE RIGHTS TO CREATE CHART__C OBJECT.';
+    FINAL STATIC STRING MSG_EXCEPTION_NO_SCANS = 'NO SUCCESSFUL SCANS FOUND FOR THIS ORG. PLEASE TRIGGER SCAN FOR THIS ORG TO DISPLAY THE DASHBOARD DATA.';
     
-    Dashboard_Data__c dashboardNumbers;
-    String instanceID;
-    QualityCloudsSettings__mdt settings;
-    Integer scanShortID;
-    Http http;
-    List<Dataset__c> datasetsToInsert;    
-    List <IssuesCompactJSON2Apex.Data> issuesCompactData;    
-    List <IssuesCompactJSON2Apex.Data> techDebtCompactData;
-    List <DataDataJSON2Apex.Data_Z> issuesBySeverityAreaBPData;
-    List <DataDataJSON2Apex.Data> confElementsData;
-    IssuesCompactJSON2Apex dataPrivacy;
+    DASHBOARD_DATA__C DASHBOARDNUMBERS;
+    STRING INSTANCEID;
+    QUALITYCLOUDSSETTINGS__MDT SETTINGS;
+    INTEGER SCANSHORTID;
+    HTTP HTTP;
+    LIST<DATASET__C> DATASETSTOINSERT;    
+    LIST <ISSUESCOMPACTJSON2APEX.DATA> ISSUESCOMPACTDATA;    
+    LIST <ISSUESCOMPACTJSON2APEX.DATA> TECHDEBTCOMPACTDATA;
+    LIST <DATADATAJSON2APEX.DATA_Z> ISSUESBYSEVERITYAREABPDATA;
+    LIST <DATADATAJSON2APEX.DATA> CONFELEMENTSDATA;
+    ISSUESCOMPACTJSON2APEX DATAPRIVACY;
     
-    private HttpRequest createRequest(){
-        HttpRequest req = new HttpRequest();        
-        req.setHeader('Accept', '*/*');
-        req.setHeader('Authorization', 'Bearer '+ ControllerHelperQC.getAPIKEY());                
-        req.setMethod('GET');
-        req.setHeader('client-name', 'GenericHttpClient');
-        return req;
+    PRIVATE HTTPREQUEST CREATEREQUEST(){
+        HTTPREQUEST REQ = NEW HTTPREQUEST();        
+        REQ.SETHEADER('ACCEPT', '*/*');
+        REQ.SETHEADER('AUTHORIZATION', 'BEARER '+ CONTROLLERHELPERQC.GETAPIKEY());                
+        REQ.SETMETHOD('GET');
+        REQ.SETHEADER('CLIENT-NAME', 'GENERICHTTPCLIENT');
+        RETURN REQ;
     }
     
-    private HTTPResponse callLastScanInfo(HttpRequest req){
-        req.setEndpoint(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/scan?filter[url]=' +  instanceID +  '&page[size]=1&page[number]=1&filter[status]=LOADED&filter[scan_type]=0');
-        return http.send(req);
+    PRIVATE HTTPRESPONSE CALLLASTSCANINFO(HTTPREQUEST REQ){
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/SCAN?FILTER[URL]=' +  INSTANCEID +  '&PAGE[SIZE]=1&PAGE[NUMBER]=1&FILTER[STATUS]=LOADED&FILTER[SCAN_TYPE]=0');
+        RETURN HTTP.SEND(REQ);
     }
     
-    private HTTPResponse callInstanceInfo(HttpRequest req){
-        req.setEndpoint(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/salesforce-instance/' +  instanceID);
-        return http.send(req);
+    PRIVATE HTTPRESPONSE CALLINSTANCEINFO(HTTPREQUEST REQ){
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/SALESFORCE-INSTANCE/' +  INSTANCEID);
+        RETURN HTTP.SEND(REQ);
     }
     
-    private HTTPResponse callCustVsConfigCompact(HttpRequest req){
-        req.setEndpoint(settings.API_Endpoint_Widgets__c + settings.API_Version_Widgets__c + '/cust-vs-config-compact/' + scanShortID);
-        return http.send(req);
+    PRIVATE HTTPRESPONSE CALLCUSTVSCONFIGCOMPACT(HTTPREQUEST REQ){
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT_WIDGETS__C + SETTINGS.API_VERSION_WIDGETS__C + '/CUST-VS-CONFIG-COMPACT/' + SCANSHORTID);
+        RETURN HTTP.SEND(REQ);
     }
     
-    private HTTPResponse callIssuesOverTimeCompact (HttpRequest req){
-        req.setEndpoint(settings.API_Endpoint_Widgets__c + settings.API_Version_Widgets__c + '/issues-over-time-compact/' + scanShortID);
-        return http.send(req);
+    PRIVATE HTTPRESPONSE CALLISSUESOVERTIMECOMPACT (HTTPREQUEST REQ){
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT_WIDGETS__C + SETTINGS.API_VERSION_WIDGETS__C + '/ISSUES-OVER-TIME-COMPACT/' + SCANSHORTID);
+        RETURN HTTP.SEND(REQ);
     }
     
-    private HTTPResponse callTechDebtCompact (HttpRequest req){
-        req.setEndpoint(settings.API_Endpoint_Widgets__c + settings.API_Version_Widgets__c + '/tech-debt-compact/' + scanShortID);
-        return http.send(req);
+    PRIVATE HTTPRESPONSE CALLTECHDEBTCOMPACT (HTTPREQUEST REQ){
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT_WIDGETS__C + SETTINGS.API_VERSION_WIDGETS__C + '/TECH-DEBT-COMPACT/' + SCANSHORTID);
+        RETURN HTTP.SEND(REQ);
     }
     
-    private HTTPResponse callIssuesByScan (HttpRequest req){
-        req.setEndpoint(settings.API_Endpoint_Widgets__c + settings.API_Version_Widgets__c + '/issues-by-scan/' + scanShortID);
-        return http.send(req);
+    PRIVATE HTTPRESPONSE CALLISSUESBYSCAN (HTTPREQUEST REQ){
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT_WIDGETS__C + SETTINGS.API_VERSION_WIDGETS__C + '/ISSUES-BY-SCAN/' + SCANSHORTID);
+        RETURN HTTP.SEND(REQ);
     }
     
-    private HTTPResponse callCesByType (HttpRequest req){
-        req.setEndpoint(settings.API_Endpoint_Widgets__c + settings.API_Version_Widgets__c + '/ces-by-type/' + scanShortID + '?providerId=2');
-        return http.send(req);
+    PRIVATE HTTPRESPONSE CALLCESBYTYPE (HTTPREQUEST REQ){
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT_WIDGETS__C + SETTINGS.API_VERSION_WIDGETS__C + '/CES-BY-TYPE/' + SCANSHORTID + '?PROVIDERID=2');
+        RETURN HTTP.SEND(REQ);
     }
     
-    private HTTPResponse callDataPrivacyCompact (HttpRequest req){
-        req.setEndpoint(settings.API_Endpoint_Widgets__c + settings.API_Version_Widgets__c + '/data-privacy-compact/' + scanShortID);
-        return http.send(req);
+    PRIVATE HTTPRESPONSE CALLDATAPRIVACYCOMPACT (HTTPREQUEST REQ){
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT_WIDGETS__C + SETTINGS.API_VERSION_WIDGETS__C + '/DATA-PRIVACY-COMPACT/' + SCANSHORTID);
+        RETURN HTTP.SEND(REQ);
     }
     
-    private void addLastScanInfoToDashboardNumbers (HTTPResponse res){
-        dashboardNumbers = new Dashboard_Data__c();
-        Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
-        List< Object> dataList = (List<Object>) results.get('data');
-        if (dataList.isEmpty()) {
-            System.debug(LoggingLevel.Error, res.getBody());
-            throw new DashboardControllerHelperException(MSG_EXCEPTION_NO_SCANS); 
+    PRIVATE VOID ADDLASTSCANINFOTODASHBOARDNUMBERS (HTTPRESPONSE RES){
+        DASHBOARDNUMBERS = NEW DASHBOARD_DATA__C();
+        MAP<STRING, OBJECT> RESULTS = (MAP<STRING, OBJECT>) JSON.DESERIALIZEUNTYPED(RES.GETBODY());
+        LIST< OBJECT> DATALIST = (LIST<OBJECT>) RESULTS.GET('DATA');
+        IF (DATALIST.ISEMPTY()) {
+            SYSTEM.DEBUG(LOGGINGLEVEL.ERROR, RES.GETBODY());
+            THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(MSG_EXCEPTION_NO_SCANS); 
         }    
-        map<String,Object> data =  (map<String,Object>) dataList[0];
-        map<String,Object> attributes = (map<String,Object>) data.get('attributes');
+        MAP<STRING,OBJECT> DATA =  (MAP<STRING,OBJECT>) DATALIST[0];
+        MAP<STRING,OBJECT> ATTRIBUTES = (MAP<STRING,OBJECT>) DATA.GET('ATTRIBUTES');
         
-        dashboardNumbers.Total_Issues__c = (Integer) attributes.get('number-of-issues');
-        if((String) attributes.get('issues-variation') != null){
-            dashboardNumbers.Total_Issues_Variation__c = Decimal.valueOf( (String) attributes.get('issues-variation'));
-        }else{
-            dashboardNumbers.Total_Issues_Variation__c = 0;
+        DASHBOARDNUMBERS.TOTAL_ISSUES__C = (INTEGER) ATTRIBUTES.GET('NUMBER-OF-ISSUES');
+        IF((STRING) ATTRIBUTES.GET('ISSUES-VARIATION') != NULL){
+            DASHBOARDNUMBERS.TOTAL_ISSUES_VARIATION__C = DECIMAL.VALUEOF( (STRING) ATTRIBUTES.GET('ISSUES-VARIATION'));
+        }ELSE{
+            DASHBOARDNUMBERS.TOTAL_ISSUES_VARIATION__C = 0;
         }
-        if((String) attributes.get('technical-debt-variation')!= null){
-            dashboardNumbers.Technical_Debt_Variation__c = Decimal.valueOf( (String) attributes.get('technical-debt-variation')); 
-        }else{
-            dashboardNumbers.Technical_Debt_Variation__c = 0; 
+        IF((STRING) ATTRIBUTES.GET('TECHNICAL-DEBT-VARIATION')!= NULL){
+            DASHBOARDNUMBERS.TECHNICAL_DEBT_VARIATION__C = DECIMAL.VALUEOF( (STRING) ATTRIBUTES.GET('TECHNICAL-DEBT-VARIATION')); 
+        }ELSE{
+            DASHBOARDNUMBERS.TECHNICAL_DEBT_VARIATION__C = 0; 
         }
-        if((String)attributes.get('quality-of-cloud-variation')!= null){
-            dashboardNumbers.QoC_Variation__c = Decimal.valueOf( (String)attributes.get('quality-of-cloud-variation')); 
-        }else{
-            dashboardNumbers.QoC_Variation__c = 0; 
+        IF((STRING)ATTRIBUTES.GET('QUALITY-OF-CLOUD-VARIATION')!= NULL){
+            DASHBOARDNUMBERS.QOC_VARIATION__C = DECIMAL.VALUEOF( (STRING)ATTRIBUTES.GET('QUALITY-OF-CLOUD-VARIATION')); 
+        }ELSE{
+            DASHBOARDNUMBERS.QOC_VARIATION__C = 0; 
         }
         
-        dashboardNumbers.Technical_Debt__c = Decimal.valueOf( (String) attributes.get('technical-debt')); 
-        dashboardNumbers.Code_Changes_Issues_Ratio__c =  Decimal.valueOf( (String) attributes.get('code-changes-issues-ratio'));
-        dashboardNumbers.QoC__c = Decimal.valueOf( (String)attributes.get('quality-of-cloud'));
-        dashboardNumbers.Scan_Date__c = Datetime.valueOf( (String)attributes.get('scan-date'));
-        dashboardNumbers.Scan_ID_External__c = (String) data.get('id');
-        dashboardNumbers.Org_URL__c = (String)attributes.get('url');
-        dashboardNumbers.Org_Edition__c = (String)attributes.get('edition');
-        dashboardNumbers.Instance_Description__c = (String)attributes.get('target');
+        DASHBOARDNUMBERS.TECHNICAL_DEBT__C = DECIMAL.VALUEOF( (STRING) ATTRIBUTES.GET('TECHNICAL-DEBT')); 
+        DASHBOARDNUMBERS.CODE_CHANGES_ISSUES_RATIO__C =  DECIMAL.VALUEOF( (STRING) ATTRIBUTES.GET('CODE-CHANGES-ISSUES-RATIO'));
+        DASHBOARDNUMBERS.QOC__C = DECIMAL.VALUEOF( (STRING)ATTRIBUTES.GET('QUALITY-OF-CLOUD'));
+        DASHBOARDNUMBERS.SCAN_DATE__C = DATETIME.VALUEOF( (STRING)ATTRIBUTES.GET('SCAN-DATE'));
+        DASHBOARDNUMBERS.SCAN_ID_EXTERNAL__C = (STRING) DATA.GET('ID');
+        DASHBOARDNUMBERS.ORG_URL__C = (STRING)ATTRIBUTES.GET('URL');
+        DASHBOARDNUMBERS.ORG_EDITION__C = (STRING)ATTRIBUTES.GET('EDITION');
+        DASHBOARDNUMBERS.INSTANCE_DESCRIPTION__C = (STRING)ATTRIBUTES.GET('TARGET');
         
-        scanShortID = (Integer) attributes.get('short-id');
+        SCANSHORTID = (INTEGER) ATTRIBUTES.GET('SHORT-ID');
     }
     
-    private void addOrgIdEnvironmentToDashboardNumbers (HTTPResponse res){
-        Map<String, Object> instResults = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
-        Map<String, Object> instData = (Map<String, Object>)instResults.get('data');
-        Map<String, Object> attrib = (Map<String, Object>)instData.get('attributes');
-        dashboardNumbers.Org_Id__c = (String) attrib.get('org-id');
-        dashboardNumbers.Environment__c = (String) attrib.get('environment'); 
+    PRIVATE VOID ADDORGIDENVIRONMENTTODASHBOARDNUMBERS (HTTPRESPONSE RES){
+        MAP<STRING, OBJECT> INSTRESULTS = (MAP<STRING, OBJECT>) JSON.DESERIALIZEUNTYPED(RES.GETBODY());
+        MAP<STRING, OBJECT> INSTDATA = (MAP<STRING, OBJECT>)INSTRESULTS.GET('DATA');
+        MAP<STRING, OBJECT> ATTRIB = (MAP<STRING, OBJECT>)INSTDATA.GET('ATTRIBUTES');
+        DASHBOARDNUMBERS.ORG_ID__C = (STRING) ATTRIB.GET('ORG-ID');
+        DASHBOARDNUMBERS.ENVIRONMENT__C = (STRING) ATTRIB.GET('ENVIRONMENT'); 
     }
     
-    private void addCustomizationRatioToDashboardNumbers (HTTPResponse res){
-        IssuesCompactJSON2Apex customVsConfig = IssuesCompactJSON2Apex.parse(res.getBody());    
-        dashboardNumbers.Customization_Ratio__c = Decimal.valueOf( customVsConfig.value );
+    PRIVATE VOID ADDCUSTOMIZATIONRATIOTODASHBOARDNUMBERS (HTTPRESPONSE RES){
+        ISSUESCOMPACTJSON2APEX CUSTOMVSCONFIG = ISSUESCOMPACTJSON2APEX.PARSE(RES.GETBODY());    
+        DASHBOARDNUMBERS.CUSTOMIZATION_RATIO__C = DECIMAL.VALUEOF( CUSTOMVSCONFIG.VALUE );
     }   
     
-    private void addEvolutionOfIssuesToDatasets (List <IssuesCompactJSON2Apex.Data> issuesCompactData, List <IssuesCompactJSON2Apex.Data> techDebtCompactData, Chart__c eoiChart){
-        for (IssuesCompactJSON2Apex.Data issueCD : issuesCompactData){
-            Dataset__c tempDataset = new Dataset__c ();
-            tempDataset.Chart__c = eoiChart.id;
-            tempDataset.Group_Label__c = GROUP_LABEL_ISSUES;
-            tempDataset.Label__c = issueCD.label;
-            tempDataset.Value__c = Decimal.ValueOf(issueCD.value);
-            datasetsToInsert.add(tempDataset);
+    PRIVATE VOID ADDEVOLUTIONOFISSUESTODATASETS (LIST <ISSUESCOMPACTJSON2APEX.DATA> ISSUESCOMPACTDATA, LIST <ISSUESCOMPACTJSON2APEX.DATA> TECHDEBTCOMPACTDATA, CHART__C EOICHART){
+        FOR (ISSUESCOMPACTJSON2APEX.DATA ISSUECD : ISSUESCOMPACTDATA){
+            DATASET__C TEMPDATASET = NEW DATASET__C ();
+            TEMPDATASET.CHART__C = EOICHART.ID;
+            TEMPDATASET.GROUP_LABEL__C = GROUP_LABEL_ISSUES;
+            TEMPDATASET.LABEL__C = ISSUECD.LABEL;
+            TEMPDATASET.VALUE__C = DECIMAL.VALUEOF(ISSUECD.VALUE);
+            DATASETSTOINSERT.ADD(TEMPDATASET);
         }
         
-        for (IssuesCompactJSON2Apex.Data tDebt : techDebtCompactData){           
+        FOR (ISSUESCOMPACTJSON2APEX.DATA TDEBT : TECHDEBTCOMPACTDATA){           
             
-            Dataset__c tempDataset = new Dataset__c ();
-            tempDataset.Chart__c = eoiChart.id;
-            tempDataset.Group_Label__c = GROUP_LABEL_TECH_DEBT;
-            tempDataset.Label__c = tDebt.label;
-            tempDataset.Value__c = Decimal.ValueOf(tDebt.value);
-            datasetsToInsert.add(tempDataset);
+            DATASET__C TEMPDATASET = NEW DATASET__C ();
+            TEMPDATASET.CHART__C = EOICHART.ID;
+            TEMPDATASET.GROUP_LABEL__C = GROUP_LABEL_TECH_DEBT;
+            TEMPDATASET.LABEL__C = TDEBT.LABEL;
+            TEMPDATASET.VALUE__C = DECIMAL.VALUEOF(TDEBT.VALUE);
+            DATASETSTOINSERT.ADD(TEMPDATASET);
         }  
     } 
     
-    private void addIssuesBySeverityAreaBPToDatasets (List <DataDataJSON2Apex.Data_Z> issuesBySeverityAreaBPData, Chart__c ibsChart, Chart__c iiaChart, Chart__c ibpChart){
-        for (DataDataJSON2Apex.Data_Z issueSBP : issuesBySeverityAreaBPData){        
-            for (DataDataJSON2Apex.Data issueSBPData : issueSBP.data){
-                if (issueSBP.name == 'Issues by Severity'){
-                    Dataset__c tempDataset = createDataset(issueSBPData);
-                    tempDataset.Chart__c = ibsChart.id;
-                    datasetsToInsert.add(tempDataset);
-                }else if (issueSBP.name == 'Issues by Area'){
-                    Dataset__c tempDataset = createDataset(issueSBPData);
-                    tempDataset.Chart__c = iiaChart.id;
-                    datasetsToInsert.add(tempDataset);
-                }else if (issueSBP.name == 'Issues by Best Practice' && issueSBPData.value != 0){                    
-                    Dataset__c tempDataset = createDataset(issueSBPData);
-                    tempDataset.Chart__c = ibpChart.id;
-                    datasetsToInsert.add(tempDataset);
+    PRIVATE VOID ADDISSUESBYSEVERITYAREABPTODATASETS (LIST <DATADATAJSON2APEX.DATA_Z> ISSUESBYSEVERITYAREABPDATA, CHART__C IBSCHART, CHART__C IIACHART, CHART__C IBPCHART){
+        FOR (DATADATAJSON2APEX.DATA_Z ISSUESBP : ISSUESBYSEVERITYAREABPDATA){        
+            FOR (DATADATAJSON2APEX.DATA ISSUESBPDATA : ISSUESBP.DATA){
+                IF (ISSUESBP.NAME == 'ISSUES BY SEVERITY'){
+                    DATASET__C TEMPDATASET = CREATEDATASET(ISSUESBPDATA);
+                    TEMPDATASET.CHART__C = IBSCHART.ID;
+                    DATASETSTOINSERT.ADD(TEMPDATASET);
+                }ELSE IF (ISSUESBP.NAME == 'ISSUES BY AREA'){
+                    DATASET__C TEMPDATASET = CREATEDATASET(ISSUESBPDATA);
+                    TEMPDATASET.CHART__C = IIACHART.ID;
+                    DATASETSTOINSERT.ADD(TEMPDATASET);
+                }ELSE IF (ISSUESBP.NAME == 'ISSUES BY BEST PRACTICE' && ISSUESBPDATA.VALUE != 0){                    
+                    DATASET__C TEMPDATASET = CREATEDATASET(ISSUESBPDATA);
+                    TEMPDATASET.CHART__C = IBPCHART.ID;
+                    DATASETSTOINSERT.ADD(TEMPDATASET);
                 }
             } 
         }
     } 
     
-    private void addConfigurationElementsToDatasets (List<DataDataJSON2Apex.Data> confElementsData, Chart__c ceChart){
-        for (DataDataJSON2Apex.Data confElement : confElementsData){
-            if (confElement.value != 0) {
-                Dataset__c tempDataset = createDataset(confElement);
-                tempDataset.Chart__c = ceChart.id;
-                datasetsToInsert.add(tempDataset);
+    PRIVATE VOID ADDCONFIGURATIONELEMENTSTODATASETS (LIST<DATADATAJSON2APEX.DATA> CONFELEMENTSDATA, CHART__C CECHART){
+        FOR (DATADATAJSON2APEX.DATA CONFELEMENT : CONFELEMENTSDATA){
+            IF (CONFELEMENT.VALUE != 0) {
+                DATASET__C TEMPDATASET = CREATEDATASET(CONFELEMENT);
+                TEMPDATASET.CHART__C = CECHART.ID;
+                DATASETSTOINSERT.ADD(TEMPDATASET);
             }
         } 
     } 
     
-    private void addIssuesDataPrivacyToDatasets (Chart__c idpChart, IssuesCompactJSON2Apex dataPrivacy){
-        Dataset__c tempDataset = new Dataset__c ();
-        tempDataset.Chart__c = idpChart.id;
-        tempDataset.Label__c = CHART_LABEL_SENSITIVE;
-        tempDataset.Value__c = dataPrivacy.sensitive;
-        datasetsToInsert.add(tempDataset);
-        tempDataset = new Dataset__c ();
-        tempDataset.Chart__c = idpChart.id;
-        tempDataset.Label__c = CHART_LABEL_EXTRA_SENSITIVE;
-        tempDataset.Value__c = dataPrivacy.extraSensitive;
-        datasetsToInsert.add(tempDataset);
-        tempDataset = new Dataset__c ();
-        tempDataset.Chart__c = idpChart.id;
-        tempDataset.Label__c = CHART_LABEL_PRIVATE;
-        tempDataset.Value__c = dataPrivacy.privateIssues;
-        datasetsToInsert.add(tempDataset);
+    PRIVATE VOID ADDISSUESDATAPRIVACYTODATASETS (CHART__C IDPCHART, ISSUESCOMPACTJSON2APEX DATAPRIVACY){
+        DATASET__C TEMPDATASET = NEW DATASET__C ();
+        TEMPDATASET.CHART__C = IDPCHART.ID;
+        TEMPDATASET.LABEL__C = CHART_LABEL_SENSITIVE;
+        TEMPDATASET.VALUE__C = DATAPRIVACY.SENSITIVE;
+        DATASETSTOINSERT.ADD(TEMPDATASET);
+        TEMPDATASET = NEW DATASET__C ();
+        TEMPDATASET.CHART__C = IDPCHART.ID;
+        TEMPDATASET.LABEL__C = CHART_LABEL_EXTRA_SENSITIVE;
+        TEMPDATASET.VALUE__C = DATAPRIVACY.EXTRASENSITIVE;
+        DATASETSTOINSERT.ADD(TEMPDATASET);
+        TEMPDATASET = NEW DATASET__C ();
+        TEMPDATASET.CHART__C = IDPCHART.ID;
+        TEMPDATASET.LABEL__C = CHART_LABEL_PRIVATE;
+        TEMPDATASET.VALUE__C = DATAPRIVACY.PRIVATEISSUES;
+        DATASETSTOINSERT.ADD(TEMPDATASET);
     }
     
-    private void getDataFromEndpoints (HttpRequest req){
-        HTTPResponse res = callInstanceInfo(req);
-        if (res.getStatusCode() == 200){
-            addOrgIdEnvironmentToDashboardNumbers(res);
-        } else {
-            throw new DashboardControllerHelperException(res.getBody());
+    PRIVATE VOID GETDATAFROMENDPOINTS (HTTPREQUEST REQ){
+        HTTPRESPONSE RES = CALLINSTANCEINFO(REQ);
+        IF (RES.GETSTATUSCODE() == 200){
+            ADDORGIDENVIRONMENTTODASHBOARDNUMBERS(RES);
+        } ELSE {
+            THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(RES.GETBODY());
         }
         
-        res = callCustVsConfigCompact(req);
-        if (res.getStatusCode() == 200){
-            addCustomizationRatioToDashboardNumbers(res);
-        } else {
-            throw new DashboardControllerHelperException(res.getBody());  
+        RES = CALLCUSTVSCONFIGCOMPACT(REQ);
+        IF (RES.GETSTATUSCODE() == 200){
+            ADDCUSTOMIZATIONRATIOTODASHBOARDNUMBERS(RES);
+        } ELSE {
+            THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(RES.GETBODY());  
         }
         
-        res = callIssuesOverTimeCompact(req);            
-        if (res.getStatusCode() == 200){
-            issuesCompactData = IssuesCompactJSON2Apex.parse(res.getBody())?.trend[0]?.data;
-        }  else {
-            throw new DashboardControllerHelperException(res.getBody()); 
+        RES = CALLISSUESOVERTIMECOMPACT(REQ);            
+        IF (RES.GETSTATUSCODE() == 200){
+            ISSUESCOMPACTDATA = ISSUESCOMPACTJSON2APEX.PARSE(RES.GETBODY())?.TREND[0]?.DATA;
+        }  ELSE {
+            THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(RES.GETBODY()); 
         }
         
-        res = callTechDebtCompact(req);
-        if (res.getStatusCode() == 200){
-            techDebtCompactData = IssuesCompactJSON2Apex.parse(res.getBody())?.trend[0]?.data;
-        } else {
-            throw new DashboardControllerHelperException(res.getBody());  
+        RES = CALLTECHDEBTCOMPACT(REQ);
+        IF (RES.GETSTATUSCODE() == 200){
+            TECHDEBTCOMPACTDATA = ISSUESCOMPACTJSON2APEX.PARSE(RES.GETBODY())?.TREND[0]?.DATA;
+        } ELSE {
+            THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(RES.GETBODY());  
         }
         
-        res = callIssuesByScan(req);
-        if (res.getStatusCode() == 200){  
-            issuesBySeverityAreaBPData = DataDataJSON2Apex.parse(res.getBody())?.data;            
-        } else {
-            throw new DashboardControllerHelperException(res.getBody());  
+        RES = CALLISSUESBYSCAN(REQ);
+        IF (RES.GETSTATUSCODE() == 200){  
+            ISSUESBYSEVERITYAREABPDATA = DATADATAJSON2APEX.PARSE(RES.GETBODY())?.DATA;            
+        } ELSE {
+            THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(RES.GETBODY());  
         }
         
-        res = callCesByType(req);
-        if (res.getStatusCode() == 200){
-            confElementsData = DataDataJSON2Apex.parse(res.getBody())?.data[0]?.data;
-        } else {
-            throw new DashboardControllerHelperException(res.getBody());  
+        RES = CALLCESBYTYPE(REQ);
+        IF (RES.GETSTATUSCODE() == 200){
+            CONFELEMENTSDATA = DATADATAJSON2APEX.PARSE(RES.GETBODY())?.DATA[0]?.DATA;
+        } ELSE {
+            THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(RES.GETBODY());  
         }            
         
-        res = callDataPrivacyCompact(req);
-        if (res.getStatusCode() == 200){
-            dataPrivacy= IssuesCompactJSON2Apex.parse(res.getBody());        
-        } else {
-            throw new DashboardControllerHelperException(res.getBody());  
+        RES = CALLDATAPRIVACYCOMPACT(REQ);
+        IF (RES.GETSTATUSCODE() == 200){
+            DATAPRIVACY= ISSUESCOMPACTJSON2APEX.PARSE(RES.GETBODY());        
+        } ELSE {
+            THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(RES.GETBODY());  
         } 
     }
     
-    public String updateDataFromPortal (String instID, Datetime lastScanDate){
-        instanceID = instID;
-        settings = ControllerHelperQC.getSettings();      
-        HttpRequest req = createRequest();
-        http = new Http();
-        HTTPResponse res = callLastScanInfo(req);
-        if (res.getStatusCode() == 200){
-            addLastScanInfoToDashboardNumbers (res);
+    PUBLIC STRING UPDATEDATAFROMPORTAL (STRING INSTID, DATETIME LASTSCANDATE){
+        INSTANCEID = INSTID;
+        SETTINGS = CONTROLLERHELPERQC.GETSETTINGS();      
+        HTTPREQUEST REQ = CREATEREQUEST();
+        HTTP = NEW HTTP();
+        HTTPRESPONSE RES = CALLLASTSCANINFO(REQ);
+        IF (RES.GETSTATUSCODE() == 200){
+            ADDLASTSCANINFOTODASHBOARDNUMBERS (RES);
 
-            if (lastScanDate != null && dashboardNumbers.Scan_Date__c != null && lastScanDate >= dashboardNumbers.Scan_Date__c) {
-                return MSG_NO_NEW_DATA;
+            IF (LASTSCANDATE != NULL && DASHBOARDNUMBERS.SCAN_DATE__C != NULL && LASTSCANDATE >= DASHBOARDNUMBERS.SCAN_DATE__C) {
+                RETURN MSG_NO_NEW_DATA;
             }
-            getDataFromEndpoints(req);
-            Savepoint sp = Database.setSavepoint();
-            try {
-                if (Schema.sObjectType.Dashboard_Data__c.fields.Total_Issues__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Total_Issues_Variation__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Technical_Debt__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Technical_Debt_Variation__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Code_Changes_Issues_Ratio__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.QoC__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.QoC_Variation__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Scan_Date__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Scan_ID_External__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Org_URL__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Org_Edition__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Instance_Description__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Org_Id__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Environment__c.isCreateable()
-                    && Schema.sObjectType.Dashboard_Data__c.fields.Customization_Ratio__c.isCreateable()   
+            GETDATAFROMENDPOINTS(REQ);
+            SAVEPOINT SP = DATABASE.SETSAVEPOINT();
+            TRY {
+                IF (SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.TOTAL_ISSUES__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.TOTAL_ISSUES_VARIATION__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.TECHNICAL_DEBT__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.TECHNICAL_DEBT_VARIATION__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.CODE_CHANGES_ISSUES_RATIO__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.QOC__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.QOC_VARIATION__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.SCAN_DATE__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.SCAN_ID_EXTERNAL__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.ORG_URL__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.ORG_EDITION__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.INSTANCE_DESCRIPTION__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.ORG_ID__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.ENVIRONMENT__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DASHBOARD_DATA__C.FIELDS.CUSTOMIZATION_RATIO__C.ISCREATEABLE()   
                 ) {
-                    insert dashboardNumbers; 
-                } else {
-                    throw new DashboardControllerHelperException(MSG_EXCEPTION_CREATE_DASHBOARD_DATA); 
+                    INSERT DASHBOARDNUMBERS; 
+                } ELSE {
+                    THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(MSG_EXCEPTION_CREATE_DASHBOARD_DATA); 
                 }
                 
-                Chart__c ibpChart = new Chart__c();
-                ibpChart.Dashboard_Data__c = dashboardNumbers.Id;
-                ibpChart.name = CHART_NAME_IBP;
+                CHART__C IBPCHART = NEW CHART__C();
+                IBPCHART.DASHBOARD_DATA__C = DASHBOARDNUMBERS.ID;
+                IBPCHART.NAME = CHART_NAME_IBP;
                 
-                Chart__c eoiChart = new Chart__c();
-                eoiChart.Dashboard_Data__c = dashboardNumbers.Id;
-                eoiChart.name = CHART_NAME_EOI;
+                CHART__C EOICHART = NEW CHART__C();
+                EOICHART.DASHBOARD_DATA__C = DASHBOARDNUMBERS.ID;
+                EOICHART.NAME = CHART_NAME_EOI;
                 
-                Chart__c iiaChart = new Chart__c();
-                iiaChart.Dashboard_Data__c = dashboardNumbers.Id;
-                iiaChart.name = CHART_NAME_IIA;
+                CHART__C IIACHART = NEW CHART__C();
+                IIACHART.DASHBOARD_DATA__C = DASHBOARDNUMBERS.ID;
+                IIACHART.NAME = CHART_NAME_IIA;
                 
-                Chart__c idpChart = new Chart__c();
-                idpChart.Dashboard_Data__c = dashboardNumbers.Id;
-                idpChart.name = CHART_NAME_IDP;
+                CHART__C IDPCHART = NEW CHART__C();
+                IDPCHART.DASHBOARD_DATA__C = DASHBOARDNUMBERS.ID;
+                IDPCHART.NAME = CHART_NAME_IDP;
                 
-                Chart__c ceChart = new Chart__c();
-                ceChart.Dashboard_Data__c = dashboardNumbers.Id;
-                ceChart.name = CHART_NAME_CE;
+                CHART__C CECHART = NEW CHART__C();
+                CECHART.DASHBOARD_DATA__C = DASHBOARDNUMBERS.ID;
+                CECHART.NAME = CHART_NAME_CE;
                 
-                Chart__c ibsChart = new Chart__c();
-                ibsChart.Dashboard_Data__c = dashboardNumbers.Id;
-                ibsChart.name = CHART_NAME_IBS;
+                CHART__C IBSCHART = NEW CHART__C();
+                IBSCHART.DASHBOARD_DATA__C = DASHBOARDNUMBERS.ID;
+                IBSCHART.NAME = CHART_NAME_IBS;
                 
-                List<Chart__c> chartsToInsert = new List<Chart__c> {ibpChart, eoiChart, iiaChart, idpChart, ceChart, ibsChart};
+                LIST<CHART__C> CHARTSTOINSERT = NEW LIST<CHART__C> {IBPCHART, EOICHART, IIACHART, IDPCHART, CECHART, IBSCHART};
                  
-                if (Schema.sObjectType.Chart__c.isCreateable()) {                    
-                    insert chartsToInsert;
-                } else {
-                    throw new DashboardControllerHelperException(MSG_EXCEPTION_CREATE_CHART); 
+                IF (SCHEMA.SOBJECTTYPE.CHART__C.ISCREATEABLE()) {                    
+                    INSERT CHARTSTOINSERT;
+                } ELSE {
+                    THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(MSG_EXCEPTION_CREATE_CHART); 
                 }
                 
-                datasetsToInsert = new List<Dataset__c>();   
-                addEvolutionOfIssuesToDatasets (issuesCompactData,  techDebtCompactData, eoiChart);
-                addIssuesBySeverityAreaBPToDatasets (issuesBySeverityAreaBPData, ibsChart, iiaChart, ibpChart);
-                addConfigurationElementsToDatasets ( confElementsData, ceChart);
-                addIssuesDataPrivacyToDatasets ( idpChart,  dataPrivacy);                
+                DATASETSTOINSERT = NEW LIST<DATASET__C>();   
+                ADDEVOLUTIONOFISSUESTODATASETS (ISSUESCOMPACTDATA,  TECHDEBTCOMPACTDATA, EOICHART);
+                ADDISSUESBYSEVERITYAREABPTODATASETS (ISSUESBYSEVERITYAREABPDATA, IBSCHART, IIACHART, IBPCHART);
+                ADDCONFIGURATIONELEMENTSTODATASETS ( CONFELEMENTSDATA, CECHART);
+                ADDISSUESDATAPRIVACYTODATASETS ( IDPCHART,  DATAPRIVACY);                
                 
-                if (Schema.sObjectType.Dataset__c.fields.Chart__c.isCreateable()
-                    && Schema.sObjectType.Dataset__c.fields.Label__c.isCreateable()
-                    && Schema.sObjectType.Dataset__c.fields.Value__c.isCreateable()
-                    && Schema.sObjectType.Dataset__c.fields.Group_Label__c.isCreateable()
+                IF (SCHEMA.SOBJECTTYPE.DATASET__C.FIELDS.CHART__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DATASET__C.FIELDS.LABEL__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DATASET__C.FIELDS.VALUE__C.ISCREATEABLE()
+                    && SCHEMA.SOBJECTTYPE.DATASET__C.FIELDS.GROUP_LABEL__C.ISCREATEABLE()
                 ) {
-                    insert datasetsToInsert; 
-                } else {
-                    throw new DashboardControllerHelperException(MSG_EXCEPTION_CREATE_DATASET); 
+                    INSERT DATASETSTOINSERT; 
+                } ELSE {
+                    THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(MSG_EXCEPTION_CREATE_DATASET); 
                 }
-                return MSG_OK;
-            } catch (Exception e) {
-                System.debug(LoggingLevel.Error, e.getStackTraceString()); 
-                Database.rollback(sp);
-                throw new DashboardControllerHelperException(e); 
+                RETURN MSG_OK;
+            } CATCH (EXCEPTION E) {
+                SYSTEM.DEBUG(LOGGINGLEVEL.ERROR, E.GETSTACKTRACESTRING()); 
+                DATABASE.ROLLBACK(SP);
+                THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(E); 
             }
                        
-        } else {
-            throw new DashboardControllerHelperException(res.getBody()); 
+        } ELSE {
+            THROW NEW DASHBOARDCONTROLLERHELPEREXCEPTION(RES.GETBODY()); 
         }
     }
     
-    private Dataset__c createDataset (DataDataJSON2Apex.Data dataElement){
-        Dataset__c tempDataset = new Dataset__c ();
-        tempDataset.Label__c = dataElement?.label;
-        tempDataset.Value__c = Decimal.ValueOf(dataElement?.value);
-        return tempDataset;
+    PRIVATE DATASET__C CREATEDATASET (DATADATAJSON2APEX.DATA DATAELEMENT){
+        DATASET__C TEMPDATASET = NEW DATASET__C ();
+        TEMPDATASET.LABEL__C = DATAELEMENT?.LABEL;
+        TEMPDATASET.VALUE__C = DECIMAL.VALUEOF(DATAELEMENT?.VALUE);
+        RETURN TEMPDATASET;
     }  
 }
