@@ -1,103 +1,103 @@
 /**
- * @description       : Controller class for lwc instance detail
- * @author            : Fran Mejías
- * @group             : 
- * @last modified on  : 20-06-2023
- * @last modified by  : Fran Mejías
- * Modifications Log 
- * Ver   Date         Author   Modification
- * 1.0   20-06-2023   Fran Mejías   Initial Version
+ * @DESCRIPTION       : CONTROLLER CLASS FOR LWC INSTANCE DETAIL
+ * @AUTHOR            : FRAN MEJÍAS
+ * @GROUP             : 
+ * @LAST MODIFIED ON  : 20-06-2023
+ * @LAST MODIFIED BY  : FRAN MEJÍAS
+ * MODIFICATIONS LOG 
+ * VER   DATE         AUTHOR   MODIFICATION
+ * 1.0   20-06-2023   FRAN MEJÍAS   INITIAL VERSION
 **/
-public with sharing class InstanceDetailControllerLWC {
+PUBLIC WITH SHARING CLASS INSTANCEDETAILCONTROLLERLWC {
     
     /**
-    * @description Execute a scan for a branch
+    * @DESCRIPTION EXECUTE A SCAN FOR A BRANCH
     */
-    @AuraEnabled
-    public static Map<String,Object> executeScan(String instanceId, String idc, String gitBranch) {
-        Map<String,Object> response = new Map<String,Object>();
-        String result;
-       Instance__c instance = new Instance__c(Id = instanceId, ID__c = idc);
+    @AURAENABLED
+    PUBLIC STATIC MAP<STRING,OBJECT> EXECUTESCAN(STRING INSTANCEID, STRING IDC, STRING GITBRANCH) {
+        MAP<STRING,OBJECT> RESPONSE = NEW MAP<STRING,OBJECT>();
+        STRING RESULT;
+       INSTANCE__C INSTANCE = NEW INSTANCE__C(ID = INSTANCEID, ID__C = IDC);
 
-        try {
-            globalCallsToQC exec = new globalCallsToQC();
-            result = exec.execute_scann(instance, gitBranch, true);
+        TRY {
+            GLOBALCALLSTOQC EXEC = NEW GLOBALCALLSTOQC();
+            RESULT = EXEC.EXECUTE_SCANN(INSTANCE, GITBRANCH, TRUE);
 
-            switch on result {
-                when 'Success' {
-                    response.put('isSuccess', 'OK');
-                    response.put('message', 'Scan launched.');
+            SWITCH ON RESULT {
+                WHEN 'SUCCESS' {
+                    RESPONSE.PUT('ISSUCCESS', 'OK');
+                    RESPONSE.PUT('MESSAGE', 'SCAN LAUNCHED.');
                 }
-                when 'Delay' {
-                    response.put('isSuccess', 'WARN');
-                    response.put('message', 'There are to many scans running on the same branch, please try again later.');
+                WHEN 'DELAY' {
+                    RESPONSE.PUT('ISSUCCESS', 'WARN');
+                    RESPONSE.PUT('MESSAGE', 'THERE ARE TO MANY SCANS RUNNING ON THE SAME BRANCH, PLEASE TRY AGAIN LATER.');
                 }
-                when else {
-                    response.put('isSuccess', 'ERR');
-                    response.put('message', 'We could not run the scan. Please contact your administrator.');
+                WHEN ELSE {
+                    RESPONSE.PUT('ISSUCCESS', 'ERR');
+                    RESPONSE.PUT('MESSAGE', 'WE COULD NOT RUN THE SCAN. PLEASE CONTACT YOUR ADMINISTRATOR.');
                 }
             }
         }
-        catch(Exception e) {
-            throw newException(e.getMessage());
+        CATCH(EXCEPTION E) {
+            THROW NEWEXCEPTION(E.GETMESSAGE());
         }           
-        return response;
+        RETURN RESPONSE;
     }
 
         /**
-    * @description Retrieve all the scans related to an instance
+    * @DESCRIPTION RETRIEVE ALL THE SCANS RELATED TO AN INSTANCE
     */
-    @AuraEnabled
-    public static List<scanWrapper> getScans(String instanceId) {
-        List<scanWrapper> result = new List<scanWrapper>();
-        for(Scann__c scan : [SELECT Id, Date__c, State__c, Branch_Name__c FROM Scann__c WHERE Instance__c = :instanceId ORDER BY Date__c DESC]) {
-            scanWrapper wrap = new scanWrapper();
+    @AURAENABLED
+    PUBLIC STATIC LIST<SCANWRAPPER> GETSCANS(STRING INSTANCEID) {
+        LIST<SCANWRAPPER> RESULT = NEW LIST<SCANWRAPPER>();
+        FOR(SCANN__C SCAN : [SELECT ID, DATE__C, STATE__C, BRANCH_NAME__C FROM SCANN__C WHERE INSTANCE__C = :INSTANCEID ORDER BY DATE__C DESC]) {
+            SCANWRAPPER WRAP = NEW SCANWRAPPER();
 
-            wrap.scanDate = scan.Date__c.format();
-            wrap.Branch = scan.Branch_Name__c;
-            wrap.scanId = scan.Id;
-            wrap.State = scan.State__c;
-            result.add(wrap);
+            WRAP.SCANDATE = SCAN.DATE__C.FORMAT();
+            WRAP.BRANCH = SCAN.BRANCH_NAME__C;
+            WRAP.SCANID = SCAN.ID;
+            WRAP.STATE = SCAN.STATE__C;
+            RESULT.ADD(WRAP);
         }            
-        return result;
+        RETURN RESULT;
     }
 
     /**
-    * @description Retrieve IDC from the instance
+    * @DESCRIPTION RETRIEVE IDC FROM THE INSTANCE
     */
-    @AuraEnabled
-    public static string getInstanceId(Id instanceId) {
-        String response = null; 
+    @AURAENABLED
+    PUBLIC STATIC STRING GETINSTANCEID(ID INSTANCEID) {
+        STRING RESPONSE = NULL; 
         
-        List<Instance__c> instance = [SELECT ID__c FROM Instance__c WHERE Id = :instanceId LIMIT 1]; 
+        LIST<INSTANCE__C> INSTANCE = [SELECT ID__C FROM INSTANCE__C WHERE ID = :INSTANCEID LIMIT 1]; 
 
-        if (!instance.isEmpty()) {
-          response = instance[0].ID__C; 
+        IF (!INSTANCE.ISEMPTY()) {
+          RESPONSE = INSTANCE[0].ID__C; 
         } 
-        return response;
+        RETURN RESPONSE;
     }
 
     /**
-    * @description Retrieve NAMESPACE of the ORG
+    * @DESCRIPTION RETRIEVE NAMESPACE OF THE ORG
     */
-    @AuraEnabled
-    public static string getNamespaceOrg() {
+    @AURAENABLED
+    PUBLIC STATIC STRING GETNAMESPACEORG() {
         
-        string response = [SELECT NamespacePrefix FROM Organization].NamespacePrefix;
+        STRING RESPONSE = [SELECT NAMESPACEPREFIX FROM ORGANIZATION].NAMESPACEPREFIX;
         
-        return response;
+        RETURN RESPONSE;
     }
 
-    private static AuraHandledException newException(String message) {
-        AuraHandledException e = new AuraHandledException(message);
-        e.setMessage(message);
-        return e;
+    PRIVATE STATIC AURAHANDLEDEXCEPTION NEWEXCEPTION(STRING MESSAGE) {
+        AURAHANDLEDEXCEPTION E = NEW AURAHANDLEDEXCEPTION(MESSAGE);
+        E.SETMESSAGE(MESSAGE);
+        RETURN E;
     }        
 
-    public class scanWrapper {
-        @AuraEnabled public String scanDate {get;set;}
-        @AuraEnabled public String Branch {get;set;}
-        @AuraEnabled public String State {get;set;}
-        @AuraEnabled public String scanId {get;set;}
+    PUBLIC CLASS SCANWRAPPER {
+        @AURAENABLED PUBLIC STRING SCANDATE {GET;SET;}
+        @AURAENABLED PUBLIC STRING BRANCH {GET;SET;}
+        @AURAENABLED PUBLIC STRING STATE {GET;SET;}
+        @AURAENABLED PUBLIC STRING SCANID {GET;SET;}
         }
 }

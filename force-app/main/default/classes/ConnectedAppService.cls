@@ -124,4 +124,64 @@ public with sharing class ConnectedAppService {
         public Boolean IsActive;
         public String SiteName;
     }
+
+    public class RemoteSiteSettings1{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings2{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings3{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings4{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings5{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings6{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings7{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings8{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings9{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings10{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings11{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings12{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings12{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings13{
+        public List<RemoteSiteSetting> records;
+    }
+
+    public class RemoteSiteSettings14{
+        public List<RemoteSiteSetting> records;
+    }
 }

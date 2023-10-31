@@ -1,246 +1,246 @@
-public with sharing class DashboardController {
+PUBLIC WITH SHARING CLASS DASHBOARDCONTROLLER {
     
-    private final static String MSG_UPDATED_OK = ' Data updated successfully.';
-    private final static String MSG_INVAL_TOKEN = 'No valid token detected. On "Quality Clouds" tab, click "Go To Settings" button and click "Get Token" or "Refresh Token" to get valid token.';
-    private final static String MSG_ORG_NOT_CONNECTED = 'Current org is not connected to Quality Clouds service. To be able to scan current org for issues please go to "Quality Clouds" tab. On "Instances" page, click "Connect org to QC" button.';
-    private final static String MSG_MORE_THAN_ONE_INST = 'More than 1 instance with current org ID found. Please remove unnecessary instances and try again.';
-    public String msgInvalidToken { get; private set; }
-    public String msgOrgIsNotConnected { get; private set; }
-    private final static Integer ITEMS_TO_SHOW = 10;
-    private DataWrapper data; 
-    private DatasetcWrapper[] dwList;
-    public String message_type_out{get;set;}
-    public String message_out{get;set;}
-    public String message{get;set;}
-    public String message_type{get;set;}
+    PRIVATE FINAL STATIC STRING MSG_UPDATED_OK = ' DATA UPDATED SUCCESSFULLY.';
+    PRIVATE FINAL STATIC STRING MSG_INVAL_TOKEN = 'NO VALID TOKEN DETECTED. ON "QUALITY CLOUDS" TAB, CLICK "GO TO SETTINGS" BUTTON AND CLICK "GET TOKEN" OR "REFRESH TOKEN" TO GET VALID TOKEN.';
+    PRIVATE FINAL STATIC STRING MSG_ORG_NOT_CONNECTED = 'CURRENT ORG IS NOT CONNECTED TO QUALITY CLOUDS SERVICE. TO BE ABLE TO SCAN CURRENT ORG FOR ISSUES PLEASE GO TO "QUALITY CLOUDS" TAB. ON "INSTANCES" PAGE, CLICK "CONNECT ORG TO QC" BUTTON.';
+    PRIVATE FINAL STATIC STRING MSG_MORE_THAN_ONE_INST = 'MORE THAN 1 INSTANCE WITH CURRENT ORG ID FOUND. PLEASE REMOVE UNNECESSARY INSTANCES AND TRY AGAIN.';
+    PUBLIC STRING MSGINVALIDTOKEN { GET; PRIVATE SET; }
+    PUBLIC STRING MSGORGISNOTCONNECTED { GET; PRIVATE SET; }
+    PRIVATE FINAL STATIC INTEGER ITEMS_TO_SHOW = 10;
+    PRIVATE DATAWRAPPER DATA; 
+    PRIVATE DATASETCWRAPPER[] DWLIST;
+    PUBLIC STRING MESSAGE_TYPE_OUT{GET;SET;}
+    PUBLIC STRING MESSAGE_OUT{GET;SET;}
+    PUBLIC STRING MESSAGE{GET;SET;}
+    PUBLIC STRING MESSAGE_TYPE{GET;SET;}
 
-    public DashboardController() {
-        msgInvalidToken = MSG_INVAL_TOKEN;
-        msgOrgIsNotConnected = MSG_ORG_NOT_CONNECTED;
-        message = ApexPages.currentPage().getParameters().get('message');
-        message_type = ApexPages.currentPage().getParameters().get('message_type');
+    PUBLIC DASHBOARDCONTROLLER() {
+        MSGINVALIDTOKEN = MSG_INVAL_TOKEN;
+        MSGORGISNOTCONNECTED = MSG_ORG_NOT_CONNECTED;
+        MESSAGE = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('MESSAGE');
+        MESSAGE_TYPE = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('MESSAGE_TYPE');
     }
 
-    private class DatasetcWrapper implements Comparable {
-        private Dataset__c d;
-        public DatasetcWrapper(Dataset__c d) {
-            this.d = d;
+    PRIVATE CLASS DATASETCWRAPPER IMPLEMENTS COMPARABLE {
+        PRIVATE DATASET__C D;
+        PUBLIC DATASETCWRAPPER(DATASET__C D) {
+            THIS.D = D;
         }
-        public Dataset__c getDatasetc (){
-            return this.d;
+        PUBLIC DATASET__C GETDATASETC (){
+            RETURN THIS.D;
         }
-        public Integer compareTo(Object compareTo) {
-            DatasetcWrapper ctD = (DatasetcWrapper) compareTo;
-            if (ctD.d.Label__c < this.d.Label__c) {
-                return +1;
+        PUBLIC INTEGER COMPARETO(OBJECT COMPARETO) {
+            DATASETCWRAPPER CTD = (DATASETCWRAPPER) COMPARETO;
+            IF (CTD.D.LABEL__C < THIS.D.LABEL__C) {
+                RETURN +1;
             }
-            if (ctD.d.Label__c > this.d.Label__c) {
-                return -1;
+            IF (CTD.D.LABEL__C > THIS.D.LABEL__C) {
+                RETURN -1;
             }
-            return 0; 
+            RETURN 0; 
         }   
     }    
     
-    public class DataWrapper{
-        public Dashboard_Data__c numbers {get;set;}
-        public List<DataSet> evolutionOfIssuesData{get;set;}
-        public DataSet issuesBySeverityData{get;set;}
-        public List<DataSet> issuesByImpactAreaData{get;set;}
-        public DataSet issuesDataPrivacyData{get;set;}
-        public DataSet issuesByBestPracticesData{get;set;}
-        public DataSet configurationElementsData{get;set;}
+    PUBLIC CLASS DATAWRAPPER{
+        PUBLIC DASHBOARD_DATA__C NUMBERS {GET;SET;}
+        PUBLIC LIST<DATASET> EVOLUTIONOFISSUESDATA{GET;SET;}
+        PUBLIC DATASET ISSUESBYSEVERITYDATA{GET;SET;}
+        PUBLIC LIST<DATASET> ISSUESBYIMPACTAREADATA{GET;SET;}
+        PUBLIC DATASET ISSUESDATAPRIVACYDATA{GET;SET;}
+        PUBLIC DATASET ISSUESBYBESTPRACTICESDATA{GET;SET;}
+        PUBLIC DATASET CONFIGURATIONELEMENTSDATA{GET;SET;}
     }
     
-    public class DataSet{
-        public String lables{get;set;}
-        public String groupLables{get;set;}
-        public List<Decimal> values{get;set;}
+    PUBLIC CLASS DATASET{
+        PUBLIC STRING LABLES{GET;SET;}
+        PUBLIC STRING GROUPLABLES{GET;SET;}
+        PUBLIC LIST<DECIMAL> VALUES{GET;SET;}
     }
     
-    private List<Dataset__c> sortDatasetcListByLabel(List<Dataset__c> dList) {
-        dwList = new List<DatasetcWrapper>();
-        for (Dataset__c d: dList){
-            dwList.add(new DatasetcWrapper(d));
+    PRIVATE LIST<DATASET__C> SORTDATASETCLISTBYLABEL(LIST<DATASET__C> DLIST) {
+        DWLIST = NEW LIST<DATASETCWRAPPER>();
+        FOR (DATASET__C D: DLIST){
+            DWLIST.ADD(NEW DATASETCWRAPPER(D));
         }
-        dwList.sort();
-        List<Dataset__c> sortedList = new  List<Dataset__c>();
-        for (DatasetcWrapper dw: dwList){
-            sortedList.add(dw.getDatasetc());
+        DWLIST.SORT();
+        LIST<DATASET__C> SORTEDLIST = NEW  LIST<DATASET__C>();
+        FOR (DATASETCWRAPPER DW: DWLIST){
+            SORTEDLIST.ADD(DW.GETDATASETC());
         }
-        return sortedList;
+        RETURN SORTEDLIST;
     }
   
-    public DataWrapper getData(){
+    PUBLIC DATAWRAPPER GETDATA(){
         
-        if (!getAPIKeyValid()) {
-            return null;
+        IF (!GETAPIKEYVALID()) {
+            RETURN NULL;
         }
-        if (data!=null){
-            return data;
+        IF (DATA!=NULL){
+            RETURN DATA;
 
-        } else {
-            data = new DataWrapper ();
+        } ELSE {
+            DATA = NEW DATAWRAPPER ();
             
-            List <Dashboard_Data__c> dataNumbers = [SELECT 
-                                                    Id, 
-                                                    CreatedDate,
-                                                    Total_Issues__c, 
-                                                    Total_Issues_Variation__c, 
-                                                    Technical_Debt__c, 
-                                                    Technical_Debt_Variation__c, 
-                                                    Customization_Ratio__c, 
-                                                    Code_Changes_Issues_Ratio__c, 
-                                                    QoC__c, 
-                                                    QoC_Variation__c, 
-                                                    Scan_Date__c, 
-                                                    Scan_ID_External__c, 
-                                                    Instance_Description__c, 
-                                                    Environment__c, 
-                                                    Org_URL__c, 
-                                                    Org_Edition__c, 
-                                                    Org_Id__c
-                                                    FROM Dashboard_Data__c
-                                                    ORDER BY CreatedDate DESC
+            LIST <DASHBOARD_DATA__C> DATANUMBERS = [SELECT 
+                                                    ID, 
+                                                    CREATEDDATE,
+                                                    TOTAL_ISSUES__C, 
+                                                    TOTAL_ISSUES_VARIATION__C, 
+                                                    TECHNICAL_DEBT__C, 
+                                                    TECHNICAL_DEBT_VARIATION__C, 
+                                                    CUSTOMIZATION_RATIO__C, 
+                                                    CODE_CHANGES_ISSUES_RATIO__C, 
+                                                    QOC__C, 
+                                                    QOC_VARIATION__C, 
+                                                    SCAN_DATE__C, 
+                                                    SCAN_ID_EXTERNAL__C, 
+                                                    INSTANCE_DESCRIPTION__C, 
+                                                    ENVIRONMENT__C, 
+                                                    ORG_URL__C, 
+                                                    ORG_EDITION__C, 
+                                                    ORG_ID__C
+                                                    FROM DASHBOARD_DATA__C
+                                                    ORDER BY CREATEDDATE DESC
                                                     LIMIT 1
                                                    ];
 
-            if (!dataNumbers.isEmpty()) {
-                data.numbers = dataNumbers[0];
+            IF (!DATANUMBERS.ISEMPTY()) {
+                DATA.NUMBERS = DATANUMBERS[0];
             }                 
-            if (data.numbers?.Id != null){
-                for (Chart__c chart: [SELECT Name, 
-                                            Dashboard_Data__c,
-                                            (SELECT Group_Label__c, Label__c, Value__c FROM Datasets__r 
-                                                ORDER BY Value__c 
+            IF (DATA.NUMBERS?.ID != NULL){
+                FOR (CHART__C CHART: [SELECT NAME, 
+                                            DASHBOARD_DATA__C,
+                                            (SELECT GROUP_LABEL__C, LABEL__C, VALUE__C FROM DATASETS__R 
+                                                ORDER BY VALUE__C 
                                                 DESC NULLS LAST) 
-                                      FROM Chart__c 
-                                      WHERE Dashboard_Data__c =: data.numbers.Id])
+                                      FROM CHART__C 
+                                      WHERE DASHBOARD_DATA__C =: DATA.NUMBERS.ID])
                 {
-                    addChartToData (chart);                   
+                    ADDCHARTTODATA (CHART);                   
                 }
             }           
-            return data;
+            RETURN DATA;
         }
     }
 
-    private void addChartToData (Chart__c chart){
-        if (chart.Name == DashboardControllerHelper.CHART_NAME_IBP){
-            data.issuesByBestPracticesData = chartToDataset(chart, null, ITEMS_TO_SHOW);
-        } else if (chart.Name == DashboardControllerHelper.CHART_NAME_EOI){
-            data.evolutionOfIssuesData = new List<DataSet>();
-            data.evolutionOfIssuesData.add(chartToDataset(chart, DashboardControllerHelper.GROUP_LABEL_ISSUES, 0));
-            data.evolutionOfIssuesData.add(chartToDataset(chart, DashboardControllerHelper.GROUP_LABEL_TECH_DEBT, 0));
-        } else if (chart.Name == DashboardControllerHelper.CHART_NAME_IIA){
-            data.issuesByImpactAreaData = new List<DataSet>();
-            data.issuesByImpactAreaData.add(chartToDataset(chart, null, 0));
-        } else if (chart.Name == DashboardControllerHelper.CHART_NAME_IDP){
-            data.issuesDataPrivacyData = chartToDataset(chart, null, 0);
-        } else if (chart.Name == DashboardControllerHelper.CHART_NAME_IBS){
-            data.issuesBySeverityData = chartToDataset(chart, null, 0);
-        } else if (chart.Name == DashboardControllerHelper.CHART_NAME_CE){
-            data.configurationElementsData = chartToDataset(chart, null, ITEMS_TO_SHOW);
+    PRIVATE VOID ADDCHARTTODATA (CHART__C CHART){
+        IF (CHART.NAME == DASHBOARDCONTROLLERHELPER.CHART_NAME_IBP){
+            DATA.ISSUESBYBESTPRACTICESDATA = CHARTTODATASET(CHART, NULL, ITEMS_TO_SHOW);
+        } ELSE IF (CHART.NAME == DASHBOARDCONTROLLERHELPER.CHART_NAME_EOI){
+            DATA.EVOLUTIONOFISSUESDATA = NEW LIST<DATASET>();
+            DATA.EVOLUTIONOFISSUESDATA.ADD(CHARTTODATASET(CHART, DASHBOARDCONTROLLERHELPER.GROUP_LABEL_ISSUES, 0));
+            DATA.EVOLUTIONOFISSUESDATA.ADD(CHARTTODATASET(CHART, DASHBOARDCONTROLLERHELPER.GROUP_LABEL_TECH_DEBT, 0));
+        } ELSE IF (CHART.NAME == DASHBOARDCONTROLLERHELPER.CHART_NAME_IIA){
+            DATA.ISSUESBYIMPACTAREADATA = NEW LIST<DATASET>();
+            DATA.ISSUESBYIMPACTAREADATA.ADD(CHARTTODATASET(CHART, NULL, 0));
+        } ELSE IF (CHART.NAME == DASHBOARDCONTROLLERHELPER.CHART_NAME_IDP){
+            DATA.ISSUESDATAPRIVACYDATA = CHARTTODATASET(CHART, NULL, 0);
+        } ELSE IF (CHART.NAME == DASHBOARDCONTROLLERHELPER.CHART_NAME_IBS){
+            DATA.ISSUESBYSEVERITYDATA = CHARTTODATASET(CHART, NULL, 0);
+        } ELSE IF (CHART.NAME == DASHBOARDCONTROLLERHELPER.CHART_NAME_CE){
+            DATA.CONFIGURATIONELEMENTSDATA = CHARTTODATASET(CHART, NULL, ITEMS_TO_SHOW);
         }
     }
 
-    private List<Dataset__c> groupExtraItems(List<Dataset__c> datasetcList, Integer itemsToShow){
-        if (datasetcList.size() > itemsToShow) {
-            Integer counter = 1;
-            Integer otherItemsCounter = 0;
-            Decimal otherItemsSum = 0;
-            List<Dataset__c> tempDatasetcList = new List<Dataset__c>();
-            for (Dataset__c d : datasetcList) {
-                if (counter < itemsToShow) {
-                    tempDatasetcList.add(d);
-                } else {
-                    otherItemsCounter++;
-                    otherItemsSum += d.Value__c;
+    PRIVATE LIST<DATASET__C> GROUPEXTRAITEMS(LIST<DATASET__C> DATASETCLIST, INTEGER ITEMSTOSHOW){
+        IF (DATASETCLIST.SIZE() > ITEMSTOSHOW) {
+            INTEGER COUNTER = 1;
+            INTEGER OTHERITEMSCOUNTER = 0;
+            DECIMAL OTHERITEMSSUM = 0;
+            LIST<DATASET__C> TEMPDATASETCLIST = NEW LIST<DATASET__C>();
+            FOR (DATASET__C D : DATASETCLIST) {
+                IF (COUNTER < ITEMSTOSHOW) {
+                    TEMPDATASETCLIST.ADD(D);
+                } ELSE {
+                    OTHERITEMSCOUNTER++;
+                    OTHERITEMSSUM += D.VALUE__C;
                 }
-                counter++;
+                COUNTER++;
             }
-            if (otherItemsCounter > 0) {
-                tempDatasetcList.add(new Dataset__c (
-                    Group_Label__c = datasetcList[0].Group_Label__c,
-                    Value__c = otherItemsSum,
-                    Label__c = 'Other ' + otherItemsCounter + ' items'
+            IF (OTHERITEMSCOUNTER > 0) {
+                TEMPDATASETCLIST.ADD(NEW DATASET__C (
+                    GROUP_LABEL__C = DATASETCLIST[0].GROUP_LABEL__C,
+                    VALUE__C = OTHERITEMSSUM,
+                    LABEL__C = 'OTHER ' + OTHERITEMSCOUNTER + ' ITEMS'
                 ));
             }               
-            datasetcList = tempDatasetcList;
+            DATASETCLIST = TEMPDATASETCLIST;
         }
-        return datasetcList;
+        RETURN DATASETCLIST;
     }
     
-    private DataSet chartToDataset (Chart__c chart, String groupLabel, Integer itemsToShow){
-        DataSet chartDataSet  = new DataSet();
-        List<String> lablesList = new List<String>();
-        List<String> groupLablesList = new List<String>();
-        List<Decimal> valuesList = new List<Decimal>();
-        List<Dataset__c> datasetcList;
-        if (groupLabel!=null) {
-            datasetcList = sortDatasetcListByLabel(chart.Datasets__r);
-        } else {
-            datasetcList = chart.Datasets__r;
+    PRIVATE DATASET CHARTTODATASET (CHART__C CHART, STRING GROUPLABEL, INTEGER ITEMSTOSHOW){
+        DATASET CHARTDATASET  = NEW DATASET();
+        LIST<STRING> LABLESLIST = NEW LIST<STRING>();
+        LIST<STRING> GROUPLABLESLIST = NEW LIST<STRING>();
+        LIST<DECIMAL> VALUESLIST = NEW LIST<DECIMAL>();
+        LIST<DATASET__C> DATASETCLIST;
+        IF (GROUPLABEL!=NULL) {
+            DATASETCLIST = SORTDATASETCLISTBYLABEL(CHART.DATASETS__R);
+        } ELSE {
+            DATASETCLIST = CHART.DATASETS__R;
         }
 
-        if (itemsToShow > 0) {
-            datasetcList = groupExtraItems(datasetcList, itemsToShow);
+        IF (ITEMSTOSHOW > 0) {
+            DATASETCLIST = GROUPEXTRAITEMS(DATASETCLIST, ITEMSTOSHOW);
         }
-        for (Dataset__c dataRow : datasetcList){
-            if ((groupLabel == dataRow.Group_Label__c)||(dataRow.Group_Label__c == '')){
-                lablesList.add( String.escapeSingleQuotes(dataRow.Label__c));
-                valuesList.add(dataRow.Value__c);
-                groupLablesList.add(dataRow.Group_Label__c);
+        FOR (DATASET__C DATAROW : DATASETCLIST){
+            IF ((GROUPLABEL == DATAROW.GROUP_LABEL__C)||(DATAROW.GROUP_LABEL__C == '')){
+                LABLESLIST.ADD( STRING.ESCAPESINGLEQUOTES(DATAROW.LABEL__C));
+                VALUESLIST.ADD(DATAROW.VALUE__C);
+                GROUPLABLESLIST.ADD(DATAROW.GROUP_LABEL__C);
             }            
         }
-        chartDataSet.lables = JSON.serialize(lablesList);
-        chartDataSet.groupLables = JSON.serialize(groupLablesList);        
-        chartDataSet.values = valuesList;
-        return chartDataSet;
+        CHARTDATASET.LABLES = JSON.SERIALIZE(LABLESLIST);
+        CHARTDATASET.GROUPLABLES = JSON.SERIALIZE(GROUPLABLESLIST);        
+        CHARTDATASET.VALUES = VALUESLIST;
+        RETURN CHARTDATASET;
     }  
         
-    public Boolean getAPIKeyValid(){       
-        return ControllerHelperQC.checkAPIKEY();
+    PUBLIC BOOLEAN GETAPIKEYVALID(){       
+        RETURN CONTROLLERHELPERQC.CHECKAPIKEY();
     }
 
-    public Boolean getCheckIfOrgConnected(){   
-        return ControllerHelperQC.checkIfOrgConnected();   
+    PUBLIC BOOLEAN GETCHECKIFORGCONNECTED(){   
+        RETURN CONTROLLERHELPERQC.CHECKIFORGCONNECTED();   
     }
     
-    public PageReference updateDataFromPortal (){
+    PUBLIC PAGEREFERENCE UPDATEDATAFROMPORTAL (){
         
-        try {
-            String currentOrgId = UserInfo.getOrganizationId();
-            PermissionChecker.exceptionIfNotAccessible(Instance__c.getSObjectType());
-            List<Instance__c> instancesForCurrentOrg = [SELECT Id__c, Inst_Org_Id__c FROM Instance__c WHERE Inst_Org_Id__c =: currentOrgId];            
-            String instanceId;
-            if (instancesForCurrentOrg.size() == 1) {
-                instanceId = instancesForCurrentOrg[0].ID__c;
-            } else if ( instancesForCurrentOrg.size() < 1 ){
-                ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR, MSG_ORG_NOT_CONNECTED));
-                return null;
-            } else {
-                ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR, MSG_MORE_THAN_ONE_INST));
-                return null;
+        TRY {
+            STRING CURRENTORGID = USERINFO.GETORGANIZATIONID();
+            PERMISSIONCHECKER.EXCEPTIONIFNOTACCESSIBLE(INSTANCE__C.GETSOBJECTTYPE());
+            LIST<INSTANCE__C> INSTANCESFORCURRENTORG = [SELECT ID__C, INST_ORG_ID__C FROM INSTANCE__C WHERE INST_ORG_ID__C =: CURRENTORGID];            
+            STRING INSTANCEID;
+            IF (INSTANCESFORCURRENTORG.SIZE() == 1) {
+                INSTANCEID = INSTANCESFORCURRENTORG[0].ID__C;
+            } ELSE IF ( INSTANCESFORCURRENTORG.SIZE() < 1 ){
+                APEXPAGES.ADDMESSAGE(NEW APEXPAGES.MESSAGE(APEXPAGES.SEVERITY.ERROR, MSG_ORG_NOT_CONNECTED));
+                RETURN NULL;
+            } ELSE {
+                APEXPAGES.ADDMESSAGE(NEW APEXPAGES.MESSAGE(APEXPAGES.SEVERITY.ERROR, MSG_MORE_THAN_ONE_INST));
+                RETURN NULL;
             }
-            DashboardControllerHelper helper = new DashboardControllerHelper();
-            Datetime lastScanDate = getdata()?.numbers?.Scan_Date__c;     
-            String result = helper.updateDataFromPortal(instanceId, lastScanDate);    
-            if (result == 'OK') {
-                message_type_out = 'confirm';
-                message_out = MSG_UPDATED_OK;
-                PageReference tempPage = new PageReference('/apex/Dashboard');
-                tempPage.getParameters().put('message_type', message_type_out);
-                tempPage.getParameters().put('message', message_out);
-                tempPage.setRedirect(true);
-                return tempPage;
-            } else {
-                ApexPages.getMessages().clear();
-                ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.WARNING, result));
-                return null;
+            DASHBOARDCONTROLLERHELPER HELPER = NEW DASHBOARDCONTROLLERHELPER();
+            DATETIME LASTSCANDATE = GETDATA()?.NUMBERS?.SCAN_DATE__C;     
+            STRING RESULT = HELPER.UPDATEDATAFROMPORTAL(INSTANCEID, LASTSCANDATE);    
+            IF (RESULT == 'OK') {
+                MESSAGE_TYPE_OUT = 'CONFIRM';
+                MESSAGE_OUT = MSG_UPDATED_OK;
+                PAGEREFERENCE TEMPPAGE = NEW PAGEREFERENCE('/APEX/DASHBOARD');
+                TEMPPAGE.GETPARAMETERS().PUT('MESSAGE_TYPE', MESSAGE_TYPE_OUT);
+                TEMPPAGE.GETPARAMETERS().PUT('MESSAGE', MESSAGE_OUT);
+                TEMPPAGE.SETREDIRECT(TRUE);
+                RETURN TEMPPAGE;
+            } ELSE {
+                APEXPAGES.GETMESSAGES().CLEAR();
+                APEXPAGES.ADDMESSAGE(NEW APEXPAGES.MESSAGE(APEXPAGES.SEVERITY.WARNING, RESULT));
+                RETURN NULL;
             }        
-        } catch (Exception e) {    
-            System.debug(LoggingLevel.Error, e.getStackTraceString());    
-            ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR, e.getMessage() + ', ' + e.getCause()));
-            return null;
+        } CATCH (EXCEPTION E) {    
+            SYSTEM.DEBUG(LOGGINGLEVEL.ERROR, E.GETSTACKTRACESTRING());    
+            APEXPAGES.ADDMESSAGE(NEW APEXPAGES.MESSAGE(APEXPAGES.SEVERITY.ERROR, E.GETMESSAGE() + ', ' + E.GETCAUSE()));
+            RETURN NULL;
         }
     }  
 }

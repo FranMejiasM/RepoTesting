@@ -1,437 +1,406 @@
-/**
-* @description The helper manages much of the creditals and scans of Quality Clouds 
-*/
-public with sharing class ControllerHelperQC {
 
-    /**
-* @description This is a exception class  of no permission 
-*/
-    public class NoPermissionException extends Exception {}
-    
-    /**
-* @description This method  checks if the Org is connected whit Quality Clouds
-*/
-    public static Boolean checkIfOrgConnected(){
-        String currentOrgId = UserInfo.getOrganizationId();
-        Integer orgInstances = [SELECT Count() FROM Instance__c WHERE Inst_Org_Id__c =: currentOrgId];
-        return (orgInstances > 0) ? true : false;         
-    }
-        
-    /**
-* @description This method get the settings and credentials to connect whit Quality Clouds
-*/
-    public static QualityCloudsSettings__mdt getSettings(){
-        PermissionChecker.exceptionIfNotAccessible(QualityCloudsSettings__mdt.getSObjectType());
+PUBLIC WITH SHARING CLASS CONTROLLERHELPERQC {
 
-        QualityCloudsSettings__mdt  settings;        
-        if (settings == null ){
-            try{                
-                settings = QualityCloudsSettings__mdt.getInstance('APi_Prod');
-            }catch (Exception e){
-                System.debug(LoggingLevel.Error, e.getStackTraceString()); 
-                settings = new QualityCloudsSettings__mdt();                
+
+    PUBLIC CLASS NOPERMISSIONEXCEPTION EXTENDS EXCEPTION {}
+    
+PUBLIC STATIC BOOLEAN CHECKIFORGCONNECTED(){
+        STRING CURRENTORGID = USERINFO.GETORGANIZATIONID();
+        INTEGER ORGINSTANCES = [SELECT COUNT() FROM INSTANCE__C WHERE INST_ORG_ID__C =: CURRENTORGID];
+        RETURN (ORGINSTANCES > 0) ? TRUE : FALSE;         
+    }
+        
+
+    PUBLIC STATIC QUALITYCLOUDSSETTINGS__MDT GETSETTINGS(){
+        PERMISSIONCHECKER.EXCEPTIONIFNOTACCESSIBLE(QUALITYCLOUDSSETTINGS__MDT.GETSOBJECTTYPE());
+
+        QUALITYCLOUDSSETTINGS__MDT  SETTINGS;        
+        IF (SETTINGS == NULL ){
+            TRY{                
+                SETTINGS = QUALITYCLOUDSSETTINGS__MDT.GETINSTANCE('API_PROD');
+            }CATCH (EXCEPTION E){
+                SYSTEM.DEBUG(LOGGINGLEVEL.ERROR, E.GETSTACKTRACESTRING()); 
+                SETTINGS = NEW QUALITYCLOUDSSETTINGS__MDT();                
             }
         }
-        return settings;
+        RETURN SETTINGS;
     }
     
-    /**
-* @description This method Generates a Random String 
-*/
-    public static String generateRandomString(Integer stringLength, Boolean allCaps) {
-        String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
-        if (allCaps){
-            chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+    PUBLIC STATIC STRING GENERATERANDOMSTRING(INTEGER STRINGLENGTH, BOOLEAN ALLCAPS) {
+        STRING CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        IF (ALLCAPS){
+            CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         }
-        String randStr = '';
-        while (randStr.length() < stringLength) {
-            Integer idx = Math.mod(Math.abs(Crypto.getRandomInteger()), chars.length());
-            randStr += chars.substring(idx, idx+1);
+        STRING RANDSTR = '';
+        WHILE (RANDSTR.LENGTH() < STRINGLENGTH) {
+            INTEGER IDX = MATH.MOD(MATH.ABS(CRYPTO.GETRANDOMINTEGER()), CHARS.LENGTH());
+            RANDSTR += CHARS.SUBSTRING(IDX, IDX+1);
         }
-        return randStr; 
+        RETURN RANDSTR; 
     }
     
-    /**
-* @description This method updates the scan fields
-*/
-    public static boolean updateScannsPolling(Integer pollsLeft){
-        boolean done = true;
-        List<Scann__c> lstScanToUpd = new  List<Scann__c>();
-        List<Scann__c> lstScan = [SELECT  State__c, ID__c, Scan_Type__c, CreatedDate, Id, Quality_Gate_Result__c FROM Scann__c WHERE State__c = 'RUNNING' ORDER BY CreatedDate ASC];
-        List<QCIssue__c> fetched_issues = new List<QCIssue__c>();
-        List<Tech_DevLog__c> callouts = new List<Tech_DevLog__c>();
+
+    PUBLIC STATIC BOOLEAN UPDATESCANNSPOLLING(INTEGER POLLSLEFT){
+        BOOLEAN DONE = TRUE;
+        LIST<SCANN__C> LSTSCANTOUPD = NEW  LIST<SCANN__C>();
+        LIST<SCANN__C> LSTSCAN = [SELECT  STATE__C, ID__C, SCAN_TYPE__C, CREATEDDATE, ID, QUALITY_GATE_RESULT__C FROM SCANN__C WHERE STATE__C = 'RUNNING' ORDER BY CREATEDDATE ASC];
+        LIST<QCISSUE__C> FETCHED_ISSUES = NEW LIST<QCISSUE__C>();
+        LIST<TECH_DEVLOG__C> CALLOUTS = NEW LIST<TECH_DEVLOG__C>();
         
-        if (pollsLeft < 1) {            
-            if (Schema.SObjectType.Scann__c.fields.State__c.isUpdateable()){
-                for(Scann__c scan : lstScan) {
-                    scan.State__c = 'FAIL';                
+        IF (POLLSLEFT < 1) {            
+            IF (SCHEMA.SOBJECTTYPE.SCANN__C.FIELDS.STATE__C.ISUPDATEABLE()){
+                FOR(SCANN__C SCAN : LSTSCAN) {
+                    SCAN.STATE__C = 'FAIL';                
                 }
-            }else {
-                throw new NoPermissionException('Current user does not have enough permissions to update Scann__c object or its State__c field.');
+            }ELSE {
+                THROW NEW NOPERMISSIONEXCEPTION('CURRENT USER DOES NOT HAVE ENOUGH PERMISSIONS TO UPDATE SCANN__C OBJECT OR ITS STATE__C FIELD.');
             }
-            if (Schema.sObjectType.Scann__c.isUpdateable()) {
-                update lstScan;
-            }else {
-                throw new NoPermissionException('Current user does not have enough permissions to update Scann__c object.');
+            IF (SCHEMA.SOBJECTTYPE.SCANN__C.ISUPDATEABLE()) {
+                UPDATE LSTSCAN;
+            }ELSE {
+                THROW NEW NOPERMISSIONEXCEPTION('CURRENT USER DOES NOT HAVE ENOUGH PERMISSIONS TO UPDATE SCANN__C OBJECT.');
             }
-            return done;
+            RETURN DONE;
         }
         
-        for(Scann__c scan : lstScan) {
-            HttpRequest req = new HttpRequest();
-            QualityCloudsSettings__mdt settings = getSettings();
-            if (scan.Scan_Type__c == 'feature-branch-scan') {
-                req.setEndpoint(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/feature-branch-scan/' + scan.ID__c);
-            } else {
-                req.setEndpoint(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/scan/' + scan.ID__c);
+        FOR(SCANN__C SCAN : LSTSCAN) {
+            HTTPREQUEST REQ = NEW HTTPREQUEST();
+            QUALITYCLOUDSSETTINGS__MDT SETTINGS = GETSETTINGS();
+            IF (SCAN.SCAN_TYPE__C == 'FEATURE-BRANCH-SCAN') {
+                REQ.SETENDPOINT(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/FEATURE-BRANCH-SCAN/' + SCAN.ID__C);
+            } ELSE {
+                REQ.SETENDPOINT(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/SCAN/' + SCAN.ID__C);
             }
-            req.setMethod('GET');
-            req.setHeader('Accept', '*/*');
-            req.setHeader('client-name', 'GenericHttpClient');
-            req.setHeader('Authorization', 'Bearer ' + getAPIKEY());
-            req.setTimeout(120000);
-            HTTPResponse res = validateAPIKEY(req);
-            if (res.getStatusCode() == 200){
-                callouts.add(new Tech_DevLog__c(
-                    CalloutAction__c = 'Scan Update', 
-                    CalloutRequest__c = req.getBody(), 
-                    CalloutResponse__c = 'Status code: ' + res.getStatusCode() + '\n responseBody\n' + res.getBody()));
-                jsontoscan.Jsontoscan_c result =  jsontoscan.Jsontoscan_c.parse(res.getBody());
-                if (Schema.SObjectType.Scann__c.fields.State__c.isUpdateable()){
-                    scan.State__c = result.data.attributes.status;
+            REQ.SETMETHOD('GET');
+            REQ.SETHEADER('ACCEPT', '*/*');
+            REQ.SETHEADER('CLIENT-NAME', 'GENERICHTTPCLIENT');
+            REQ.SETHEADER('AUTHORIZATION', 'BEARER ' + GETAPIKEY());
+            REQ.SETTIMEOUT(120000);
+            HTTPRESPONSE RES = VALIDATEAPIKEY(REQ);
+            IF (RES.GETSTATUSCODE() == 200){
+                CALLOUTS.ADD(NEW TECH_DEVLOG__C(
+                    CALLOUTACTION__C = 'SCAN UPDATE', 
+                    CALLOUTREQUEST__C = REQ.GETBODY(), 
+                    CALLOUTRESPONSE__C = 'STATUS CODE: ' + RES.GETSTATUSCODE() + '\N RESPONSEBODY\N' + RES.GETBODY()));
+                JSONTOSCAN.JSONTOSCAN_C RESULT =  JSONTOSCAN.JSONTOSCAN_C.PARSE(RES.GETBODY());
+                IF (SCHEMA.SOBJECTTYPE.SCANN__C.FIELDS.STATE__C.ISUPDATEABLE()){
+                    SCAN.STATE__C = RESULT.DATA.ATTRIBUTES.STATUS;
                 }
-                if (Schema.SObjectType.Scann__c.fields.Configuration_Elements__c.isUpdateable()){
-                    scan.Configuration_Elements__c = result.data.attributes.scanned_configuration_elements;
+                IF (SCHEMA.SOBJECTTYPE.SCANN__C.FIELDS.CONFIGURATION_ELEMENTS__C.ISUPDATEABLE()){
+                    SCAN.CONFIGURATION_ELEMENTS__C = RESULT.DATA.ATTRIBUTES.SCANNED_CONFIGURATION_ELEMENTS;
                 }
-                if (Schema.SObjectType.Scann__c.fields.Technical_Debt_hours__c.isUpdateable()){
-                    scan.Technical_Debt_hours__c = result.data.attributes.technical_debt;
+                IF (SCHEMA.SOBJECTTYPE.SCANN__C.FIELDS.TECHNICAL_DEBT_HOURS__C.ISUPDATEABLE()){
+                    SCAN.TECHNICAL_DEBT_HOURS__C = RESULT.DATA.ATTRIBUTES.TECHNICAL_DEBT;
                 }
-                if (Schema.SObjectType.Scann__c.fields.Quality_of_Cloud__c.isUpdateable()){
-                    scan.Quality_of_Cloud__c = result.data.attributes.quality_of_cloud;
+                IF (SCHEMA.SOBJECTTYPE.SCANN__C.FIELDS.QUALITY_OF_CLOUD__C.ISUPDATEABLE()){
+                    SCAN.QUALITY_OF_CLOUD__C = RESULT.DATA.ATTRIBUTES.QUALITY_OF_CLOUD;
                 }
-                if (Schema.SObjectType.Scann__c.fields.Duration__c.isUpdateable()){
-                    scan.Duration__c = result.data.attributes.process_time;
+                IF (SCHEMA.SOBJECTTYPE.SCANN__C.FIELDS.DURATION__C.ISUPDATEABLE()){
+                    SCAN.DURATION__C = RESULT.DATA.ATTRIBUTES.PROCESS_TIME;
                 }
-                if (Schema.SObjectType.Scann__c.fields.Total_Issues__c.isUpdateable()){
-                    scan.Total_Issues__c = result.data.attributes.number_of_issues;
+                IF (SCHEMA.SOBJECTTYPE.SCANN__C.FIELDS.TOTAL_ISSUES__C.ISUPDATEABLE()){
+                    SCAN.TOTAL_ISSUES__C = RESULT.DATA.ATTRIBUTES.NUMBER_OF_ISSUES;
                 }
-                if (Schema.SObjectType.Scann__c.fields.Quality_Gate_Result__c.isUpdateable()){
-                    scan.Quality_Gate_Result__c = result.data.attributes.quality_gate_result;
-                    system.debug('result.data.attributes.quality_gate_result: ' + result.data.attributes.quality_gate_result);
+                IF (SCHEMA.SOBJECTTYPE.SCANN__C.FIELDS.QUALITY_GATE_RESULT__C.ISUPDATEABLE()){
+                    SCAN.QUALITY_GATE_RESULT__C = RESULT.DATA.ATTRIBUTES.QUALITY_GATE_RESULT;
+                    SYSTEM.DEBUG('RESULT.DATA.ATTRIBUTES.QUALITY_GATE_RESULT: ' + RESULT.DATA.ATTRIBUTES.QUALITY_GATE_RESULT);
                 }
-                if (Schema.SObjectType.Scann__c.fields.Quality_Gate_Message__c.isUpdateable()){
-                    scan.Quality_Gate_Message__c = result.data.attributes.quality_gate_message; 
-                    system.debug(':result.data.attributes.quality_gate_message:' + result.data.attributes.quality_gate_message);
+                IF (SCHEMA.SOBJECTTYPE.SCANN__C.FIELDS.QUALITY_GATE_MESSAGE__C.ISUPDATEABLE()){
+                    SCAN.QUALITY_GATE_MESSAGE__C = RESULT.DATA.ATTRIBUTES.QUALITY_GATE_MESSAGE; 
+                    SYSTEM.DEBUG(':RESULT.DATA.ATTRIBUTES.QUALITY_GATE_MESSAGE:' + RESULT.DATA.ATTRIBUTES.QUALITY_GATE_MESSAGE);
                 }        
-//to do: Get value from json attribute when done
-                if (Schema.SObjectType.Scann__c.fields.AllowCompletionOnFail__c.isUpdateable()){
-                    scan.AllowCompletionOnFail__c = true; 
+//TO DO: GET VALUE FROM JSON ATTRIBUTE WHEN DONE
+                IF (SCHEMA.SOBJECTTYPE.SCANN__C.FIELDS.ALLOWCOMPLETIONONFAIL__C.ISUPDATEABLE()){
+                    SCAN.ALLOWCOMPLETIONONFAIL__C = TRUE; 
                 }  
-//end-to do                         
+//END-TO DO                         
                 
-                String message_type_out = 'confirm';
-                if (result.data.attributes.status == 'SUCCESS') {
-                    Integer page = 1, total_pages = 1;
+                STRING MESSAGE_TYPE_OUT = 'CONFIRM';
+                IF (RESULT.DATA.ATTRIBUTES.STATUS == 'SUCCESS') {
+                    INTEGER PAGE = 1, TOTAL_PAGES = 1;
 
-                    do {
-                        HttpRequest req2 = new HttpRequest();
-                        if (scan.Scan_Type__c == 'feature-branch-scan') {
-                            req2.setEndpoint(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/feature-branch-issue?filter[scan_uuid]=' + scan.ID__c + '&page[size]=1000&page[number]=' + page);
-                            req2.setMethod('GET');
-                            req2.setHeader('Accept', '*/*');
-                            req2.setHeader('client-name', 'GenericHttpClient');
-                            req2.setHeader('Authorization', 'Bearer ' + getAPIKEY());
-                            req2.setTimeout(120000);
-                            HTTPResponse res2 = ControllerHelperQC.validateAPIKEY(req2);
-                            if (res2.getStatusCode() == 200){
+                    DO {
+                        HTTPREQUEST REQ2 = NEW HTTPREQUEST();
+                        IF (SCAN.SCAN_TYPE__C == 'FEATURE-BRANCH-SCAN') {
+                            REQ2.SETENDPOINT(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/FEATURE-BRANCH-ISSUE?FILTER[SCAN_UUID]=' + SCAN.ID__C + '&PAGE[SIZE]=1000&PAGE[NUMBER]=' + PAGE);
+                            REQ2.SETMETHOD('GET');
+                            REQ2.SETHEADER('ACCEPT', '*/*');
+                            REQ2.SETHEADER('CLIENT-NAME', 'GENERICHTTPCLIENT');
+                            REQ2.SETHEADER('AUTHORIZATION', 'BEARER ' + GETAPIKEY());
+                            REQ2.SETTIMEOUT(120000);
+                            HTTPRESPONSE RES2 = CONTROLLERHELPERQC.VALIDATEAPIKEY(REQ2);
+                            IF (RES2.GETSTATUSCODE() == 200){
                                 
-                                Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(res2.getBody());
-                                Map<String, Object> meta_x = (Map<String, Object>) results.get('meta');
-                                total_pages = (Integer) meta_x.get('last-page');
-                                List< Object> data = (List<Object>) results.get('data');
-                                for (Object d : data) {                                        
-                                    QCIssue__c issue = ControllerHelperQC.jsonDataToIssue((map<String,Object>) d);
-                                    issue.Scan__c = scan.id; 
-                                    fetched_issues.add(issue);
+                                MAP<STRING, OBJECT> RESULTS = (MAP<STRING, OBJECT>) JSON.DESERIALIZEUNTYPED(RES2.GETBODY());
+                                MAP<STRING, OBJECT> META_X = (MAP<STRING, OBJECT>) RESULTS.GET('META');
+                                TOTAL_PAGES = (INTEGER) META_X.GET('LAST-PAGE');
+                                LIST< OBJECT> DATA = (LIST<OBJECT>) RESULTS.GET('DATA');
+                                FOR (OBJECT D : DATA) {                                        
+                                    QCISSUE__C ISSUE = CONTROLLERHELPERQC.JSONDATATOISSUE((MAP<STRING,OBJECT>) D);
+                                    ISSUE.SCAN__C = SCAN.ID; 
+                                    FETCHED_ISSUES.ADD(ISSUE);
                                 }                               
                                 
-                                message_type_out = 'confirm';
+                                MESSAGE_TYPE_OUT = 'CONFIRM';
                                 
-                            } else {
-                                message_type_out = 'error';
+                            } ELSE {
+                                MESSAGE_TYPE_OUT = 'ERROR';
                             }
-                        } else {
-                            //req2.setEndpoint(settings.API_Endpoint__c + '/api/'  + settings.API_Version__c + '/issue?filter[scan]=' + scan.ID__c + '&page[size]=1000&page[number]=' + page);
+                        } ELSE {
+                            //REQ2.SETENDPOINT(SETTINGS.API_ENDPOINT__C + '/API/'  + SETTINGS.API_VERSION__C + '/ISSUE?FILTER[SCAN]=' + SCAN.ID__C + '&PAGE[SIZE]=1000&PAGE[NUMBER]=' + PAGE);
                         }
-                    } while (message_type_out != 'error' && page++ < total_pages);
+                    } WHILE (MESSAGE_TYPE_OUT != 'ERROR' && PAGE++ < TOTAL_PAGES);
                     
-                    if (Schema.sObjectType.Scann__c.isUpdateable() && Schema.sObjectType.Scann__c.isAccessible() && scan.Scan_Type__c == 'feature-branch-scan') {
-                        scan.Total_Issues__c = fetched_issues.size();
+                    IF (SCHEMA.SOBJECTTYPE.SCANN__C.ISUPDATEABLE() && SCHEMA.SOBJECTTYPE.SCANN__C.ISACCESSIBLE() && SCAN.SCAN_TYPE__C == 'FEATURE-BRANCH-SCAN') {
+                        SCAN.TOTAL_ISSUES__C = FETCHED_ISSUES.SIZE();
                     }                
                 }
-                if (result.data.attributes.status == 'RUNNING'){
-                    done = false;
+                IF (RESULT.DATA.ATTRIBUTES.STATUS == 'RUNNING'){
+                    DONE = FALSE;
                 }
-                lstScanToUpd.add(scan);
+                LSTSCANTOUPD.ADD(SCAN);
                 
-            }else {
-                done = false;
+            }ELSE {
+                DONE = FALSE;
             }    
         }
 
-        if (Schema.sObjectType.Scann__c.isUpdateable()) {
-            update lstScanToUpd;
-        }else {
-            throw new NoPermissionException('Current user does not have enough permissions to update Scann__c object.');
+        IF (SCHEMA.SOBJECTTYPE.SCANN__C.ISUPDATEABLE()) {
+            UPDATE LSTSCANTOUPD;
+        }ELSE {
+            THROW NEW NOPERMISSIONEXCEPTION('CURRENT USER DOES NOT HAVE ENOUGH PERMISSIONS TO UPDATE SCANN__C OBJECT.');
         }
-        if (checkIfUserCanUpsertQCIssue()) {
-            upsert fetched_issues ID__c;
-        } else {
-            throw new NoPermissionException('Current user does not have enough permissions to create/update QCIssue__c object or its fields.');
+        IF (CHECKIFUSERCANUPSERTQCISSUE()) {
+            UPSERT FETCHED_ISSUES ID__C;
+        } ELSE {
+            THROW NEW NOPERMISSIONEXCEPTION('CURRENT USER DOES NOT HAVE ENOUGH PERMISSIONS TO CREATE/UPDATE QCISSUE__C OBJECT OR ITS FIELDS.');
         }
-        if(!callouts.isEmpty()) {
-            insert callouts;
+        IF(!CALLOUTS.ISEMPTY()) {
+            INSERT CALLOUTS;
         }
 
-        return done;
+        RETURN DONE;
     } 
     
-    /**
-* @description This method converts the a string to a DateTime GMT 
-*/
-    public static Datetime stringToDate(String dateStr){
-        if (dateStr != null) {
-            Integer year = Integer.ValueOf(dateStr.substring(0, 4));   
-            Integer month = Integer.ValueOf(dateStr.substring(5, 7));   
-            Integer day = Integer.ValueOf(dateStr.substring(8, 10));  
-            Integer hour = Integer.ValueOf(dateStr.substring(11, 13));
-            Integer minute = Integer.ValueOf(dateStr.substring(14, 16));
-            Integer second = Integer.ValueOf(dateStr.substring(17, 19));
-            Integer offset = 0;
-            if(dateStr.contains('+') ){
-                offset = Integer.ValueOf(dateStr.substringAfterLast('+').substringBeforeLast(':'));
-                 hour -= offset;
-            } else if(dateStr.lastIndexOf('-') == 19){ //negative offset
-                offset = Integer.ValueOf(dateStr.substringAfterLast('-').substringBeforeLast(':'));
-                 hour += offset;
-            } else {
-                Datetime rigthNow = Datetime.now();
-                if(isSummerTime(rigthNow)) {
-                    hour -= 1;
+
+    PUBLIC STATIC DATETIME STRINGTODATE(STRING DATESTR){
+        IF (DATESTR != NULL) {
+            INTEGER YEAR = INTEGER.VALUEOF(DATESTR.SUBSTRING(0, 4));   
+            INTEGER MONTH = INTEGER.VALUEOF(DATESTR.SUBSTRING(5, 7));   
+            INTEGER DAY = INTEGER.VALUEOF(DATESTR.SUBSTRING(8, 10));  
+            INTEGER HOUR = INTEGER.VALUEOF(DATESTR.SUBSTRING(11, 13));
+            INTEGER MINUTE = INTEGER.VALUEOF(DATESTR.SUBSTRING(14, 16));
+            INTEGER SECOND = INTEGER.VALUEOF(DATESTR.SUBSTRING(17, 19));
+            INTEGER OFFSET = 0;
+            IF(DATESTR.CONTAINS('+') ){
+                OFFSET = INTEGER.VALUEOF(DATESTR.SUBSTRINGAFTERLAST('+').SUBSTRINGBEFORELAST(':'));
+                 HOUR -= OFFSET;
+            } ELSE IF(DATESTR.LASTINDEXOF('-') == 19){ //NEGATIVE OFFSET
+                OFFSET = INTEGER.VALUEOF(DATESTR.SUBSTRINGAFTERLAST('-').SUBSTRINGBEFORELAST(':'));
+                 HOUR += OFFSET;
+            } ELSE {
+                DATETIME RIGTHNOW = DATETIME.NOW();
+                IF(ISSUMMERTIME(RIGTHNOW)) {
+                    HOUR -= 1;
                 }            
             }             
             
-            return Datetime.newInstanceGmt(year, month, day, hour, minute, second);
+            RETURN DATETIME.NEWINSTANCEGMT(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND);
         }
-        return null;
+        RETURN NULL;
     }
 
-    /**
-    * @description Return true if datetime is between the last sunday of march 1am and last sunday of october 1am
-    */
-    private static Boolean isSummerTime(Datetime myDatetime) {
-        return lastSundayOf(3) <= myDatetime && myDatetime <= lastSundayOf(10);
+
+    PRIVATE STATIC BOOLEAN ISSUMMERTIME(DATETIME MYDATETIME) {
+        RETURN LASTSUNDAYOF(3) <= MYDATETIME && MYDATETIME <= LASTSUNDAYOF(10);
     }
 
-    /**
-    * @description This method return last sunday of a given month
-    */
-    private static Datetime lastSundayOf(Integer month) {
-        if(month <1 || month > 12){
-            return null;
+
+    PRIVATE STATIC DATETIME LASTSUNDAYOF(INTEGER MONTH) {
+        IF(MONTH <1 || MONTH > 12){
+            RETURN NULL;
         }
-        Time myTime = Time.newInstance(1, 0, 0, 0);
+        TIME MYTIME = TIME.NEWINSTANCE(1, 0, 0, 0);
     
-        Boolean isSunday = false;
-        Integer day = Date.daysInMonth(System.today().year(), month);
-        Datetime dt;
+        BOOLEAN ISSUNDAY = FALSE;
+        INTEGER DAY = DATE.DAYSINMONTH(SYSTEM.TODAY().YEAR(), MONTH);
+        DATETIME DT;
         
-        while(!isSunday) {
-            dt = DateTime.newInstanceGMT(Date.newInstance(System.today().year(), month, day), myTime);
-            if(dt.format('EEEE') == 'Sunday')
+        WHILE(!ISSUNDAY) {
+            DT = DATETIME.NEWINSTANCEGMT(DATE.NEWINSTANCE(SYSTEM.TODAY().YEAR(), MONTH, DAY), MYTIME);
+            IF(DT.FORMAT('EEEE') == 'SUNDAY')
             {
-                isSunday=true; 
+                ISSUNDAY=TRUE; 
             }
-            day--;
+            DAY--;
         }
-        return dt;
+        RETURN DT;
     }
-    /**
-* @description This method Serializes the response from Quality Clouds to the fields of QCIssue__c
-*/
-    public static QCIssue__c jsonDataToIssue(map<String,Object> data){
-        Map<String,Object> attributes = (map<String,Object>) data.get('attributes');      
 
-        QCIssue__c issue = new QCIssue__c();
-        issue.Created_By__c = (String) attributes.get('created-by'); 
-        issue.Updated_On__c = ControllerHelperQC.stringToDate((String) attributes.get('updated-on'));
-        issue.Created_On__c = ControllerHelperQC.stringToDate((String) attributes.get('created-on'));
-        issue.Updated_By__c =  (String) attributes.get('updated-by'); 
-        issue.Severity__c = (String) attributes.get('severity'); 
-        issue.Impact_Area__c = (String) attributes.get('impact-area'); 
-        issue.Issue__c = (String) attributes.get('issue-type'); 
-        issue.Line_Number__c = (Integer) attributes.get('line-number'); 
-        issue.Link_to_Element__c = (String) attributes.get('affected-element-sys-id');
-        issue.Element_Name__c = (String) attributes.get('affected-element-name'); 
-        issue.Element_Type__c = (String) attributes.get('configuration-element-type'); 
-        issue.ID__c = (String) data.get('id'); 
-        issue.Documentation__c = (String) attributes.get('best-practice-link');
-        issue.Baseline__c = (String) attributes.get('reference-status');
+    PUBLIC STATIC QCISSUE__C JSONDATATOISSUE(MAP<STRING,OBJECT> DATA){
+        MAP<STRING,OBJECT> ATTRIBUTES = (MAP<STRING,OBJECT>) DATA.GET('ATTRIBUTES');      
+
+        QCISSUE__C ISSUE = NEW QCISSUE__C();
+        ISSUE.CREATED_BY__C = (STRING) ATTRIBUTES.GET('CREATED-BY'); 
+        ISSUE.UPDATED_ON__C = CONTROLLERHELPERQC.STRINGTODATE((STRING) ATTRIBUTES.GET('UPDATED-ON'));
+        ISSUE.CREATED_ON__C = CONTROLLERHELPERQC.STRINGTODATE((STRING) ATTRIBUTES.GET('CREATED-ON'));
+        ISSUE.UPDATED_BY__C =  (STRING) ATTRIBUTES.GET('UPDATED-BY'); 
+        ISSUE.SEVERITY__C = (STRING) ATTRIBUTES.GET('SEVERITY'); 
+        ISSUE.IMPACT_AREA__C = (STRING) ATTRIBUTES.GET('IMPACT-AREA'); 
+        ISSUE.ISSUE__C = (STRING) ATTRIBUTES.GET('ISSUE-TYPE'); 
+        ISSUE.LINE_NUMBER__C = (INTEGER) ATTRIBUTES.GET('LINE-NUMBER'); 
+        ISSUE.LINK_TO_ELEMENT__C = (STRING) ATTRIBUTES.GET('AFFECTED-ELEMENT-SYS-ID');
+        ISSUE.ELEMENT_NAME__C = (STRING) ATTRIBUTES.GET('AFFECTED-ELEMENT-NAME'); 
+        ISSUE.ELEMENT_TYPE__C = (STRING) ATTRIBUTES.GET('CONFIGURATION-ELEMENT-TYPE'); 
+        ISSUE.ID__C = (STRING) DATA.GET('ID'); 
+        ISSUE.DOCUMENTATION__C = (STRING) ATTRIBUTES.GET('BEST-PRACTICE-LINK');
+        ISSUE.BASELINE__C = (STRING) ATTRIBUTES.GET('REFERENCE-STATUS');
         
-        //IC QAT-36 Show Quality Gates Breaker in the Quality Clouds App of Salesforce
-        if(attributes.get('quality-gate-breaker') != null && attributes.get('quality-gate-breaker') != ''){
-            issue.Quality_Gate_Breaker__c = (Boolean) attributes.get('quality-gate-breaker');
-        }else{
-            issue.Quality_Gate_Breaker__c = false;
+        //IC QAT-36 SHOW QUALITY GATES BREAKER IN THE QUALITY CLOUDS APP OF SALESFORCE
+        IF(ATTRIBUTES.GET('QUALITY-GATE-BREAKER') != NULL && ATTRIBUTES.GET('QUALITY-GATE-BREAKER') != ''){
+            ISSUE.QUALITY_GATE_BREAKER__C = (BOOLEAN) ATTRIBUTES.GET('QUALITY-GATE-BREAKER');
+        }ELSE{
+            ISSUE.QUALITY_GATE_BREAKER__C = FALSE;
         }
         
-        map<String,Object> writeoffs = (map<String,Object>) attributes.get('write-off');
+        MAP<STRING,OBJECT> WRITEOFFS = (MAP<STRING,OBJECT>) ATTRIBUTES.GET('WRITE-OFF');
         
-        String writeOffStatus = (String) writeoffs?.get('write-off-status');
-        if (writeOffStatus == 'APPROVED') {
-            issue.Write_off__c = true;
-        } else {
-            issue.Write_off__c = false;
+        STRING WRITEOFFSTATUS = (STRING) WRITEOFFS?.GET('WRITE-OFF-STATUS');
+        IF (WRITEOFFSTATUS == 'APPROVED') {
+            ISSUE.WRITE_OFF__C = TRUE;
+        } ELSE {
+            ISSUE.WRITE_OFF__C = FALSE;
         }
-        issue.Write_Off_Requested_Date__c = ControllerHelperQC.stringToDate((String) writeoffs?.get('requested-date'));
-        issue.Write_Off_Requester__c = (String) writeoffs?.get('requester');
-        issue.Write_Off_Request_Reason__c = (String) writeoffs?.get('request-reason-nameid');
-        issue.Write_Off_Request_Description__c = (String) writeoffs?.get('request-description');
-        issue.Write_Off_Validation_Date__c = ControllerHelperQC.stringToDate((String) writeoffs?.get('validation-date'));
-        issue.Write_Off_Validator__c = (String) writeoffs?.get('validator');
-        issue.Write_Off_Validation_Reason__c = (String) writeoffs?.get('validation-reason');
-        issue.Write_Off_Status__c = (String) writeoffs?.get('write-off-status');        
-        if (issue.Write_Off_Status__c == 'APPROVED' || issue.Write_Off_Status__c == 'EXPIRED') { 
-            issue.Write_Off_Expiration_Date__c = ControllerHelperQC.stringToDate((String) writeoffs?.get('expiration-date'))?.date();
+        ISSUE.WRITE_OFF_REQUESTED_DATE__C = CONTROLLERHELPERQC.STRINGTODATE((STRING) WRITEOFFS?.GET('REQUESTED-DATE'));
+        ISSUE.WRITE_OFF_REQUESTER__C = (STRING) WRITEOFFS?.GET('REQUESTER');
+        ISSUE.WRITE_OFF_REQUEST_REASON__C = (STRING) WRITEOFFS?.GET('REQUEST-REASON-NAMEID');
+        ISSUE.WRITE_OFF_REQUEST_DESCRIPTION__C = (STRING) WRITEOFFS?.GET('REQUEST-DESCRIPTION');
+        ISSUE.WRITE_OFF_VALIDATION_DATE__C = CONTROLLERHELPERQC.STRINGTODATE((STRING) WRITEOFFS?.GET('VALIDATION-DATE'));
+        ISSUE.WRITE_OFF_VALIDATOR__C = (STRING) WRITEOFFS?.GET('VALIDATOR');
+        ISSUE.WRITE_OFF_VALIDATION_REASON__C = (STRING) WRITEOFFS?.GET('VALIDATION-REASON');
+        ISSUE.WRITE_OFF_STATUS__C = (STRING) WRITEOFFS?.GET('WRITE-OFF-STATUS');        
+        IF (ISSUE.WRITE_OFF_STATUS__C == 'APPROVED' || ISSUE.WRITE_OFF_STATUS__C == 'EXPIRED') { 
+            ISSUE.WRITE_OFF_EXPIRATION_DATE__C = CONTROLLERHELPERQC.STRINGTODATE((STRING) WRITEOFFS?.GET('EXPIRATION-DATE'))?.DATE();
         }
         
-        //IC QAT-37 new funcionality to show the tags on the issues of the scan.
-        Map<String, Map<String, Object>> fullResponseMap = new Map<String, Map<String, Object>>();
-        List<Object> objectList = (List<Object>)attributes.get('tags');   
+        //IC QAT-37 NEW FUNCIONALITY TO SHOW THE TAGS ON THE ISSUES OF THE SCAN.
+        MAP<STRING, MAP<STRING, OBJECT>> FULLRESPONSEMAP = NEW MAP<STRING, MAP<STRING, OBJECT>>();
+        LIST<OBJECT> OBJECTLIST = (LIST<OBJECT>)ATTRIBUTES.GET('TAGS');   
         
-        if(objectList != null ){
-            for (Integer i = 0; i < objectList.size(); i++) {
-                String jsonString = JSON.serialize(objectList[i]);
-                Map<String, Object> objectMap = (Map<String, Object>)JSON.deserializeUntyped(jsonString);
-                if (objectMap.get('name') != null) {
-                    if(i == 0){
-                        issue.TagsMultiPicklist__c = objectMap.get('name').toString();
-                    }else{
-                        issue.TagsMultiPicklist__c = issue.TagsMultiPicklist__c + ';' + objectMap.get('name').toString();
+        IF(OBJECTLIST != NULL ){
+            FOR (INTEGER I = 0; I < OBJECTLIST.SIZE(); I++) {
+                STRING JSONSTRING = JSON.SERIALIZE(OBJECTLIST[I]);
+                MAP<STRING, OBJECT> OBJECTMAP = (MAP<STRING, OBJECT>)JSON.DESERIALIZEUNTYPED(JSONSTRING);
+                IF (OBJECTMAP.GET('NAME') != NULL) {
+                    IF(I == 0){
+                        ISSUE.TAGSMULTIPICKLIST__C = OBJECTMAP.GET('NAME').TOSTRING();
+                    }ELSE{
+                        ISSUE.TAGSMULTIPICKLIST__C = ISSUE.TAGSMULTIPICKLIST__C + ';' + OBJECTMAP.GET('NAME').TOSTRING();
                     }
                 }
             }   
         }
         
         
-        return issue;
+        RETURN ISSUE;
     }
     
-    /**
-* @description This method checks is the current user has permisions to modify the QCissue__c fields.
-*/
-    public static Boolean checkIfUserCanUpsertQCIssue (){
-        if (Schema.sObjectType.QCIssue__c.fields.Scan__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Scan__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Created_By__c.isCreateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Created_By__c.isUpdateable()  
-            && Schema.sObjectType.QCIssue__c.fields.Updated_On__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Updated_On__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Created_On__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Created_On__c.isUpdateable()
-            && Schema.sObjectType.QCIssue__c.fields.Updated_By__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Updated_By__c.isUpdateable()
-            && Schema.sObjectType.QCIssue__c.fields.Severity__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Severity__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Impact_Area__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Impact_Area__c.isUpdateable()
-            && Schema.sObjectType.QCIssue__c.fields.Issue__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Issue__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Line_Number__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Line_Number__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Link_to_Element__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Link_to_Element__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Element_Name__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Element_Name__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Element_Type__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Element_Type__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.ID__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.ID__c.isUpdateable()
-            && Schema.sObjectType.QCIssue__c.fields.Documentation__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Documentation__c.isUpdateable()
-            && Schema.sObjectType.QCIssue__c.fields.Baseline__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Baseline__c.isUpdateable()
-            && Schema.sObjectType.QCIssue__c.fields.Write_Off_Requested_Date__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Write_Off_Requested_Date__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Write_off__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Write_off__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Write_Off_Requester__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Write_Off_Requester__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Write_Off_Request_Reason__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Write_Off_Request_Reason__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Write_Off_Request_Description__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Write_Off_Request_Description__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Write_Off_Validation_Date__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Write_Off_Validation_Date__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Write_Off_Validation_Reason__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Write_Off_Validation_Reason__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Write_Off_Validator__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Write_Off_Validator__c.isUpdateable() 
-            && Schema.sObjectType.QCIssue__c.fields.Write_Off_Status__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Write_Off_Status__c.isUpdateable()
-            && Schema.sObjectType.QCIssue__c.fields.Quality_Gate_Breaker__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Quality_Gate_Breaker__c.isUpdateable()
-            && Schema.sObjectType.QCIssue__c.fields.Write_Off_Expiration_Date__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.Write_Off_Expiration_Date__c.isUpdateable()
-            && Schema.sObjectType.QCIssue__c.fields.TagsMultiPicklist__c.isCreateable() && Schema.sObjectType.QCIssue__c.fields.TagsMultiPicklist__c.isUpdateable()                       
+
+    PUBLIC STATIC BOOLEAN CHECKIFUSERCANUPSERTQCISSUE (){
+        IF (SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.SCAN__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.SCAN__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.CREATED_BY__C.ISCREATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.CREATED_BY__C.ISUPDATEABLE()  
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.UPDATED_ON__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.UPDATED_ON__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.CREATED_ON__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.CREATED_ON__C.ISUPDATEABLE()
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.UPDATED_BY__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.UPDATED_BY__C.ISUPDATEABLE()
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.SEVERITY__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.SEVERITY__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.IMPACT_AREA__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.IMPACT_AREA__C.ISUPDATEABLE()
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.ISSUE__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.ISSUE__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.LINE_NUMBER__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.LINE_NUMBER__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.LINK_TO_ELEMENT__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.LINK_TO_ELEMENT__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.ELEMENT_NAME__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.ELEMENT_NAME__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.ELEMENT_TYPE__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.ELEMENT_TYPE__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.ID__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.ID__C.ISUPDATEABLE()
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.DOCUMENTATION__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.DOCUMENTATION__C.ISUPDATEABLE()
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.BASELINE__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.BASELINE__C.ISUPDATEABLE()
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_REQUESTED_DATE__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_REQUESTED_DATE__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_REQUESTER__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_REQUESTER__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_REQUEST_REASON__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_REQUEST_REASON__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_REQUEST_DESCRIPTION__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_REQUEST_DESCRIPTION__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_VALIDATION_DATE__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_VALIDATION_DATE__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_VALIDATION_REASON__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_VALIDATION_REASON__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_VALIDATOR__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_VALIDATOR__C.ISUPDATEABLE() 
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_STATUS__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_STATUS__C.ISUPDATEABLE()
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.QUALITY_GATE_BREAKER__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.QUALITY_GATE_BREAKER__C.ISUPDATEABLE()
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_EXPIRATION_DATE__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.WRITE_OFF_EXPIRATION_DATE__C.ISUPDATEABLE()
+            && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.TAGSMULTIPICKLIST__C.ISCREATEABLE() && SCHEMA.SOBJECTTYPE.QCISSUE__C.FIELDS.TAGSMULTIPICKLIST__C.ISUPDATEABLE()                       
             ) {
-               return true;
-           } else {
-               return false;
+               RETURN TRUE;
+           } ELSE {
+               RETURN FALSE;
            }
     }
     
-    /**
-* @description settup the request and response of the API KEY
-*/
-    public static HttpResponse accessAPIKEY (String apiKey){
-        HttpRequest req = new HttpRequest();
-        QualityCloudsSettings__mdt settings = getSettings();
-        req.setEndpoint(settings.API_Endpoint__c + '/api/' + settings.API_Version__c + '/user/me');
-        req.setMethod('GET');
-        req.setHeader('Accept', '*/*');
-        req.setHeader('Content-Type','application/vnd.api+json');
-        req.setHeader('Client-name', 'Salesforce');
-        req.setHeader('Authorization', 'Bearer '+ apiKey);
-        HTTPResponse res = validateAPIKEY(req);
-        return res;
+
+    PUBLIC STATIC HTTPRESPONSE ACCESSAPIKEY (STRING APIKEY){
+        HTTPREQUEST REQ = NEW HTTPREQUEST();
+        QUALITYCLOUDSSETTINGS__MDT SETTINGS = GETSETTINGS();
+        REQ.SETENDPOINT(SETTINGS.API_ENDPOINT__C + '/API/' + SETTINGS.API_VERSION__C + '/USER/ME');
+        REQ.SETMETHOD('GET');
+        REQ.SETHEADER('ACCEPT', '*/*');
+        REQ.SETHEADER('CONTENT-TYPE','APPLICATION/VND.API+JSON');
+        REQ.SETHEADER('CLIENT-NAME', 'SALESFORCE');
+        REQ.SETHEADER('AUTHORIZATION', 'BEARER '+ APIKEY);
+        HTTPRESPONSE RES = VALIDATEAPIKEY(REQ);
+        RETURN RES;
     }
     
-    /**
-* @description Get the API KEY of the current user
-*/
-    public static String getAPIKEY(){
+
+    PUBLIC STATIC STRING GETAPIKEY(){
         
-        List<QC_User__c> userList = [SELECT QC_Active__c, QC_Valid_Until__c ,API_Key_1__c, API_Key_2__c, API_Key_3__c, API_Key_4__c, API_Key_5__c, API_Key_6__c, API_Key_7__c
-                                FROM QC_User__c WHERE User__c =: UserInfo.getUserId() LIMIT 1];
+        LIST<QC_USER__C> USERLIST = [SELECT QC_ACTIVE__C, QC_VALID_UNTIL__C ,API_KEY_1__C, API_KEY_2__C, API_KEY_3__C, API_KEY_4__C, API_KEY_5__C, API_KEY_6__C, API_KEY_7__C
+                                FROM QC_USER__C WHERE USER__C =: USERINFO.GETUSERID() LIMIT 1];
         
-        String authorization = null;
-        if(userList.size() != 0 && userList[0].API_Key_1__c != null && userList[0].QC_Valid_Until__c > Date.today()){
-            authorization = userList[0].API_Key_1__c + userList[0].API_Key_2__c + userList[0].API_Key_3__c + userList[0].API_Key_4__c + userList[0].API_Key_5__c + userList[0].API_Key_6__c + userList[0].API_Key_7__c;                
+        STRING AUTHORIZATION = NULL;
+        IF(USERLIST.SIZE() != 0 && USERLIST[0].API_KEY_1__C != NULL && USERLIST[0].QC_VALID_UNTIL__C > DATE.TODAY()){
+            AUTHORIZATION = USERLIST[0].API_KEY_1__C + USERLIST[0].API_KEY_2__C + USERLIST[0].API_KEY_3__C + USERLIST[0].API_KEY_4__C + USERLIST[0].API_KEY_5__C + USERLIST[0].API_KEY_6__C + USERLIST[0].API_KEY_7__C;                
         }
         
-        return authorization;
+        RETURN AUTHORIZATION;
     }
     
-    /**
-* @description Validates the access permission of key and handles errors of connection
-*/
-    public static HTTPResponse validateAPIKEY (HttpRequest request){
-        Http http = new Http();
-        HTTPResponse response = null;
+
+    PUBLIC STATIC HTTPRESPONSE VALIDATEAPIKEY (HTTPREQUEST REQUEST){
+        HTTP HTTP = NEW HTTP();
+        HTTPRESPONSE RESPONSE = NULL;
         
-        Integer [] errorList400 = new Integer[]{400,401,402,403,404,405,406};
-            Integer [] errorList500 = new Integer[]{500,501,502,503,504,505,506};
+        INTEGER [] ERRORLIST400 = NEW INTEGER[]{400,401,402,403,404,405,406};
+            INTEGER [] ERRORLIST500 = NEW INTEGER[]{500,501,502,503,504,505,506};
                 
-                try{
-                    response = http.send(request);
-                    if(errorList400.contains(response.getStatusCode()) && response != null){
-                        Throw new CalloutException('Not authorized please check permissions. If problem persists, contact Quality Clouds');
-                    }else if(errorList500.contains(response.getStatusCode()) && response != null){
-                        Throw new CalloutException('Failed connection. If problem persists, contact Quality Clouds');
+                TRY{
+                    RESPONSE = HTTP.SEND(REQUEST);
+                    IF(ERRORLIST400.CONTAINS(RESPONSE.GETSTATUSCODE()) && RESPONSE != NULL){
+                        THROW NEW CALLOUTEXCEPTION('NOT AUTHORIZED PLEASE CHECK PERMISSIONS. IF PROBLEM PERSISTS, CONTACT QUALITY CLOUDS');
+                    }ELSE IF(ERRORLIST500.CONTAINS(RESPONSE.GETSTATUSCODE()) && RESPONSE != NULL){
+                        THROW NEW CALLOUTEXCEPTION('FAILED CONNECTION. IF PROBLEM PERSISTS, CONTACT QUALITY CLOUDS');
                     }
-                }catch (Exception e){
-                    System.debug('The following exception has occurred: ' + e.getMessage() + e.getCause());  
+                }CATCH (EXCEPTION E){
+                    SYSTEM.DEBUG('THE FOLLOWING EXCEPTION HAS OCCURRED: ' + E.GETMESSAGE() + E.GETCAUSE());  
                 }
         
-        return response;
+        RETURN RESPONSE;
     }
     
-    /**
-* @description This method checks if the current KEY is valid
-*/
-    public static Boolean checkAPIKEY(){    
-        List<QC_User__c> userList = [SELECT Id, Name, User__c, QC_Active__c, QC_Api_Key_Developer__c, QC_Valid_Until__c ,API_Key_1__c, API_Key_2__c, API_Key_3__c, API_Key_4__c, API_Key_5__c, API_Key_6__c, API_Key_7__c
-                                FROM QC_User__c WHERE User__c =: UserInfo.getUserId() LIMIT 1];
+
+    PUBLIC STATIC BOOLEAN CHECKAPIKEY(){    
+        LIST<QC_USER__C> USERLIST = [SELECT ID, NAME, USER__C, QC_ACTIVE__C, QC_API_KEY_DEVELOPER__C, QC_VALID_UNTIL__C ,API_KEY_1__C, API_KEY_2__C, API_KEY_3__C, API_KEY_4__C, API_KEY_5__C, API_KEY_6__C, API_KEY_7__C
+                                FROM QC_USER__C WHERE USER__C =: USERINFO.GETUSERID() LIMIT 1];
         
-        if(userList.size() != 0 && userList[0].QC_Valid_Until__c != null && userList[0].QC_Valid_Until__c > Date.today() && userList[0].QC_Active__c){
-            return true;
+        IF(USERLIST.SIZE() != 0 && USERLIST[0].QC_VALID_UNTIL__C != NULL && USERLIST[0].QC_VALID_UNTIL__C > DATE.TODAY() && USERLIST[0].QC_ACTIVE__C){
+            RETURN TRUE;
         }
-        return false;    
+        RETURN FALSE;    
     }
 }
