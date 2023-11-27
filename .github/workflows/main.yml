@@ -1,4 +1,3 @@
-steps:
 - name: Quality Clouds Build Check for Salesforce
     uses: qualityclouds/action-full-scan@1.0.0
     with:
