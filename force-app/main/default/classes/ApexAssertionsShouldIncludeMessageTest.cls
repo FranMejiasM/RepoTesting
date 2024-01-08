@@ -8,6 +8,7 @@ public with sharing class ApexAssertionsShouldIncludeMessageTest {
     @IsTest
     static void testMethod2() {
         system.assertEquals(true, true);
+        system.assertEquals(true, true);
     }
 }
 }
