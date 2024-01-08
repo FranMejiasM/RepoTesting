@@ -22,5 +22,6 @@
 
         String LocalVariable;
         system.debug(LocalVariable);
+        system.debug(LocalVariable);
     }
 }
