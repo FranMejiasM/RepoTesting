@@ -21,7 +21,7 @@
      private void myDummyMethod() {
 
         String LocalVariable;
-        system.debug('testing a scan');
+        system.debug('testing a scan 2');
 
     }
 }
