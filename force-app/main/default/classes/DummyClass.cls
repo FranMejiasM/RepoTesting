@@ -12,7 +12,7 @@
      */
 
     public DummyClass() {
-        anotherField =3;
+       Integer anotherField =3;
     }
     
     /**
@@ -21,6 +21,7 @@
      private void myDummyMethod() {
 
         String LocalVariable;
-        system.debug(LocalVariable);
+        system.debug('testing a scan 2');
+
     }
 }

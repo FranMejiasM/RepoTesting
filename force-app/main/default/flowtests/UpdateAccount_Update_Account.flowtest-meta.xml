@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowTest xmlns="http://soap.sforce.com/2006/04/metadata">
+    <flowApiName>UpdateAccount</flowApiName>
+    <label>Update Account</label>
+    <testPoints>
+        <elementApiName>Start</elementApiName>
+        <parameters>
+            <leftValueReference>$Record</leftValueReference>
+            <type>InputTriggeringRecordInitial</type>
+            <value>
+                <sobjectValue>{&quot;AccountNumber&quot;:&quot;CD656092&quot;,&quot;AnnualRevenue&quot;:350000000,&quot;BillingCity&quot;:&quot;Burlington&quot;,&quot;BillingCountry&quot;:&quot;USA&quot;,&quot;BillingPostalCode&quot;:&quot;27215&quot;,&quot;BillingState&quot;:&quot;NC&quot;,&quot;BillingStreet&quot;:&quot;525 S. Lexington Ave&quot;,&quot;CleanStatus&quot;:&quot;Pending&quot;,&quot;Fax&quot;:&quot;(336) 222-8000&quot;,&quot;Industry&quot;:&quot;Apparel&quot;,&quot;Name&quot;:&quot;Burlington Textiles Corp of America&quot;,&quot;NumberOfEmployees&quot;:9000,&quot;NumberofLocations__c&quot;:6,&quot;OwnerId&quot;:&quot;0057R00000DID5BQAX&quot;,&quot;Ownership&quot;:&quot;Public&quot;,&quot;Phone&quot;:&quot;(336) 222-7000&quot;,&quot;Rating&quot;:&quot;Warm&quot;,&quot;SLAExpirationDate__c&quot;:&quot;2023-06-30&quot;,&quot;SLASerialNumber__c&quot;:&quot;5367&quot;,&quot;SLA__c&quot;:&quot;Silver&quot;,&quot;Sic&quot;:&quot;546732&quot;,&quot;TickerSymbol&quot;:&quot;BTXT&quot;,&quot;Type&quot;:&quot;Customer - Direct&quot;,&quot;UpsellOpportunity__c&quot;:&quot;Maybe&quot;,&quot;Website&quot;:&quot;www.burlington.com&quot;}</sobjectValue>
+            </value>
+        </parameters>
+    </testPoints>
+    <testPoints>
+        <assertions>
+            <conditions>
+                <leftValueReference>$Record.AccountSource</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Web</stringValue>
+                </rightValue>
+            </conditions>
+            <errorMessage>Account source should be &quot;Web&quot;</errorMessage>
+        </assertions>
+        <elementApiName>Finish</elementApiName>
+    </testPoints>
+</FlowTest>
