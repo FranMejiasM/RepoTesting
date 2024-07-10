@@ -1,6 +1,6 @@
 {
-  "orgName": "my company",
-  "edition": "Developer",
+  "orgName": "Morena's Org",
+  "edition": "Enterprise",
   "features": ["EnableSetPasswordInApi"],
   "settings": {
     "lightningExperienceSettings": {
