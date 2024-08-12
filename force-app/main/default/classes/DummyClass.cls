@@ -1,5 +1,5 @@
 /**
- * @description DummyClass
+ * @description DummyClass 3
  */
     public with sharing class DummyClass {
     /**
@@ -12,7 +12,7 @@
      */
 
     public DummyClass() {
-        anotherField =3;
+       Integer anotherField =3;
     }
     
     /**
@@ -22,6 +22,5 @@
 
         String LocalVariable;
         system.debug(LocalVariable);
-        Account acc = [SELECT Id from Account];
     }
 }
