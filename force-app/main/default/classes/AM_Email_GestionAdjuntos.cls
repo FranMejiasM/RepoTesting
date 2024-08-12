@@ -1,5 +1,5 @@
 public class AM_Email_GestionAdjuntos {
-    public static void void gestionAdjuntos(Messaging.InboundEmail email, Case caso, String myPlainText, String emailDestino) {
+    public static void gestionAdjuntos(Messaging.InboundEmail email, Case caso, String myPlainText, String emailDestino) {
 
         // Adjuntos del email se convierten en Files asociados al caso
         List<Id> listaContentVersionIdEmail = new List<Id>();
