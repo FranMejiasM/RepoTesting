@@ -22,5 +22,6 @@
 
         String LocalVariable;
         system.debug(LocalVariable);
+        Account acc = [SELECT Id from Account];
     }
 }
