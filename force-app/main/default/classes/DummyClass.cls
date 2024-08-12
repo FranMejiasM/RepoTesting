@@ -1,5 +1,5 @@
 /**
- * @description DummyClass
+ * @description DummyClass 3
  */
     public with sharing class DummyClass {
     /**
@@ -21,7 +21,6 @@
      private void myDummyMethod() {
 
         String LocalVariable;
-        system.debug(LocalVariable);
         system.debug(LocalVariable);
         system.debug(LocalVariable);
     }
