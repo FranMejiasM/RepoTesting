@@ -1,13 +1,16 @@
 {
-  "orgName": "Morena's Org",
-  "edition": "Enterprise",
-  "features": ["EnableSetPasswordInApi"],
-  "settings": {
-    "lightningExperienceSettings": {
-      "enableS1DesktopEnabled": true
-    },
-    "mobileSettings": {
-      "enableS1EncryptedStoragePref2": false
-    }
+  "orgName": "Morena's Devops Quality",
+   "edition": "Enterprise",
+   "features": ["EnableSetPasswordInApi","DevOpsCenter"],
+   "settings": {
+     "lightningExperienceSettings": {
+       "enableS1DesktopEnabled": true
+     },
+     "mobileSettings": {
+       "enableS1EncryptedStoragePref2": false
+     },
+     "devHubSettings": {
+       "enableDevOpsCenterGA": true
+       }
   }
-}
+}  
