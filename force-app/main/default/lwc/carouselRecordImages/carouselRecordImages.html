@@ -1,0 +1,36 @@
+<template>
+    <template if:true={queryDone}>
+        <div class="slds-box slds-box_x-small slds-text-align_center main-div">
+            <template if:true={images.length}>
+                    <div class="inner-div">
+                        <!-- IMAGES LIST -->
+                        <div class="img-container slds-box slds-box_xx-small">
+                            <template for:each={images} for:item="myImage">
+								<img data-id={myImage.id} class={myImage.class} key={myImage.id} src={myImage.url}>
+                            </template>
+                        </div>
+
+                        <!-- PLAY / PAUSE -->
+                        <div class="slds-float_left slds-is-absolute">
+                            <template if:true={intervalId}>
+                                <lightning-button-icon icon-name="utility:pause" variant="brand" onclick={pause}></lightning-button-icon>
+                            </template>
+                            <template if:false={intervalId}>
+                                <lightning-button-icon icon-name="utility:play" variant="brand" onclick={play}></lightning-button-icon>
+                            </template>                            
+                        </div>
+
+                        <!-- PREVIOUS / NEXT -->
+                        <div>
+                            <lightning-button-icon class="arrow-button" name="leftButton" icon-name="utility:chevronleft" variant="border-filled" onclick={changeImage}></lightning-button-icon>
+                            <lightning-button-icon class="arrow-button" name="rightButton" icon-name="utility:chevronright" variant="border-filled" onclick={changeImage}></lightning-button-icon>
+                        </div>
+                    </div>
+            </template>
+            <!-- NO IMAGES ATTACHED -->
+            <template if:false={images.length}>
+                <p>Adjunte imágenes al {sObjectLabel} para visualizarlas aquí.</p>
+            </template>
+        </div>
+    </template>
+</template>

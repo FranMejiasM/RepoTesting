@@ -1,0 +1,44 @@
+.main-div {
+    background-color: white;
+}
+
+.inner-div {
+    margin: 5px;
+}
+
+.img-container {
+    margin-bottom: 5px;
+	position: relative;
+	height: 18rem;
+    width: inherit;
+    min-width: 338px;
+    max-width: 24rem;
+	margin: 0 auto;
+    margin-bottom: 5px;
+}
+
+div > img {
+    object-fit: contain;
+}
+
+.arrow-button {
+    margin: 0px 5px;
+}
+
+/* Opacity */
+img {
+    position: absolute;
+    left: 0;
+    -webkit-transition: opacity 1s ease-in-out;
+    -moz-transition: opacity 1s ease-in-out;
+    -o-transition: opacity 1s ease-in-out;
+    transition: opacity 1s ease-in-out;
+}
+
+img.transparent {
+    opacity: 0;
+}
+
+img.opaque {
+    opacity: 1;
+}
