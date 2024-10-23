@@ -3,7 +3,7 @@ public class AM_Email_GestionAdjuntos {
 
         // Adjuntos del email se convierten en Files asociados al caso
         List<Id> listaContentVersionIdEmail = new List<Id>();
-
+system.debug('hola');
         String nuevoHtmlBody = email.htmlBody;
         if (!String.isBlank(nuevoHtmlBody) && nuevoHtmlBody.length() > 32000) {
             nuevoHtmlBody = nuevoHtmlBody.left(32000);
