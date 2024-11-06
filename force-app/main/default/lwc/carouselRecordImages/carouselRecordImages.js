@@ -6,6 +6,7 @@ export default class CarouselRecordImages extends LightningElement {
     @api recordId;
     @api objectApiName;
     @api fileTypes;
+    @track hola;
 
     @track images = [];
     imagePointer = -1;

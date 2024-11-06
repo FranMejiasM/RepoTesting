@@ -1,6 +1,6 @@
 ({
 	renderChildren : function(component, dynamicSvg) {
-		var childItems = component.get("v.childItems");
+		let childItems = component.get("v.childItems");
         
         // Iterate over the list of objects
         for(var key in childItems){            
