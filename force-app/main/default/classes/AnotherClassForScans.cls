@@ -1,7 +1,20 @@
-public without sharing class AnotherClassForScans {
+    /**
+    * @description dummy Method
+    */   
+public without sharing class AnotherClassForScans {    
+    /**
+    * @description dummy Method
+    */   
     public void myMEthod() {
-        for(Account acc : [select id from Account]) {
-            system.debug('do something new');
+        try {
+            for(Account acc : [select id from Account])
+            {
+               String a = 'do something new';
+           }   
+        } catch(Exception e) {
+            system.debug(e.getMessage());
+        } finally {
+
         }
     }
 }
