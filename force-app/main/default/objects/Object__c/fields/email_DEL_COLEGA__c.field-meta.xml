@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>TextField__c</fullName>
+    <fullName>email_DEL_COLEGA__c</fullName>
     <externalId>false</externalId>
-    <label>TextField</label>
+    <label>email_DE_COLEGA</label>
     <length>254</length>
     <required>false</required>
     <trackTrending>false</trackTrending>
