@@ -17,4 +17,13 @@ public with sharing class DummyClassTest {
         system.assertEquals(true,true);                           
         test.stopTest();
     }
+
+    @isTest
+    private static void testMethod2(){
+        test.startTest();
+        system.debug('1');
+        Boolean uNUSEDVAR;
+    
+        test.stopTest();
+    }
 }

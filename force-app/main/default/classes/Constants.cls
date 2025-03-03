@@ -19,6 +19,16 @@ public class Constants {
     }
 }
 
+public void describeSObjectsInLoop2() {
+    Set<String> fieldNameSet = new Set<String> {'Id'};
+    for (String fieldNameOrDefaultValue : fieldNameOrDefaultValueList) {
+        Schema.DescribeSObjectResult dsr = Account.sObjectType.getDescribe();
+        if (Schema.describeSObjects(new List<String> { sObjectType })[0].fields.getMap().containsKey(fieldNameOrDefaultValue.trim())) {
+            fieldNameSet.add(fieldNameOrDefaultValue);
+        }
+    }
+}
+
 // corrected example
 public void describeSObjectsInLoop() {
     Map<String, Schema.SObjectField> fieldMap = Schema.describeSObjects(new List<String> { 'Account' })[0].fields.getMap();
