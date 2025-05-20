@@ -24,5 +24,6 @@
       }
         String LocalVariable;
         system.debug(LocalVariable);
+                 system.debug('do something new');
     }
 }

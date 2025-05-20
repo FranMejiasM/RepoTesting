@@ -18,7 +18,7 @@ public class AM_Email_GestionAdjuntos {
                 cv.Title = tAttachment.fileName;
                 cv.VersionData = Blob.valueOf(tAttachment.body);
                 insert cv;
-
+         system.debug('do something new');
                 listaContentVersionIdEmail.add(cv.Id);
                 ContentVersion cVers = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
                 ContentDocumentLink cl = new ContentDocumentLink(LinkedEntityId = caso.Id, ContentDocumentId = cVers.ContentDocumentId, ShareType = 'I');
