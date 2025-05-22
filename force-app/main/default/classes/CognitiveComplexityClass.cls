@@ -5,7 +5,7 @@ public with sharing class CognitiveComplexityClass {
     */   
     public void cognitiveComplexityMethod() {
         Integer x = 0; 
-
+        system.debug('hola');
         x = 2;
     }
 }
