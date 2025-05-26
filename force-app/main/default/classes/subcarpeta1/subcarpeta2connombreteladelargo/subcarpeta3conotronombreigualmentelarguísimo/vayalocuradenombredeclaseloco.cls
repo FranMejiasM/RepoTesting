@@ -1,5 +1,5 @@
-public with sharing class vayalocuradenombredeclaseloco {
+public class vayalocuradenombredeclaseloco {
     public vayalocuradenombredeclaseloco() {
-
+system.debug('hola');
     }
 }
