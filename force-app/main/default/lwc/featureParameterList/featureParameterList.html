@@ -1,0 +1,15 @@
+<template>
+    <lightning-card title="Feature Parameters (Boolean)">
+        <lightning-datatable
+            key-field="Id"
+            data={rows}
+            columns={columns}
+            hide-checkbox-column
+            draft-values={draftValues}
+            onsave={handleSave}
+            onsort={handleSort}
+            sorted-by={sortedBy}
+            sorted-direction={sortedDirection}>
+        </lightning-datatable>
+    </lightning-card>
+</template>
