@@ -8,7 +8,7 @@ private class FeatureParameterTableCtrlTest {
             LIMIT 1
         ];
         return rows.isEmpty() ? null : rows[0];
-    }
+    } 
 
     @IsTest
     static void test_getParams_runs() {

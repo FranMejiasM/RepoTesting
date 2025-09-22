@@ -30,10 +30,10 @@ public with sharing class FeatureParameterTableCtrl {
             ));
         }
         // (Opcional para security review) aplicar FLS/CRUD
-        // SObjectAccessDecision acc = Security.stripInaccessible(
-        //     AccessType.UPDATABLE, toUpdate
-        // );
-        // update (List<sfFma__FeatureParameterBoolean__c>)acc.getRecords();
+        SObjectAccessDecision acc = Security.stripInaccessible(
+            AccessType.UPDATABLE, toUpdate
+        );
+        update (List<sfFma__FeatureParameterBoolean__c>)acc.getRecords();
 
         update toUpdate;
     }
