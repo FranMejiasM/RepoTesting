@@ -5,6 +5,7 @@ public class AM_Email_GestionAdjuntos {
         List<Id> listaContentVersionIdEmail = new List<Id>();
 system.debug('hola');
         String nuevoHtmlBody = email.htmlBody;
+        String NEW_STRING;
         if (!String.isBlank(nuevoHtmlBody) && nuevoHtmlBody.length() > 32000) {
             nuevoHtmlBody = nuevoHtmlBody.left(32000);
         }
@@ -24,6 +25,11 @@ system.debug('hola');
                 ContentDocumentLink cl = new ContentDocumentLink(LinkedEntityId = caso.Id, ContentDocumentId = cVers.ContentDocumentId, ShareType = 'I');
                 insert cl;
             }
+        }
+        try {
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        } catch(Exception e) {
+            System.debug('Error al enviar el email: ' + e.getMessage());
         }
     }
 }
