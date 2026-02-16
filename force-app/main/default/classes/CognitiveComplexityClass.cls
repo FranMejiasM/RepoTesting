@@ -7,5 +7,12 @@ public with sharing class CognitiveComplexityClass {
         Integer x = 0; 
 
         x = 2;
+
+
+          RELIGION = 'Christianity';
+        AGE = 30;
+
+        ""THREE
+
     }
 }
