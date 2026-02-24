@@ -35,5 +35,60 @@
       }
         String LocalVariable;
         system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Contact];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
     }
 }
