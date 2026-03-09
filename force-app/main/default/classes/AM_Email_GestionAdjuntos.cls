@@ -5,7 +5,7 @@ public class AM_Email_GestionAdjuntos {
         List<Id> listaContentVersionIdEmail = new List<Id>();
         system.debug('hola');
         String nuevoHtmlBody = email.htmlBody;
-        String NEW_STRING;
+
         if (!String.isBlank(nuevoHtmlBody) && nuevoHtmlBody.length() > 32000) {
             nuevoHtmlBody = nuevoHtmlBody.left(32000);
         }
