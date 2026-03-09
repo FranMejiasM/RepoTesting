@@ -1,4 +1,4 @@
-public with sharing class ConnectedAppService {
+global without sharing class ConnectedAppService {
     public class ConnectedAppServiceException extends Exception { }
     final static String ORG_URL = String.valueOf(System.Url.getOrgDomainUrl().toExternalForm());
 

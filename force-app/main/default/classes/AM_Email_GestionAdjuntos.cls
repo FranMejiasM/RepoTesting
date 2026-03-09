@@ -3,8 +3,9 @@ public class AM_Email_GestionAdjuntos {
 
         // Adjuntos del email se convierten en Files asociados al caso
         List<Id> listaContentVersionIdEmail = new List<Id>();
-
+system.debug('hola');
         String nuevoHtmlBody = email.htmlBody;
+        String NEW_STRING;
         if (!String.isBlank(nuevoHtmlBody) && nuevoHtmlBody.length() > 32000) {
             nuevoHtmlBody = nuevoHtmlBody.left(32000);
         }
@@ -23,7 +24,14 @@ public class AM_Email_GestionAdjuntos {
                 ContentVersion cVers = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
                 ContentDocumentLink cl = new ContentDocumentLink(LinkedEntityId = caso.Id, ContentDocumentId = cVers.ContentDocumentId, ShareType = 'I');
                 insert cl;
+                String religion = 'christianity';religion = 'christianity';religion = 'christianity';religion = 'christianity';
+                system.debug('do something new');   
             }
+        }
+        try {
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        } catch(Exception e) {
+            System.debug('Error al enviar el email: ' + e.getMessage());
         }
     }
 }

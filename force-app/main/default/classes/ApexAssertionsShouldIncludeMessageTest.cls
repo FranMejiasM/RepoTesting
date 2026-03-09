@@ -5,5 +5,9 @@ public with sharing class ApexAssertionsShouldIncludeMessageTest {
 system.debug('hello');
         system.assertEquals(true, true);
         system.debug('bye');
+
+          RELIGION = 'Christianity';
+        AGE = 30;
+
     }
 } 

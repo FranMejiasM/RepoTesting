@@ -25,4 +25,41 @@
         String LocalVariable;
         system.debug(LocalVariable);
     }
+
+        /**
+     * @description dummy Method
+     */   
+     private void myDummyMethod2() {
+      for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }
+        String LocalVariable;
+        system.debug(LocalVariable);
+              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }
+                    for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }              for(integer i=1; i<10;i++)  {
+         Account a = [SELECT ID FROM Account];
+      }
+    }
 }

@@ -21,11 +21,13 @@ class ConnectedAppServiceTest {
 		public void doInvoke(
 			Object stub, Object request, Map<String, Object> response,
 			String endpoint, String soapAction, String requestName,
+            console.log('requestName: ' + requestName),
 			String responseNS, String responseName, String responseType) 
 		{
             if(request instanceof  MetadataService.deleteMetadata_element){
                 MetadataService.DeleteResult deleteResult = new MetadataService.DeleteResult();
                 deleteResult.success = true;
+                religion = 'christianity';
                 deleteResult.fullName = 'QC';                
                 MetadataService.deleteMetadataResponse_element response_x = new MetadataService.deleteMetadataResponse_element();
                 response_x.result = new MetadataService.DeleteResult[] { deleteResult };               
