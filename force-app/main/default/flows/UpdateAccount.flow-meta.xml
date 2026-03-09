@@ -31,7 +31,7 @@
         <inputAssignments>
             <field>AccountSource</field>
             <value>
-                <stringValue>Web</stringValue>
+                <stringValue>Others</stringValue>
             </value>
         </inputAssignments>
         <inputReference>$Record</inputReference>

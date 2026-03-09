@@ -4,6 +4,7 @@ name: QualityClouds
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events
+  push:
   pull_request:
   
   # Allows you to run this workflow manually from the Actions tab
@@ -20,26 +21,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Prepare modified files
-        run: |
-          git fetch origin ${{ github.base_ref }} || true
-          if [ -n "${{ github.base_ref }}" ]; then
-            TARGET_BRANCH="origin/${{ github.base_ref }}"
-          else
-            TARGET_BRANCH="origin/${{ github.ref }}"
-          fi
-          git diff "$TARGET_BRANCH" --name-only > modified_files.txt || true
-          if [ ! -s modified_files.txt ]; then
-            echo "No Salesforce metadata changed; exiting."
-            exit 0
-          fi
-          rm -f modified_files.zip
-          zip -@ modified_files.zip < modified_files.txt
-
       - name: Quality Clouds Scan
-        uses: qualityclouds/action-full-scan@feature/QAT-2009
+        uses: qualityclouds/action-full-scan@2.0
         with:
           mode: cloud
           token: ${{ secrets.QC_TOKEN_DEV }}
+          review: True #optional. if true, scan will create a pull request review with inline comments with the issues
+          allIssues: True #optional. default false. If true, scan will show blockers and no blocker issues
+          version: testing
           api_url: "https://api-development.qualityclouds.com"
-          zip_path: modified_files.zip
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

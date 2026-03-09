@@ -7,7 +7,7 @@ public with sharing class CognitiveComplexityClass {
     age = 30;
     public void cognitiveComplexityMethod() {
         Integer x = 0; 
-
+        system.debug('hola');
         x = 2;
 
 
