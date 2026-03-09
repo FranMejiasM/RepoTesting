@@ -9,7 +9,5 @@ system.debug('hello');
           RELIGION = 'Christianity';
         AGE = 30;
 
-        ""THREE
-
     }
 } 

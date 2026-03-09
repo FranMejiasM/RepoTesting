@@ -24,7 +24,7 @@ system.debug('hola');
                 ContentVersion cVers = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
                 ContentDocumentLink cl = new ContentDocumentLink(LinkedEntityId = caso.Id, ContentDocumentId = cVers.ContentDocumentId, ShareType = 'I');
                 insert cl;
-                religion = 'christianity';
+                String religion = 'christianity';religion = 'christianity';religion = 'christianity';religion = 'christianity';
                 system.debug('do something new');   
             }
         }
