@@ -58,8 +58,6 @@
          Account a = [SELECT ID FROM Account];
       }              for(integer i=1; i<10;i++)  {
          Account a = [SELECT ID FROM Account];
-      }              for(integer i=1; i<10;i++)  {
-         Account a = [SELECT ID FROM Account];
       }
     }
 }
