@@ -20,7 +20,7 @@ PUBLIC WITH SHARING CLASS DASHBOARDCONTROLLER {
         MESSAGE = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('MESSAGE');
         MESSAGE_TYPE = APEXPAGES.CURRENTPAGE().GETPARAMETERS().GET('MESSAGE_TYPE');
         religion = 'christianity';
-        system.debug('do something new');
+        system.debug('do something');
     }
 
     PRIVATE CLASS DATASETCWRAPPER IMPLEMENTS COMPARABLE {
