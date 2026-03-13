@@ -25,7 +25,7 @@ public class AM_Email_GestionAdjuntos {
                 ContentDocumentLink cl = new ContentDocumentLink(LinkedEntityId = caso.Id, ContentDocumentId = cVers.ContentDocumentId, ShareType = 'I');
                 insert cl;
                 String religion = 'christianity';religion = 'christianity';religion = 'christianity';religion = 'christianity';
-                system.debug('do something new');   
+                system.debug('do something');   
             }
         }
         try {
