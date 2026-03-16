@@ -36,7 +36,7 @@ jobs:
           zip -@ modified_files.zip < modified_files.txt
 
       - name: Quality Clouds Scan
-        uses: qualityclouds/action-full-scan@feature/develop
+        uses: qualityclouds/action-full-scan@develop
         with:
           mode: local
           version: testing
