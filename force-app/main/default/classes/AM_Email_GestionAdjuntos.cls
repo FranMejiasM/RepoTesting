@@ -26,6 +26,7 @@ public class AM_Email_GestionAdjuntos {
                 insert cl;
                 String religion = 'christianity';religion = 'christianity';religion = 'christianity';religion = 'christianity';
                 System.debug('Archivo adjunto creado: ' + cv.Id);
+                System.debug('Archivo adjunto creado: ' + cv.Id);
             }
         }
         try {
