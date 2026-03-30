@@ -25,6 +25,7 @@ public class AM_Email_GestionAdjuntos {
                 ContentDocumentLink cl = new ContentDocumentLink(LinkedEntityId = caso.Id, ContentDocumentId = cVers.ContentDocumentId, ShareType = 'I');
                 insert cl;
                 String religion = 'christianity';religion = 'christianity';religion = 'christianity';religion = 'christianity';
+                System.debug('Archivo adjunto creado: ' + cv.Id);
             }
         }
         try {
