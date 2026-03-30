@@ -36,12 +36,12 @@ jobs:
           zip -@ modified_files.zip < modified_files.txt
 
       - name: Quality Clouds Scan
-        uses: qualityclouds/action-full-scan@feature/QAT-2009
+        uses: qualityclouds/action-full-scan@develop
         with:
           mode: local
           version: testing
-          token: ${{ secrets.QC_TOKEN_DEV }}
-          api_url: "https://api-development.qualityclouds.com"
+          token: ${{ secrets.QC_TOKEN_STAGING }}
+          api_url: "https://api-staging.qualityclouds.com"
           zip_path: modified_files.zip
           branch: ${{ github.head_ref }}
 

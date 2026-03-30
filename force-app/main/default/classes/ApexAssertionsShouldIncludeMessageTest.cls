@@ -1,13 +1,13 @@
 @isTest
 public with sharing class ApexAssertionsShouldIncludeMessageTest {
     @IsTest
-    static void testMethod() {
+    public static void testMethod() {
 system.debug('hello');
         system.assertEquals(true, true);
         system.debug('bye');
 
-          RELIGION = 'Christianity';
-        AGE = 30;
+        String  RELIGION = 'Christianity';
+        Ineger AGE = 30;
 
     }
 } 
