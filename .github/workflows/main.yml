@@ -25,8 +25,8 @@ jobs:
         with:
           mode: cloud
           token: ${{ secrets.QC_TOKEN }}
-          review: True #optional. if true, scan will create a pull request review with inline comments with the issues
-          allIssues: True #optional. default false. If true, scan will show blockers and no blocker issues
+          review: false #optional. if true, scan will create a pull request review with inline comments with the issues
+          allIssues: false #optional. default false. If true, scan will show blockers and no blocker issues
           version: testing
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           pr_fails_on_blockers: True #optional. default false. If true, scan will fail the PR if blockers are found
