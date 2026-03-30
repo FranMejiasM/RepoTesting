@@ -26,7 +26,6 @@ public class AM_Email_GestionAdjuntos {
                 insert cl;
                 String religion = 'christianity';religion = 'christianity';religion = 'christianity';religion = 'christianity';
                 system.debug('do something new');   
-                system.debug('do something new'); 
             }
         }
         try {
