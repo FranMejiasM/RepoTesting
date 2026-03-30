@@ -29,4 +29,4 @@ jobs:
           allIssues: True #optional. default false. If true, scan will show blockers and no blocker issues
           version: testing
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          pr_fails_on_blocker: True #optional. default false. If true, scan will fail the PR if blockers are found
+          pr_fails_on_blockers: True #optional. default false. If true, scan will fail the PR if blockers are found
