@@ -28,5 +28,5 @@ jobs:
           review: true #optional. if true, scan will create a pull request review with inline comments with the issues
           allIssues: true #optional. default false. If true, scan will show blockers and no blocker issues
           gitHubToken: ${{ secrets.QC_GITHUB_TOKEN }}
-          pr_fails_on_blockers: "true" #optional. default false. If true, scan will fail the PR if blockers are found
+          pr_fails_on_blockers: true #optional. default false. If true, scan will fail the PR if blockers are found
           version: latest
