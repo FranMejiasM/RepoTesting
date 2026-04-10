@@ -1,4 +1,4 @@
-# This is a basic workflow to help you get started with Actions   
+#This is a basic workflow to help you get started with Actions   
 name: QualityClouds
 
 # Controls when the action will run. 
@@ -18,7 +18,8 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Quality Clouds Scan
         uses: qualityclouds/action-full-scan@2.1.0
@@ -27,6 +28,6 @@ jobs:
           token: ${{ secrets.QC_TOKEN }}
           review: true #optional. if true, scan will create a pull request review with inline comments with the issues
           allIssues: true #optional. default false. If true, scan will show blockers and no blocker issues
-          gitHubToken: ${{ secrets.QC_GITHUB_TOKEN }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           pr_fails_on_blockers: true #optional. default false. If true, scan will fail the PR if blockers are found
-          version: latest
+          version: 2.3.0 
