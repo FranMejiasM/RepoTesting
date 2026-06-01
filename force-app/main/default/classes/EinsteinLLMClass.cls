@@ -33,7 +33,6 @@ public with sharing class EinsteinLLMClass {
         ConnectApi.EinsteinPromptTemplateGenerationsRepresentation generationsOutput = 
         ConnectApi.EinsteinLLM.generateMessagesForPromptTemplate('0hfxx0000000KTNAA2', promptGenerationsInput);
 
-        // Consume response
         System.debug('Prompt Testing: ' + generationsOutput.prompt);
     }
 }
