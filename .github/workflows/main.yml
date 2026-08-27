@@ -20,14 +20,47 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        
+      - name: Get GitHub OIDC token
+        id: github_oidc
+        shell: bash
+        run: |
+          set -euo pipefail
+          OIDC_RESPONSE="$(curl -sS -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://account-development.qualityclouds.com")"
+          OIDC_TOKEN="$(echo "$OIDC_RESPONSE" | jq -r '.value')"
+          if [ "$OIDC_TOKEN" = "null" ] || [ -z "$OIDC_TOKEN" ]; then
+            echo "Error obteniendo token OIDC de GitHub"
+            echo "$OIDC_RESPONSE"
+            exit 1
+          fi
+          echo "oidc_token=$OIDC_TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: Exchange OIDC token for QC access token
+        id: qc_token
+        shell: bash
+        run: |
+          set -euo pipefail
+          KEYCLOAK_RESPONSE="$(curl -sS -X POST "https://account-development.qualityclouds.com/realms/qualityclouds/protocol/openid-connect/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+            -d "client_id=gitlab-ci" \
+            -d "subject_token=${{ steps.github_oidc.outputs.oidc_token }}" \
+            -d "subject_token_type=urn:ietf:params:oauth:token-type:jwt")"
+
+          ACCESS_TOKEN="$(echo "$KEYCLOAK_RESPONSE" | jq -r '.access_token')"
+          if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
+            echo "Error obteniendo token de Keycloak"
+            echo "$KEYCLOAK_RESPONSE"
+            exit 1
+          fi
+
+          echo "qc_access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
 
       - name: Quality Clouds Scan
         uses: qualityclouds/action-full-scan@2.1.0
         with:
           mode: cloud
-          token: ${{ secrets.QC_TOKEN }}
-          review: true #optional. if true, scan will create a pull request review with inline comments with the issues
-          allIssues: true #optional. default false. If true, scan will show blockers and no blocker issues
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          pr_fails_on_blockers: true #optional. default false. If true, scan will fail the PR if blockers are found
-          version: 2.3.0 
+          token: ${{ steps.qc_token.outputs.qc_access_token }}
+          review: false #optional. if true, scan will create a pull request review with inline comments with the issues
+          allIssues: True #optional. default false. If true, scan will show blockers and no blocker issues
+          api_url: "https://api-development.qualityclouds.com"
