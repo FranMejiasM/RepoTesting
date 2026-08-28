@@ -47,7 +47,7 @@ jobs:
           KEYCLOAK_RESPONSE="$(curl -sS -X POST "https://account-development.qualityclouds.com/realms/qualityclouds/protocol/openid-connect/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             -d "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
-            -d "client_id=gitlab-ci" \
+            -d "client_id=github-ci" \
             -d "subject_token=${{ steps.github_oidc.outputs.oidc_token }}" \
             -d "subject_token_type=urn:ietf:params:oauth:token-type:jwt")"
 
