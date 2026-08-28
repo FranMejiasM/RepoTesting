@@ -23,7 +23,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Get GitHub OIDC token
         id: github_oidc
@@ -58,7 +58,7 @@ jobs:
             echo "$KEYCLOAK_RESPONSE"
             exit 1
           fi
-
+          echo "::add-mask::$ACCESS_TOKEN"
           echo "qc_access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
 
       - name: Quality Clouds Scan
@@ -71,3 +71,4 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           pr_fails_on_blockers: true #optional. default false. If true, scan will fail the PR if blockers are found
           version: 2.3.0 
+          api_url: https://api-development.qualityclouds.com 
