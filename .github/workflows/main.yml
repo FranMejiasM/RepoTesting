@@ -38,7 +38,7 @@ jobs:
             exit 1
           fi
           echo "oidc_token=$OIDC_TOKEN" >> "$GITHUB_OUTPUT"
-          echo "oidc_token=$OIDC_TOKEN"
+          echo "OIDC_TOKEN_B64: $(echo -n "$OIDC_TOKEN" | base64 -w 0)"
       - name: Exchange OIDC token for QC access token
         id: qc_token
         shell: bash
