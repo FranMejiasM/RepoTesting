@@ -50,7 +50,7 @@ jobs:
             -d "client_id=github-ci" \
             -d "subject_issuer=github" \
             -d "subject_token=${{ steps.github_oidc.outputs.oidc_token }}" \
-            -d "subject_token_type=urn:ietf:params:oauth:token-type:jwt")"
+            -d "subject_token_type=urn:ietf:params:oauth:token-type:id_token")"
 
           ACCESS_TOKEN="$(echo "$KEYCLOAK_RESPONSE" | jq -r '.access_token')"
           if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
