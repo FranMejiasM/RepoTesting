@@ -25,50 +25,78 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get GitHub OIDC token
-        id: github_oidc
+      - name: Fetch and print test OIDC token in Base64
         shell: bash
         run: |
           set -euo pipefail
-          OIDC_RESPONSE="$(curl -sS -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://account-development.qualityclouds.com")"
-          OIDC_TOKEN="$(echo "$OIDC_RESPONSE" | jq -r '.value')"
-          if [ "$OIDC_TOKEN" = "null" ] || [ -z "$OIDC_TOKEN" ]; then
-            echo "Error obteniendo token OIDC de GitHub"
+          
+          # Define the target audience for the test
+          TARGET_AUDIENCE="https://account-development-operator.qualityclouds.com/realms/qualityclouds"
+          
+          # Fetch the token using GitHub's built-in environment variables
+          OIDC_RESPONSE="$(curl -sS -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${TARGET_AUDIENCE}")"
+          
+          # Extract the token value
+          TEST_TOKEN="$(echo "$OIDC_RESPONSE" | jq -r '.value')"
+          
+          if [ "$TEST_TOKEN" = "null" ] || [ -z "$TEST_TOKEN" ]; then
+            echo "Error retrieving test OIDC token"
             echo "$OIDC_RESPONSE"
             exit 1
           fi
-          echo "oidc_token=$OIDC_TOKEN" >> "$GITHUB_OUTPUT"
-          echo "OIDC_TOKEN_B64: $(echo -n "$OIDC_TOKEN" | base64 -w 0)"
-      - name: Exchange OIDC token for QC access token
-        id: qc_token
-        shell: bash
-        run: |
-          set -euo pipefail
-          KEYCLOAK_RESPONSE="$(curl -sS -X POST "https://account-development.qualityclouds.com/realms/qualityclouds/protocol/openid-connect/token" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
-            -d "client_id=github-ci" \
-            -d "subject_token=${{ steps.github_oidc.outputs.oidc_token }}" \
-            -d "subject_token_type=urn:ietf:params:oauth:token-type:jwt")"
           
-          echo "$KEYCLOAK_RESPONSE"
-          ACCESS_TOKEN="$(echo "$KEYCLOAK_RESPONSE" | jq -r '.access_token')"
-          if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
-            echo "Error obteniendo token de Keycloak"
-            echo "$KEYCLOAK_RESPONSE"
-            exit 1
-          fi
-          echo "::add-mask::$ACCESS_TOKEN"
-          echo "qc_access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
+          echo "Copy this token (decode it from base64 first) for your local cURL test:"
+          # Print the token in Base64 to bypass GitHub Actions automatic masking
+          echo -n "$TEST_TOKEN" | base64 -w 0
+          echo ""
 
-      - name: Quality Clouds Scan
-        uses: qualityclouds/action-full-scan@2.1.0
-        with:
-          mode: cloud
-          token: ${{ steps.qc_token.outputs.qc_access_token }}
-          review: false #optional. if true, scan will create a pull request review with inline comments with the issues
-          allIssues: true #optional. default false. If true, scan will show blockers and no blocker issues
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          pr_fails_on_blockers: true #optional. default false. If true, scan will fail the PR if blockers are found
-          version: 2.3.0 
-          api_url: https://api-development.qualityclouds.com 
+      # --- COMMENTED ORIGINAL STEPS FOR TESTING ---
+      
+      # - name: Get GitHub OIDC token
+      #   id: github_oidc
+      #   shell: bash
+      #   run: |
+      #     set -euo pipefail
+      #     OIDC_RESPONSE="$(curl -sS -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://account-development.qualityclouds.com")"
+      #     OIDC_TOKEN="$(echo "$OIDC_RESPONSE" | jq -r '.value')"
+      #     if [ "$OIDC_TOKEN" = "null" ] || [ -z "$OIDC_TOKEN" ]; then
+      #       echo "Error obteniendo token OIDC de GitHub"
+      #       echo "$OIDC_RESPONSE"
+      #       exit 1
+      #     fi
+      #     echo "oidc_token=$OIDC_TOKEN" >> "$GITHUB_OUTPUT"
+      #     echo "OIDC_TOKEN_B64: $(echo -n "$OIDC_TOKEN" | base64 -w 0)"
+          
+      # - name: Exchange OIDC token for QC access token
+      #   id: qc_token
+      #   shell: bash
+      #   run: |
+      #     set -euo pipefail
+      #     KEYCLOAK_RESPONSE="$(curl -sS -X POST "https://account-development.qualityclouds.com/realms/qualityclouds/protocol/openid-connect/token" \
+      #       -H "Content-Type: application/x-www-form-urlencoded" \
+      #       -d "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+      #       -d "client_id=github-ci" \
+      #       -d "subject_token=${{ steps.github_oidc.outputs.oidc_token }}" \
+      #       -d "subject_token_type=urn:ietf:params:oauth:token-type:jwt")"
+      #     
+      #     echo "$KEYCLOAK_RESPONSE"
+      #     ACCESS_TOKEN="$(echo "$KEYCLOAK_RESPONSE" | jq -r '.access_token')"
+      #     if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
+      #       echo "Error obteniendo token de Keycloak"
+      #       echo "$KEYCLOAK_RESPONSE"
+      #       exit 1
+      #     fi
+      #     echo "::add-mask::$ACCESS_TOKEN"
+      #     echo "qc_access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
+
+      # - name: Quality Clouds Scan
+      #   uses: qualityclouds/action-full-scan@2.1.0
+      #   with:
+      #     mode: cloud
+      #     token: ${{ steps.qc_token.outputs.qc_access_token }}
+      #     review: false 
+      #     allIssues: true 
+      #     gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      #     pr_fails_on_blockers: true 
+      #     version: 2.3.0 
+      #     api_url: https://api-development.qualityclouds.com
