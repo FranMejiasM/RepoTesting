@@ -12,7 +12,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  QC_Scan:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -30,4 +30,89 @@ jobs:
           allIssues: true #optional. default false. If true, scan will show blockers and no blocker issues
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           pr_fails_on_blockers: true #optional. default false. If true, scan will fail the PR if blockers are found
-          version: latest
+          version: 2.3.0 
+  chatops_post:
+    # Run only on issue/PR comments matching the command and correct user role
+    if: |
+      github.event_name == 'issue_comment' &&
+      startsWith(github.event.comment.body, '/writeoff') &&
+      (github.event.comment.author_association == 'OWNER' || github.event.comment.author_association == 'COLLABORATOR')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acknowledge command reception
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Add 'eyes' emoji to let the user know the action started
+            github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'eyes'
+            });
+
+      - name: Parse comment, validate, and execute POST
+        run: |
+          COMMENT_BODY="${{ github.event.comment.body }}"
+          
+          # Extract variables from comment using regex
+          # Expected format: /writeoff ids=1,2,3 reason=MY_REASON desc="My description text" service=2
+          WROFF_ISSUES_IDS=$(echo "$COMMENT_BODY" | grep -oP 'ids=\K[^\s]+')
+          WROFF_REASON_NAME_ID=$(echo "$COMMENT_BODY" | grep -oP 'reason=\K[^\s]+')
+          # Extract description ensuring we capture everything between the quotes
+          WROFF_DESCRIPTION=$(echo "$COMMENT_BODY" | grep -oP 'desc="\K[^"]+')
+          # Extract service id, default to 2 if not provided
+          WROFF_SERVICE_ID=$(echo "$COMMENT_BODY" | grep -oP 'service=\K\d+' || echo "2")
+          
+          # Validations
+          test -n "$WROFF_ISSUES_IDS" || { echo "Error: Missing ids (comma-separated issue IDs)"; exit 1; }
+          test -n "$WROFF_REASON_NAME_ID" || { echo "Error: Missing reason"; exit 1; }
+          test -n "$WROFF_DESCRIPTION" || { echo "Error: Missing desc (make sure to use quotes, e.g., desc=\"...\")"; exit 1; }
+          
+          WROFF_REASON_NAME_ID_CLEAN=$(printf '%s' "$WROFF_REASON_NAME_ID" | tr -d '[:space:]')
+          test -n "$WROFF_REASON_NAME_ID_CLEAN" || { echo "Error: Missing reason after trimming"; exit 1; }
+
+          # Convert comma-separated string to JSON array
+          ISSUES_IDS_JSON=$(printf '%s' "$WROFF_ISSUES_IDS" | jq -Rc 'split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length>0))')
+          test "$ISSUES_IDS_JSON" != "[]" || { echo "Error: No valid issue IDs found"; exit 1; }
+          
+          # Build the JSON payload
+          PAYLOAD=$(jq -n \
+            --arg reasonNameId "$WROFF_REASON_NAME_ID_CLEAN" \
+            --arg description "$WROFF_DESCRIPTION" \
+            --argjson serviceId "$WROFF_SERVICE_ID" \
+            --argjson issuesIds "$ISSUES_IDS_JSON" \
+            '{
+              data: {
+                scanType: "featurebranch",
+                writeOffStatus: "REQUESTED",
+                expirationDate: null,
+                serviceId: $serviceId,
+                reasonNameId: $reasonNameId,
+                description: $description,
+                issuesIds: $issuesIds
+              }
+            }')
+            
+          echo "Executing HTTP POST request to Quality Clouds API..."
+          
+          # Execute HTTP POST with fail-fast (-f) and silent-show-error (-sS)
+          curl -f -sS -X POST "https://api.qualityclouds.com/api/v2/bulk-write-off-by-scan-type" \
+            -H "Authorization: Bearer ${{ secrets.QC_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"
+
+      - name: Confirm successful execution
+        # Only add the rocket if the validation and curl command succeed
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Add 'rocket' emoji to confirm successful API request
+            github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'rocket'
+            });
+          
