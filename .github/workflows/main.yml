@@ -122,6 +122,8 @@ jobs:
           curl -v -sS -X POST "https://api.qualityclouds.com/api/v2/bulk-write-off-by-scan-type" \
             -H "Authorization: Bearer ${{ secrets.QC_TOKEN }}" \
             -H "Content-Type: application/json" \
+            -H "Accept: application/vnd.api+json" \
+            -H "client-name: Jenkins" \
             -d "$PAYLOAD"
 
       - name: Confirm successful execution
