@@ -114,9 +114,12 @@ jobs:
             }')
             
           echo "Executing HTTP POST request to Quality Clouds API..."
+          echo "--- DEBUG PAYLOAD ---"
+          echo "$PAYLOAD" | jq .
+          echo "---------------------"
           
-          # Execute HTTP POST with fail-fast (-f) and silent-show-error (-sS)
-          curl -f -sS -X POST "https://api.qualityclouds.com/api/v2/bulk-write-off-by-scan-type" \
+          # Execute HTTP POST with verbose (-v) and removed fail-fast (-f) to read the error body
+          curl -v -sS -X POST "https://api.qualityclouds.com/api/v2/bulk-write-off-by-scan-type" \
             -H "Authorization: Bearer ${{ secrets.QC_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD"
