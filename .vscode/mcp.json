@@ -1,0 +1,16 @@
+{
+	"servers": {
+		// "QualityCloudsMCPServer": {
+		// 	"url": "https://mcp.qualityclouds.com/mcp/",
+		// 	"type": "http",
+		// 	"headers": {
+		// 		"Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiZDZkMGFlYTk5NDBhMjMzYmExMWFmMDBhNDdhOWM0OWY5MGM4M2JiZTZjNjc4YmExNjEwYWRlMzc5NjdkMDgyNWYzMzg2OGVlZWMwZDY1YzIiLCJpYXQiOjE3ODA5MTAxMDUuMzg4NzcyLCJuYmYiOjE3ODA5MTAxMDUuMzg4Nzc1LCJleHAiOjIwOTY1MjkzMDUuMzg1MDU4LCJzdWIiOiIxODk4Iiwic2NvcGVzIjpbImluc3RhbmNlcyIsImxpY2Vuc2VzIiwibGl2ZS1jaGVjayIsIndyaXRlLW9mZnMiXX0.DfB-BixV9roI7UhcaPZJC6Gz-KgdJlEl-0Fsyu-1-BDT-1cMAvirbeRm7TxqAVsGpxm-W_Hus4jw7uaKMnJahwmAlvNPhx6MsvmjWFSS6sQRzagXXra0iEn6Z7-ZrNu0H6DxPgjyUn8Zlcqfrr7D6e85zow_hCK0LuITZ66yf8aupAncOo1CTZtgCTIlrl0Zmf7shQrNqs6dZOmhBS0xit-ywygjAC2ojdq1dEcQVFm7RsZ--HwUtzgagf_HxGwWKKHNaq0iX8OzMp9f5aruucEpt3Y2p_BaVLpoImOI47jZv7XqSd6mU0Z6BmbG-HdBVaJW_A_iOZfXrQqEfpPHicNMNXQPmvySHA0UEhS98zyjwhNpGGYlNJCGkQVVUI9z27wzndPZqRzAcGp_v2vyx5lZTg9K5e35j93AsTehT5827PggBtXQM50xXVktsg4nPYd93F18eawh2FjLpd1IBurKSI0-lLToZeLVLGPhD3pSjegfIimMAGDwSiWZCT1I8ulCoahIW73wwtLySSXEqBIA7sm9RW10v4AMmbiI18HDlE60VEP2rhHAbZ1zqrC6aKET03CDDtNE6XhPKW03RffAQGDEIvUiPU-fbd8GoioXFWoRXZdrQWk9czYLOkpBRAqM9r_pFXvm0j9ULHItGQeQy3Y10Zqz13Vkx6oiKZM"
+		// 	}
+		// }
+		"QualityCloudsMCPServer": {
+			"url": "https://mcp-development.qualityclouds.com/mcp/",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}

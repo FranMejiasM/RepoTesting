@@ -1,11 +1,19 @@
 
-public with sharing class OperationsInLoops {
+public with sharing Class OperationsInLoops {
     public void messageInsideOfLoop2() {
-        for (Integer i = 0; i < 10; i++) {
-            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-            lstEmails.add(email);
-            
+        if(3==3)  {
+            system.debug('issue 1');
         }
-        Messaging.sendEmail(lstEmails);
+        if('Pepe'!= 'pepe')  {
+            system.debug('issue 2');
+        }
+        if('Pepe' > 'Pepe')  {
+            system.debug('issue 3');
+        }
+        String x;
+        if(x <= x)  {
+            system.debug('issue 3');
+        }
+        String pepe = 'hola quiero ver si salta el issue';
     }
 }
