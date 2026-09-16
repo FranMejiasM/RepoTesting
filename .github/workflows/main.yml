@@ -46,13 +46,13 @@ jobs:
           allIssues: true
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           pr_fails_on_blockers: true
-          version: 2.3.0 
+          version: testing
 
   # ---------------------------------------------------------
   # JOB 2: CHATOPS COMMAND LISTENER
   # ---------------------------------------------------------
   execute_writeoff:
-    name: Write-off Command Listener
+    name: Write-off Command
     # Run if it's either comment type, matches the command, and user has permissions
     if: |
       (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
