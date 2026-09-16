@@ -2,27 +2,40 @@
 name: QualityClouds
 
 on:
+  # Triggers the workflow on push or pull request events
   pull_request:
+  
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
   # Triggers on standard issue or PR conversation comments
   issue_comment:
     types: [created]
+
   # Triggers on PR code review comments (replies/inline)
   pull_request_review_comment:
     types: [created]
 
+# Explicit permissions needed for adding reactions and comments
 permissions:
   pull-requests: write
   issues: write
   contents: read
 
 jobs:
-  QC_Scan:
+  # ---------------------------------------------------------
+  # JOB 1: QUALITY CLOUDS SCAN
+  # ---------------------------------------------------------
+  launch_scan:
+    name: Quality Clouds Scan
+    # Restrict this job to PRs and manual dispatches, avoiding runs on comments
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        # Updated to v4 to fix Node 20 deprecation warning
+        uses: actions/checkout@v4
 
       - name: Quality Clouds Scan
         uses: qualityclouds/action-full-scan@2.1.0
@@ -35,7 +48,11 @@ jobs:
           pr_fails_on_blockers: true
           version: 2.3.0 
 
-  chatops_post:
+  # ---------------------------------------------------------
+  # JOB 2: CHATOPS COMMAND LISTENER
+  # ---------------------------------------------------------
+  execute_writeoff:
+    name: Write-off Command Listener
     # Run if it's either comment type, matches the command, and user has permissions
     if: |
       (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
@@ -44,11 +61,11 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Acknowledge command reception
-        uses: actions/github-script@v7
+      - name: Acknowledge command reception (Eyes emoji)
+        # Updated to v8 to fix Node 20 deprecation warning
+        uses: actions/github-script@v8
         with:
           script: |
-            // Check if the comment is inline (review) or standard, to use the correct API endpoint
             const isPRReview = context.eventName === 'pull_request_review_comment';
             
             if (isPRReview) {
@@ -73,15 +90,12 @@ jobs:
           COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
           # Extract variables from the env variable using regex
-          # Expected format: /writeoff ids=1,2,3 reason=MY_REASON desc="My description text" service=2
+          # Expected format: /writeoff ids=1,2,3 reason=MY_REASON desc="My description text"
           WROFF_ISSUES_IDS=$(echo "$COMMENT_BODY" | grep -oP 'ids=\K[^\s]+')
           WROFF_REASON_NAME_ID=$(echo "$COMMENT_BODY" | grep -oP 'reason=\K[^\s]+')
           
           # Extract description ensuring we capture everything between the quotes
           WROFF_DESCRIPTION=$(echo "$COMMENT_BODY" | grep -oP 'desc="\K[^"]+')
-          
-          # Extract service id, default to 2 if not provided
-          WROFF_SERVICE_ID=$(echo "$COMMENT_BODY" | grep -oP 'service=\K\d+' || echo "2")
           
           # Validations
           test -n "$WROFF_ISSUES_IDS" || { echo "Error: Missing ids (comma-separated issue IDs)"; exit 1; }
@@ -99,52 +113,68 @@ jobs:
           PAYLOAD=$(jq -n \
             --arg reasonNameId "$WROFF_REASON_NAME_ID_CLEAN" \
             --arg description "$WROFF_DESCRIPTION" \
-            --argjson serviceId "$WROFF_SERVICE_ID" \
             --argjson issuesIds "$ISSUES_IDS_JSON" \
             '{
               data: {
                 scanType: "featurebranch",
                 writeOffStatus: "REQUESTED",
                 expirationDate: null,
-                serviceId: $serviceId,
+                serviceId: 2,
                 reasonNameId: $reasonNameId,
                 description: $description,
                 issuesIds: $issuesIds
               }
             }')
             
+          # Save the PAYLOAD to a GitHub environment variable using EOF for multiline support
+          echo "GENERATED_PAYLOAD<<EOF" >> $GITHUB_ENV
+          echo "$PAYLOAD" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+            
           echo "Executing HTTP POST request to Quality Clouds API..."
-          echo "--- DEBUG PAYLOAD ---"
-          echo "$PAYLOAD" | jq .
-          echo "---------------------"
           
-          # Execute HTTP POST with verbose (-v) and removed fail-fast (-f) to read the error body
-          curl -v -sS -X POST "https://api.qualityclouds.com/api/v2/bulk-write-off-by-scan-type" \
+          # Execute HTTP POST with fail-fast (-f) and silent-show-error (-sS)
+          curl -f -sS -X POST "https://api.qualityclouds.com/api/v2/bulk-write-off-by-scan-type" \
             -H "Authorization: Bearer ${{ secrets.QC_TOKEN }}" \
-            -H "Content-Type: application/json" \
             -H "Accept: application/vnd.api+json" \
-            -H "client-name: Jenkins" \
+            -H "Content-Type: application/vnd.api+json" \
+            -H "client-name: Salesforce" \
             -d "$PAYLOAD"
 
-      - name: Confirm successful execution
+      - name: Confirm successful execution with reply
+        # Only run this step if the previous bash script exits successfully
         if: success()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const isPRReview = context.eventName === 'pull_request_review_comment';
+            const author = context.payload.comment.user.login;
+            const originalBody = context.payload.comment.body;
+            
+            // Read the JSON payload from the environment variable we set in the previous step
+            const sentPayload = process.env.GENERATED_PAYLOAD;
+            
+            // Define the base response message including the JSON payload formatted as code inside a spoiler
+            const responseMessage = `🚀 **Write-off procesado correctamente**\nSe ha enviado la petición a la API para los IDs indicados.\n\n<details>\n<summary>Ver Payload enviado</summary>\n\n\`\`\`json\n${sentPayload}\n\`\`\`\n</details>`;
             
             if (isPRReview) {
-              await github.rest.reactions.createForPullRequestReviewComment({
+              // Create a true threaded reply for inline code comments
+              await github.rest.pulls.createReplyForReviewComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
                 comment_id: context.payload.comment.id,
-                content: 'rocket'
+                body: responseMessage
               });
             } else {
-              await github.rest.reactions.createForIssueComment({
+              // Create a simulated reply with Markdown quotes for standard flat comments
+              const quotedText = originalBody.split('\n').map(line => `> ${line}`).join('\n');
+              const simulatedReplyBody = `@${author} \n${quotedText}\n\n${responseMessage}`;
+              
+              await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                comment_id: context.payload.comment.id,
-                content: 'rocket'
+                issue_number: context.payload.issue.number,
+                body: simulatedReplyBody
               });
             }
