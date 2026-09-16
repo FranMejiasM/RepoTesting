@@ -25,6 +25,9 @@
       for(integer i=1; i<10;i++)  {
          Contact c = [SELECT ID FROM Contact];
       }
+      for(integer i=1; i<10;i++)  {
+         Case c1 = [SELECT ID FROM Case];
+      }
         String LocalVariable;
         system.debug(LocalVariable);
     }
