@@ -1,34 +1,25 @@
 # This is a basic workflow to help you get started with Actions   
 name: QualityClouds
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events
   pull_request:
-  
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
-  # Triggers the workflow on new comments on issues or pull requests
+  # Triggers on standard issue or PR conversation comments
   issue_comment:
     types: [created]
+  # Triggers on PR code review comments (replies/inline)
+  pull_request_review_comment:
+    types: [created]
 
-# Explicit permissions needed for adding reactions (emojis) to comments
 permissions:
   pull-requests: write
   issues: write
   contents: read
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "QC_Scan"
   QC_Scan:
-    # Restrict this job to PRs and manual dispatches, avoiding runs on comments
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -38,16 +29,16 @@ jobs:
         with:
           mode: cloud
           token: ${{ secrets.QC_TOKEN }}
-          review: true #optional. if true, scan will create a pull request review with inline comments with the issues
-          allIssues: true #optional. default false. If true, scan will show blockers and no blocker issues
+          review: true
+          allIssues: true
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          pr_fails_on_blockers: true #optional. default false. If true, scan will fail the PR if blockers are found
+          pr_fails_on_blockers: true
           version: 2.3.0 
 
   chatops_post:
-    # Run only on issue/PR comments matching the command and correct user role
+    # Run if it's either comment type, matches the command, and user has permissions
     if: |
-      github.event_name == 'issue_comment' &&
+      (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
       startsWith(github.event.comment.body, '/writeoff') &&
       (github.event.comment.author_association == 'OWNER' || github.event.comment.author_association == 'COLLABORATOR')
     runs-on: ubuntu-latest
@@ -57,24 +48,38 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // Add 'eyes' emoji to let the user know the action started
-            github.rest.reactions.createForIssueComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: context.payload.comment.id,
-              content: 'eyes'
-            });
+            // Check if the comment is inline (review) or standard, to use the correct API endpoint
+            const isPRReview = context.eventName === 'pull_request_review_comment';
+            
+            if (isPRReview) {
+              await github.rest.reactions.createForPullRequestReviewComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                content: 'eyes'
+              });
+            } else {
+              await github.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                content: 'eyes'
+              });
+            }
 
       - name: Parse comment, validate, and execute POST
+        # Map the comment body securely to an environment variable to prevent Bash quoting errors
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
-          COMMENT_BODY="${{ github.event.comment.body }}"
-          
-          # Extract variables from comment using regex
+          # Extract variables from the env variable using regex
           # Expected format: /writeoff ids=1,2,3 reason=MY_REASON desc="My description text" service=2
           WROFF_ISSUES_IDS=$(echo "$COMMENT_BODY" | grep -oP 'ids=\K[^\s]+')
           WROFF_REASON_NAME_ID=$(echo "$COMMENT_BODY" | grep -oP 'reason=\K[^\s]+')
+          
           # Extract description ensuring we capture everything between the quotes
           WROFF_DESCRIPTION=$(echo "$COMMENT_BODY" | grep -oP 'desc="\K[^"]+')
+          
           # Extract service id, default to 2 if not provided
           WROFF_SERVICE_ID=$(echo "$COMMENT_BODY" | grep -oP 'service=\K\d+' || echo "2")
           
@@ -117,15 +122,24 @@ jobs:
             -d "$PAYLOAD"
 
       - name: Confirm successful execution
-        # Only add the rocket if the validation and curl command succeed
         if: success()
         uses: actions/github-script@v7
         with:
           script: |
-            // Add 'rocket' emoji to confirm successful API request
-            github.rest.reactions.createForIssueComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: context.payload.comment.id,
-              content: 'rocket'
-            });
+            const isPRReview = context.eventName === 'pull_request_review_comment';
+            
+            if (isPRReview) {
+              await github.rest.reactions.createForPullRequestReviewComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                content: 'rocket'
+              });
+            } else {
+              await github.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                content: 'rocket'
+              });
+            }
