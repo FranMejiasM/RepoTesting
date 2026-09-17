@@ -110,7 +110,7 @@ jobs:
 
               core.info(`parentComment.body=${parentComment.body}`);
 
-              const match = (parentComment.body || '').match(/Issue ID:\s*(\d+)/i);
+              const match = (parentComment.body || '').match(/Issue ID:\**\s*(\d+)/i);
               if (match) {
                 core.info(`Resolved issue ID: ${match[1]}`);
                 core.exportVariable('RESOLVED_ISSUE_ID', match[1]);
