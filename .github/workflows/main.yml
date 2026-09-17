@@ -131,15 +131,15 @@ jobs:
           # Extract variables from the env variable using regex
           # Expected format: /writeoff ids=1,2,3 reason=MY_REASON desc="My description text"
           # If ids= is omitted, fall back to the ID resolved from the parent comment (reply case).
-          WROFF_ISSUES_IDS=$(echo "$COMMENT_BODY" | grep -oP 'ids=\K[^\s]+')
+          WROFF_ISSUES_IDS=$(echo "$COMMENT_BODY" | grep -oP 'ids=\K[^\s]+' || true)
           if [ -z "$WROFF_ISSUES_IDS" ] && [ -n "$RESOLVED_ISSUE_ID" ]; then
             WROFF_ISSUES_IDS="$RESOLVED_ISSUE_ID"
             echo "No ids= provided; using Issue ID from parent comment: $WROFF_ISSUES_IDS"
           fi
-          WROFF_REASON_NAME_ID=$(echo "$COMMENT_BODY" | grep -oP 'reason=\K[^\s]+')
-          
+          WROFF_REASON_NAME_ID=$(echo "$COMMENT_BODY" | grep -oP 'reason=\K[^\s]+' || true)
+
           # Extract description ensuring we capture everything between the quotes
-          WROFF_DESCRIPTION=$(echo "$COMMENT_BODY" | grep -oP 'desc="\K[^"]+')
+          WROFF_DESCRIPTION=$(echo "$COMMENT_BODY" | grep -oP 'desc="\K[^"]+' || true)
           
           # Validations
           test -n "$WROFF_ISSUES_IDS" || { echo "Error: Missing ids (comma-separated issue IDs), and none could be resolved from a parent comment reply"; exit 1; }
