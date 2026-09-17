@@ -54,7 +54,7 @@ jobs:
   # JOB 2: CHATOPS COMMAND LISTENER
   # ---------------------------------------------------------
   execute_writeoff:
-    name: Write-off Command
+    name: Write-off
     # Run if it's either comment type, matches the command, and user has permissions
     if: |
       (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
@@ -86,6 +86,30 @@ jobs:
               });
             }
 
+      - name: Resolve issue ID from parent comment when replying without ids
+        # If this is a reply (pull_request_review_comment with in_reply_to_id) and the
+        # command didn't include an explicit ids=..., try to pull the "Issue ID: N" line
+        # out of the QC comment being replied to, so users can just reply "/writeoff reason=... desc=\"...\"".
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const commentBody = context.payload.comment.body || '';
+            const isPRReview = context.eventName === 'pull_request_review_comment';
+            const inReplyToId = context.payload.comment.in_reply_to_id;
+
+            if (!/\bids=/.test(commentBody) && isPRReview && inReplyToId) {
+              const { data: parentComment } = await github.rest.pulls.getReviewComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: inReplyToId
+              });
+
+              const match = (parentComment.body || '').match(/Issue ID:\s*(\d+)/i);
+              if (match) {
+                core.exportVariable('RESOLVED_ISSUE_ID', match[1]);
+              }
+            }
+
       - name: Parse comment, validate, and execute POST
         # Map the comment body securely to an environment variable to prevent Bash quoting errors
         env:
@@ -93,14 +117,19 @@ jobs:
         run: |
           # Extract variables from the env variable using regex
           # Expected format: /writeoff ids=1,2,3 reason=MY_REASON desc="My description text"
+          # If ids= is omitted, fall back to the ID resolved from the parent comment (reply case).
           WROFF_ISSUES_IDS=$(echo "$COMMENT_BODY" | grep -oP 'ids=\K[^\s]+')
+          if [ -z "$WROFF_ISSUES_IDS" ] && [ -n "$RESOLVED_ISSUE_ID" ]; then
+            WROFF_ISSUES_IDS="$RESOLVED_ISSUE_ID"
+            echo "No ids= provided; using Issue ID from parent comment: $WROFF_ISSUES_IDS"
+          fi
           WROFF_REASON_NAME_ID=$(echo "$COMMENT_BODY" | grep -oP 'reason=\K[^\s]+')
           
           # Extract description ensuring we capture everything between the quotes
           WROFF_DESCRIPTION=$(echo "$COMMENT_BODY" | grep -oP 'desc="\K[^"]+')
           
           # Validations
-          test -n "$WROFF_ISSUES_IDS" || { echo "Error: Missing ids (comma-separated issue IDs)"; exit 1; }
+          test -n "$WROFF_ISSUES_IDS" || { echo "Error: Missing ids (comma-separated issue IDs), and none could be resolved from a parent comment reply"; exit 1; }
           test -n "$WROFF_REASON_NAME_ID" || { echo "Error: Missing reason"; exit 1; }
           test -n "$WROFF_DESCRIPTION" || { echo "Error: Missing desc (make sure to use quotes, e.g., desc=\"...\")"; exit 1; }
           
