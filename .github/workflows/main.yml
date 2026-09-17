@@ -176,14 +176,25 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
             
           echo "Executing HTTP POST request to Quality Clouds API..."
-          
-          # Execute HTTP POST with fail-fast (-f) and silent-show-error (-sS)
-          curl -f -sS -X POST "https://api.qualityclouds.com/api/v2/bulk-write-off-by-scan-type" \
+
+          # Execute HTTP POST, capturing the HTTP status and body so failures are diagnosable
+          HTTP_RESPONSE=$(curl -sS -w '\nHTTP_STATUS:%{http_code}' -X POST "https://api.qualityclouds.com/api/v2/bulk-write-off-by-scan-type" \
             -H "Authorization: Bearer ${{ secrets.QC_TOKEN }}" \
             -H "Accept: application/vnd.api+json" \
             -H "Content-Type: application/vnd.api+json" \
             -H "client-name: Salesforce" \
-            -d "$PAYLOAD"
+            -d "$PAYLOAD")
+
+          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | grep -oP 'HTTP_STATUS:\K\d+')
+          HTTP_BODY=$(echo "$HTTP_RESPONSE" | sed -e 's/HTTP_STATUS:[0-9]*$//')
+
+          echo "API response (HTTP $HTTP_STATUS):"
+          echo "$HTTP_BODY"
+
+          if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
+            echo "Error: Quality Clouds API returned HTTP $HTTP_STATUS"
+            exit 1
+          fi
 
       - name: Confirm successful execution with reply
         # Only run this step if the previous bash script exits successfully
