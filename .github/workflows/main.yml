@@ -211,7 +211,7 @@ jobs:
             const sentPayload = process.env.GENERATED_PAYLOAD;
             
             // Define the base response message including the JSON payload formatted as code inside a spoiler
-            const responseMessage = `🚀 **Write-off procesado correctamente**\nSe ha enviado la petición a la API para los IDs indicados.\n\n<details>\n<summary>Ver Payload enviado</summary>\n\n\`\`\`json\n${sentPayload}\n\`\`\`\n</details>`;
+            const responseMessage = `🚀 **Write-off requested**\nThe request has been sent to the API for the indicated IDs.\n\n<details>\n<summary>View sent payload</summary>\n\n\`\`\`json\n${sentPayload}\n\`\`\`\n</details>`;
             
             if (isPRReview) {
               // Create a true threaded reply for inline code comments
