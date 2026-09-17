@@ -185,8 +185,9 @@ jobs:
             -H "client-name: Salesforce" \
             -d "$PAYLOAD")
 
-          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | grep -oP 'HTTP_STATUS:\K\d+')
-          HTTP_BODY=$(echo "$HTTP_RESPONSE" | sed -e 's/HTTP_STATUS:[0-9]*$//')
+          HTTP_STATUS=$(printf '%s\n' "$HTTP_RESPONSE" | tail -n1 | sed -n 's/^HTTP_STATUS:\([0-9]*\)$/\1/p')
+          test -n "$HTTP_STATUS" || HTTP_STATUS=000
+          HTTP_BODY=$(printf '%s\n' "$HTTP_RESPONSE" | sed '$d')
 
           echo "API response (HTTP $HTTP_STATUS):"
           echo "$HTTP_BODY"
