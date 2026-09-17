@@ -97,6 +97,10 @@ jobs:
             const isPRReview = context.eventName === 'pull_request_review_comment';
             const inReplyToId = context.payload.comment.in_reply_to_id;
 
+            core.info(`eventName=${context.eventName}`);
+            core.info(`hasIds=${/\bids=/.test(commentBody)}`);
+            core.info(`in_reply_to_id=${inReplyToId}`);
+
             if (!/\bids=/.test(commentBody) && isPRReview && inReplyToId) {
               const { data: parentComment } = await github.rest.pulls.getReviewComment({
                 owner: context.repo.owner,
@@ -104,10 +108,19 @@ jobs:
                 comment_id: inReplyToId
               });
 
+              core.info(`parentComment.body=${parentComment.body}`);
+
               const match = (parentComment.body || '').match(/Issue ID:\s*(\d+)/i);
               if (match) {
+                core.info(`Resolved issue ID: ${match[1]}`);
                 core.exportVariable('RESOLVED_ISSUE_ID', match[1]);
+              } else {
+                core.warning('Parent comment found but no "Issue ID: N" pattern matched inside it.');
               }
+            } else if (!isPRReview) {
+              core.warning('Not a pull_request_review_comment (no true reply/threading available) — ids= must be provided explicitly.');
+            } else if (!inReplyToId) {
+              core.warning('This is not a reply to another comment (no in_reply_to_id) — ids= must be provided explicitly.');
             }
 
       - name: Parse comment, validate, and execute POST
