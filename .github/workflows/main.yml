@@ -162,6 +162,7 @@ jobs:
               data: {
                 scanType: "featurebranch",
                 writeOffStatus: "REQUESTED",
+                expirationDate: '2030-01-01 12:30:00'
                 serviceId: 2,
                 reasonNameId: $reasonNameId,
                 description: $description,
