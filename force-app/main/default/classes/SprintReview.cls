@@ -1,4 +1,4 @@
-public with sharing class NoExpDate {
+public with sharing class SprintReview {
     public void dontDoThis() {
         String myName = 'dummy';
 		Integer length = 1000;            
