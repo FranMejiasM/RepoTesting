@@ -48,6 +48,7 @@ jobs:
           pr_fails_on_blockers: true
           version: testing
           api_url: https://api-development.qualityclouds.com
+          url_id: 1432
 
   # ---------------------------------------------------------
   # JOB 2: CHATOPS COMMAND LISTENER
