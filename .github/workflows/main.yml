@@ -47,8 +47,7 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           pr_fails_on_blockers: true
           version: testing
-          url_id: 1207
-
+          api_url: https://api-development.qualityclouds.com
 
   # ---------------------------------------------------------
   # JOB 2: CHATOPS COMMAND LISTENER
