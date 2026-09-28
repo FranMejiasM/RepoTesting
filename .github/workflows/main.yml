@@ -41,7 +41,7 @@ jobs:
         uses: qualityclouds/action-full-scan@2.3.0
         with:
           mode: cloud
-          token: ${{ secrets.QC_TOKEN }}
+          token: ${{ secrets.QC_TOKEN_DEV }}
           review: true
           allIssues: true
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
