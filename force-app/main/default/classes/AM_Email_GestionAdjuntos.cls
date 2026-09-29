@@ -29,10 +29,5 @@ public class AM_Email_GestionAdjuntos {
                 System.debug('Archivo adjunto creado: ' + cv.Id);
             }
         }
-        try {
-            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        } catch(Exception e) {
-            System.debug('Error al enviar el email: ' + e.getMessage());
-        }
     }
 }
