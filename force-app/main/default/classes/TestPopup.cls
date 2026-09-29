@@ -4,8 +4,4 @@ public class TestPopup{
     public void ClosePopup() {       
         DisplayPopup = false;   
     }
-  
-    public void ShowPopup() {       
-        DisplayPopup = true;   
-    }
   }
