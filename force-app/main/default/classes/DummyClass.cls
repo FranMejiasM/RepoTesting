@@ -2,9 +2,6 @@
  * @description DummyClass 3
  */
     public with sharing class DummyClass {
-    /**
-     * @description Contructor
-     */
     public Integer instanceProperty { get; set; } // bad
 
     /**
