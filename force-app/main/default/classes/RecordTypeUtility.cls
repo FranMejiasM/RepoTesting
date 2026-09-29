@@ -5,7 +5,7 @@ public class RecordTypeUtility {
         Schema.DescribeSObjectResult accountDescribe = Account.sObjectType.getDescribe();
         
         // Get the map of record type infos by name
-        Map<String, Schema.RecordTypeInfo> rtInfoByName = accountDescribe.getRecordTypeInfosByDeveloperName();
+        Map<String, Schema.RecordTypeInfo> rtInfoByName = accountDescribe.getRecordTypeInfosByName();
         
         // Check if the record type exists to avoid null pointer exceptions
         if (rtInfoByName.containsKey(recordTypeName)) {

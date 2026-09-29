@@ -3,9 +3,9 @@
     <fullName>TextField__c</fullName>
     <externalId>false</externalId>
     <label>TextField</label>
-    <length>254</length> 
-    <securityClassification>Internal</securityClassification>   
+    <length>254</length>
     <required>false</required>
+    <securityClassification>Internal</securityClassification>
     <trackTrending>false</trackTrending>
     <type>Text</type>
     <unique>false</unique>
