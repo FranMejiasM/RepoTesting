@@ -1,8 +1,3 @@
-/**
- * This class contains constant values used throughout the application.
- * 
- * @description This class holds constant values that are used across the application.
- */
 public class Constants {
     /**
      * Constant for QCLiveChecks.

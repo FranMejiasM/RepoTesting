@@ -41,14 +41,14 @@ jobs:
         uses: qualityclouds/action-full-scan@2.3.0
         with:
           mode: cloud
-          token: ${{ secrets.QC_TOKEN }}
+          token: ${{ secrets.QC_TOKEN_DEV }}
           review: true
           allIssues: true
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           pr_fails_on_blockers: true
           version: testing
-          url_id: 1207
-
+          api_url: https://api-development.qualityclouds.com
+          url_id: 1432
 
   # ---------------------------------------------------------
   # JOB 2: CHATOPS COMMAND LISTENER

@@ -9,5 +9,6 @@ public with sharing class CognitiveComplexityClass {
         x = 2;
 
         String RELIGION = 'Christianity';
+        Integer AGE = 30;
     }
 }
