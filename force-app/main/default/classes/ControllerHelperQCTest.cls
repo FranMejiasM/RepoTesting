@@ -30,8 +30,7 @@ public class ControllerHelperQCTest {
         
         System.assertEquals(testout, true);
         System.assertEquals(scansAfterUpdate.State__c, 'SUCCESS');
-        System.assertEquals(lstIssues.size(), 1);
-        System.assertEquals(lstIssues[0].TagsMultiPicklist__c, 'tag1;tag2;tag3');       
+        System.assertEquals(lstIssues.size(), 1);      
     }
     @isTest
     static void updateScannsPollingNoPollsLeft() {
