@@ -3,6 +3,7 @@
     <fullName>Status__c</fullName>
     <externalId>false</externalId>
     <label>Status__c</label>
+    <description>Modificado en fb-cleanup-test</description>
     <length>100</length>
     <required>false</required>
     <type>Text</type>

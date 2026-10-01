@@ -1,4 +1,4 @@
-// ORIGINAL - se modifica en fb-cleanup-test
+// MODIFICADA en fb-cleanup-test
 public class FbFoo {
     public void run(List<Id> ids) {
         for (Id i : ids) {

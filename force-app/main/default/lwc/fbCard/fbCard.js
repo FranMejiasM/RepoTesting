@@ -1,4 +1,4 @@
-// ORIGINAL - se modifica en fb-cleanup-test
+// MODIFICADA en fb-cleanup-test
 import { LightningElement } from 'lwc';
 export default class FbCard extends LightningElement {
     connectedCallback() {
