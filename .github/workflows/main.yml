@@ -46,6 +46,7 @@ jobs:
           allIssues: true
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           pr_fails_on_blockers: true
+          url_id: 1207
 
   # ---------------------------------------------------------
   # JOB 2: CHATOPS COMMAND LISTENER
