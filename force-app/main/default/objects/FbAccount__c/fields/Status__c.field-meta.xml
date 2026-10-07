@@ -4,7 +4,7 @@
     <externalId>false</externalId>
     <label>Status__c</label>
     <description>Modificado en fb-cleanup-test</description>
-    <length>100</length>
+    <length>50</length>
     <required>false</required>
     <type>Text</type>
     <unique>false</unique>
