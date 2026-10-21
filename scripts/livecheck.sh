@@ -81,6 +81,12 @@ to_native() {
 mkdir -p "$ROOT/livecheck-results"
 
 for FILE in "$@"; do
+	# Rutas relativas: primero desde el directorio actual y, si no existe, desde la raíz del repo
+	[[ ! -f "$FILE" && -f "$ROOT/$FILE" ]] && FILE="$ROOT/$FILE"
+	if [[ ! -f "$FILE" ]]; then
+		echo "No existe el fichero: $FILE (usa / como separador, o pon la ruta entre comillas)" >&2
+		exit 2
+	fi
 	ABS="$(cd "$(dirname "$FILE")" && pwd)/$(basename "$FILE")"
 	# Mismo element-name que manda el plugin: ruta relativa al repo y sin -meta.xml
 	ELEMENT_NAME="/${ABS#"$ROOT"/}"
