@@ -1,0 +1,3 @@
+<design:component label="Img Alt Test">
+    <img src="/design.png"/>
+</design:component>

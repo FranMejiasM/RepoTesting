@@ -1,0 +1,7 @@
+<apex:page>
+    <script>
+        var q = '{!$CurrentPage.parameters.q}';
+    </script>
+    <apex:outputText value="{!$CurrentPage.parameters.q}" escape="false"/>
+    <img src="/banner.png"/>
+</apex:page>
