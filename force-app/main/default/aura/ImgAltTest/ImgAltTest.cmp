@@ -1,0 +1,5 @@
+<aura:component>
+    <img src="/logo.png" alt="Company logo"/>
+    <img src="/banner.png"/>
+    <div><img src="/icon.png"/></div>
+</aura:component>
