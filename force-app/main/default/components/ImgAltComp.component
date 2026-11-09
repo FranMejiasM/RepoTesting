@@ -1,0 +1,4 @@
+<apex:component>
+    <img src="/logo.png" alt="Company logo"/>
+    <img src="/banner.png"/>
+</apex:component>
