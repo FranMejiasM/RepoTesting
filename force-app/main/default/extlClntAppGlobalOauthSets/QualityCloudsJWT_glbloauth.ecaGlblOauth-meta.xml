@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtlClntAppGlobalOauthSettings xmlns="http://soap.sforce.com/2006/04/metadata">
+    <callbackUrl>https://services-development.qualityclouds.com/sf_instance/code_callback</callbackUrl>
+    <certificate>MIIDpTCCAo0CFDeiQWN5eMARnd55kuSkdloRZOJpMA0GCSqGSIb3DQEBCwUAMIGO
+MQswCQYDVQQGEwJFczEOMAwGA1UECAwFSmVyZXoxDjAMBgNVBAcMBUplcmV6MRAw
+DgYDVQQKDAdRdWFsaXR5MRQwEgYDVQQLDAtFbmdpbmVlcmluZzENMAsGA1UEAwwE
+ZnJhbjEoMCYGCSqGSIb3DQEJARYZZm1lamlhc0BxdWFsaXR5Y2xvdWRzLmNvbTAe
+Fw0yNjA5MjExMzQ5NThaFw0yNzA5MjExMzQ5NThaMIGOMQswCQYDVQQGEwJFczEO
+MAwGA1UECAwFSmVyZXoxDjAMBgNVBAcMBUplcmV6MRAwDgYDVQQKDAdRdWFsaXR5
+MRQwEgYDVQQLDAtFbmdpbmVlcmluZzENMAsGA1UEAwwEZnJhbjEoMCYGCSqGSIb3
+DQEJARYZZm1lamlhc0BxdWFsaXR5Y2xvdWRzLmNvbTCCASIwDQYJKoZIhvcNAQEB
+BQADggEPADCCAQoCggEBAOIGrsLLwcCSXbop0bPepUeKtC4T/PyLFHYhgNLqpHtj
+nKjkXnK6CClJVXiyQWq2vyeESyqEgyj+7766vfIw1K/pdoXGZYKnOtQJtDTBjFl7
+iPa946ygTnBOSdj0sjgu/XfvZ8Bq35oJ97iP3ZftWSyBYsR5nh1qCuI6J5PgrzTQ
+pzn02A3SqpSFz3B74hWRa5kSIT4S9QJNEkmv5tPa163DAn7l+NBzrQ4sv07FDt0L
+bRDJhVxo0EsAme+cJwuXVOiKuMJQ8An8ZMMEtoh/kmeDqqEz1QCx3A6lFzU1CmI6
+UG3F5LeOA4D5R1HKg8WWX8cNMEiMjAN7R1Y1jqustW0CAwEAATANBgkqhkiG9w0B
+AQsFAAOCAQEAhpMDOSZm4BFIIDXGEuRVo+4ywOYtRLdHUwSHnOXUddRz05FMhaFB
+Uof7Vm8SHJMlEPVO00BuU1Y+t4b5ri+Kr/576vBHcF7l5fFK6k7K7RwBek3MIZKg
+S5wM/Q8SbJfDok9+QFBGxT1buKJH9QECROUeSMahLcdz0R4go5yUDdAEKY3FmswW
+Ub36/ccDZwAo50A2LLvltL8rLttUarQfaTHyC5hiALzBCvIE5IPa0XxA+G9/3cb/
+t3cUF6KtvgL3xJeJ6MRtnqozyZhUgDExIlTRQ5hqsW29p/5BNMhZIRy/eYkxxIDA
+Ad5EzgvimSblv9mBQQht679ZTGclq6AdMw==</certificate>
+    <consumerKey>3MVG9dAEux2v1sLuNgDHNACTVGNX7stEGzXYXgIjMlGdKm7jfcu8cit.3.xGBGtwIcoYjnx5sgQhlBwZjsX7e</consumerKey>
+    <externalClientApplication>QualityCloudsJWT</externalClientApplication>
+    <isClientCredentialsFlowEnabled>true</isClientCredentialsFlowEnabled>
+    <isCodeCredFlowEnabled>false</isCodeCredFlowEnabled>
+    <isCodeCredPostOnly>false</isCodeCredPostOnly>
+    <isConsumerSecretOptional>false</isConsumerSecretOptional>
+    <isDPopEnabled>false</isDPopEnabled>
+    <isDeviceFlowEnabled>false</isDeviceFlowEnabled>
+    <isEnforceRefreshTokenTTL>true</isEnforceRefreshTokenTTL>
+    <isIntrospectAllTokens>false</isIntrospectAllTokens>
+    <isMtlsEnabled>false</isMtlsEnabled>
+    <isNamedUserJwtEnabled>false</isNamedUserJwtEnabled>
+    <isPkceRequired>false</isPkceRequired>
+    <isRefreshTokenRotationEnabled>true</isRefreshTokenRotationEnabled>
+    <isSecretRequiredForRefreshToken>true</isSecretRequiredForRefreshToken>
+    <isSecretRequiredForTokenExchange>true</isSecretRequiredForTokenExchange>
+    <isTokenExchangeEnabled>false</isTokenExchangeEnabled>
+    <label>QualityCloudsJWT_glbloauth</label>
+    <shouldRotateConsumerKey>false</shouldRotateConsumerKey>
+    <shouldRotateConsumerSecret>false</shouldRotateConsumerSecret>
+</ExtlClntAppGlobalOauthSettings>

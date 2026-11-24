@@ -1,4 +1,9 @@
 <template>
-    <img src="/logo.png" alt="Company logo"/>
-    <img src="/banner.png"/>
+    <!-- Debe saltar -->
+    <img src={logoUrl}>
+    <img src="/resource/banner" class="banner">
+
+    <!-- No debe saltar -->
+    <img src={logoUrl} alt="Company logo">
+    <img src="/resource/spacer" alt="">
 </template>
